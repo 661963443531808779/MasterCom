@@ -75,31 +75,23 @@ export default defineConfig({
     },
   },
   server: {
-    // Configuration du serveur de développement ultra-optimisée
-    port: 5173,
-    host: true,
+    // Configuration du serveur de développement
+    port: 3000,
+    host: '0.0.0.0',
     cors: true,
     hmr: {
-      overlay: false, // Désactiver l'overlay d'erreur pour la vitesse
-      port: 5174
+      overlay: false,
+      port: 3001
     },
     // Optimisations de serveur
     fs: {
       strict: false,
       allow: ['..']
-    },
-    // Optimisations de performance
-    warmup: {
-      clientFiles: [
-        './src/main.tsx',
-        './src/App.tsx',
-        './src/contexts/AuthContext.tsx'
-      ]
     }
   },
   preview: {
-    port: 4173,
-    host: true,
+    port: 3000,
+    host: '0.0.0.0',
   },
   // Optimisations globales
   esbuild: {
