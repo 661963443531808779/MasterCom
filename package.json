@@ -19,8 +19,7 @@
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
     "deploy:production": "vercel --prod --config vercel-production.json",
-    "deploy:domain": "vercel --prod --config vercel-domain-config.json",
-    "postbuild": "npm run build:optimized"
+    "deploy:domain": "vercel --prod --config vercel-domain-config.json"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
