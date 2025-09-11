@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, UserProfile } from '../services/supabase';
 
 interface AuthContextType {
@@ -28,100 +28,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let subscription: any = null;
-
-    const initAuth = async () => {
+    // Initialisation immédiate sans appels Supabase pour éviter le blocage
+    console.log('🔐 Initialisation de l\'authentification...');
+    
+    // Vérifier s'il y a un token dans le localStorage
+    const token = localStorage.getItem('sb-gpnjamtnogyfvykgdiwd-auth-token');
+    console.log('🔑 Token trouvé:', !!token);
+    
+    if (token) {
       try {
-        // Timeout très court pour éviter le blocage
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout d\'initialisation (3s)')), 3000)
-        );
-
-        const initPromise = (async () => {
-          // Vérifier s'il y a une session existante
-          const currentUser = await authService.getCurrentUser();
-          if (currentUser) {
-            // Fallback immédiat pour éviter le blocage
-            if (currentUser.email?.toLowerCase()?.startsWith('master')) {
-              setUser({
-                id: currentUser.id,
-                email: currentUser.email,
-                first_name: 'Master',
-                last_name: 'Administrator',
-                role_id: 'master',
-                is_active: true,
-                created_at: currentUser.created_at || new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                country: 'France',
-                roles: {
-                  id: 'master',
-                  name: 'master',
-                  description: 'Administrateur principal',
-                  permissions: { all: true }
-                }
-              });
-            } else {
-              setUser(null);
+        const parsedToken = JSON.parse(token);
+        const user = parsedToken?.user;
+        
+        if (user && user.email?.toLowerCase()?.startsWith('master')) {
+          console.log('🔑 Compte Master détecté via token');
+          setUser({
+            id: user.id,
+            email: user.email,
+            first_name: 'Master',
+            last_name: 'Administrator',
+            role_id: 'master',
+            is_active: true,
+            created_at: user.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            country: 'France',
+            roles: {
+              id: 'master',
+              name: 'master',
+              description: 'Administrateur principal',
+              permissions: { all: true }
             }
-          } else {
-            setUser(null);
-          }
-        })();
-
-        await Promise.race([initPromise, timeoutPromise]);
-      } catch (error) {
-        console.warn('Erreur lors de l\'initialisation de l\'auth:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Démarrer l'initialisation immédiatement
-    initAuth();
-
-    // Écouter les changements d'état d'authentification (optionnel)
-    try {
-      const { data: { subscription: authSubscription } } = authService.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          if (session.user.email?.toLowerCase()?.startsWith('master')) {
-            setUser({
-              id: session.user.id,
-              email: session.user.email,
-              first_name: 'Master',
-              last_name: 'Administrator',
-              role_id: 'master',
-              is_active: true,
-              created_at: session.user.created_at || new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              country: 'France',
-              roles: {
-                id: 'master',
-                name: 'master',
-                description: 'Administrateur principal',
-                permissions: { all: true }
-              }
-            });
-          } else {
-            setUser(null);
-          }
-        } else if (event === 'SIGNED_OUT') {
+          });
+        } else {
+          console.log('👤 Compte commercial détecté via token');
           setUser(null);
         }
-      });
-
-      subscription = authSubscription;
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation du listener d\'auth:', error);
-      setIsLoading(false);
-    }
-
-    // Cleanup function
-    return () => {
-      if (subscription && subscription.unsubscribe) {
-        subscription.unsubscribe();
+      } catch (error) {
+        console.warn('⚠️ Erreur lors du parsing du token:', error);
+        setUser(null);
       }
-    };
+    } else {
+      console.log('❌ Aucun token trouvé');
+      setUser(null);
+    }
+    
+    console.log('✅ Initialisation terminée');
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {

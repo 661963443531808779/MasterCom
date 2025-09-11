@@ -4,7 +4,17 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App.tsx';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(
+// Vérifier que l'élément root existe
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+// Créer le root React
+const root = createRoot(rootElement);
+
+// Rendre l'application
+root.render(
   <StrictMode>
     <HelmetProvider>
       <App />

@@ -28,11 +28,11 @@ export default defineConfig({
     }
   },
   build: {
-    // Optimisations de build agressives
+    // Configuration de build simplifiée pour Vercel
     target: 'es2015',
-    minify: 'terser',
+    minify: 'esbuild',
     sourcemap: false,
-    cssCodeSplit: false, // Un seul fichier CSS
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -49,30 +49,13 @@ export default defineConfig({
             return 'vendor';
           }
         },
-        // Optimisations de nommage
         chunkFileNames: 'assets/[name]-[hash:8].js',
         entryFileNames: 'assets/[name]-[hash:8].js',
         assetFileNames: 'assets/[name]-[hash:8].[ext]',
       },
     },
-    // Augmenter la limite de taille des chunks
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 1000,
     reportCompressedSize: false,
-    // Optimisations Terser
-    terserOptions: {
-      compress: {
-        drop_console: true, // Supprimer console.log en production
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        passes: 2,
-        unsafe: true,
-        unsafe_comps: true,
-        unsafe_math: true
-      },
-      mangle: {
-        safari10: true
-      }
-    },
   },
   server: {
     // Configuration du serveur de développement
