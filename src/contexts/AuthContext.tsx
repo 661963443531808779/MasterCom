@@ -32,43 +32,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const initAuth = async () => {
       try {
-        // Timeout de sécurité pour éviter le blocage
+        // Timeout très court pour éviter le blocage
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout d\'initialisation (8s)')), 8000)
+          setTimeout(() => reject(new Error('Timeout d\'initialisation (3s)')), 3000)
         );
 
         const initPromise = (async () => {
           // Vérifier s'il y a une session existante
           const currentUser = await authService.getCurrentUser();
           if (currentUser) {
-            try {
-              // Utiliser le cache si disponible, sinon récupérer depuis Supabase
-              const userProfile = await authService.getUserProfile(currentUser.id);
-              setUser(userProfile);
-            } catch (profileError) {
-              console.warn('Erreur lors de la récupération du profil:', profileError);
-              // Fallback : créer un profil basique pour éviter le blocage
-              if (currentUser.email?.toLowerCase()?.startsWith('master')) {
-                setUser({
-                  id: currentUser.id,
-                  email: currentUser.email,
-                  first_name: 'Master',
-                  last_name: 'Administrator',
-                  role_id: 'master',
-                  is_active: true,
-                  created_at: currentUser.created_at || new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                  country: 'France',
-                  roles: {
-                    id: 'master',
-                    name: 'master',
-                    description: 'Administrateur principal',
-                    permissions: { all: true }
-                  }
-                });
-              } else {
-                setUser(null);
-              }
+            // Fallback immédiat pour éviter le blocage
+            if (currentUser.email?.toLowerCase()?.startsWith('master')) {
+              setUser({
+                id: currentUser.id,
+                email: currentUser.email,
+                first_name: 'Master',
+                last_name: 'Administrator',
+                role_id: 'master',
+                is_active: true,
+                created_at: currentUser.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                country: 'France',
+                roles: {
+                  id: 'master',
+                  name: 'master',
+                  description: 'Administrateur principal',
+                  permissions: { all: true }
+                }
+              });
+            } else {
+              setUser(null);
             }
           } else {
             setUser(null);
@@ -84,28 +77,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
+    // Démarrer l'initialisation immédiatement
     initAuth();
 
-    // Écouter les changements d'état d'authentification
+    // Écouter les changements d'état d'authentification (optionnel)
     try {
       const { data: { subscription: authSubscription } } = authService.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
-          try {
-            const userProfile = await authService.getUserProfile(session.user.id);
-            setUser(userProfile);
-          } catch (error) {
-            console.error('Erreur lors de la récupération du profil:', error);
+          if (session.user.email?.toLowerCase()?.startsWith('master')) {
+            setUser({
+              id: session.user.id,
+              email: session.user.email,
+              first_name: 'Master',
+              last_name: 'Administrator',
+              role_id: 'master',
+              is_active: true,
+              created_at: session.user.created_at || new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              country: 'France',
+              roles: {
+                id: 'master',
+                name: 'master',
+                description: 'Administrateur principal',
+                permissions: { all: true }
+              }
+            });
+          } else {
             setUser(null);
           }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          try {
-            const userProfile = await authService.getUserProfile(session.user.id);
-            setUser(userProfile);
-          } catch (error) {
-            console.error('Erreur lors du refresh du token:', error);
-          }
         }
       });
 

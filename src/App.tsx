@@ -25,7 +25,7 @@ const AppRoutes = memo(() => {
   const navigate = useNavigate();
 
   if (isLoading) {
-    return <FastLoading message="Chargement..." />;
+    return <FastLoading message="Chargement de MasterCom..." fullScreen showProgress />;
   }
 
   const handleLogout = async () => {

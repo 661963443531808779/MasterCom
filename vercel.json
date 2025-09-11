@@ -4,7 +4,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install --include=dev",
-  "devCommand": "npm run dev",
   "public": true,
   "regions": ["iad1"],
   "headers": [
@@ -55,9 +54,9 @@
   "env": {
     "VITE_SUPABASE_URL": "https://gpnjamtnogyfvykgdiwd.supabase.co",
     "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A",
-    "VITE_TIMEOUT": "15000",
-    "VITE_RETRY_ATTEMPTS": "5",
-    "VITE_CACHE_DURATION": "120000",
+    "VITE_TIMEOUT": "5000",
+    "VITE_RETRY_ATTEMPTS": "3",
+    "VITE_CACHE_DURATION": "60000",
     "NODE_ENV": "production"
   }
 }
