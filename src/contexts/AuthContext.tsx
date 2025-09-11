@@ -25,10 +25,10 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Commencer directement en false
 
   useEffect(() => {
-    // Initialisation immédiate sans appels Supabase pour éviter le blocage
+    // Initialisation immédiate et synchrone
     console.log('🔐 Initialisation de l\'authentification...');
     
     // Vérifier s'il y a un token dans le localStorage
@@ -73,7 +73,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     
     console.log('✅ Initialisation terminée');
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {

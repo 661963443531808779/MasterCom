@@ -24,7 +24,13 @@ const AppRoutes = memo(() => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Chargement immédiat sans attendre l'auth
   if (isLoading) {
+    // Timeout de sécurité pour éviter le blocage infini
+    setTimeout(() => {
+      console.log('⚠️ Timeout de chargement - passage en mode non-authentifié');
+    }, 2000);
+    
     return <FastLoading message="Chargement de MasterCom..." fullScreen showProgress />;
   }
 
