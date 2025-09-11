@@ -15,7 +15,6 @@
     "preview": "vite preview --host",
     "start": "npm run dev",
     "clean": "rm -rf node_modules/.vite dist .vite",
-    "prebuild": "npm run clean",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
     "postbuild": "npm run build:optimized"
