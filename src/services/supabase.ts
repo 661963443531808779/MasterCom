@@ -6,8 +6,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Configuration Supabase - Mode production uniquement
 const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
-  supabaseUrl !== 'https://your-project-id.supabase.co' && 
-  supabaseAnonKey !== 'your_supabase_anon_key';
+  supabaseUrl !== 'https://gpnjamtnogyfvykgdiwd.supabase.co' && 
+  supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
 
 // En mode production (Vercel), on ne lance pas d'erreur pour éviter les crashes
 if (!isSupabaseConfigured) {
@@ -16,8 +16,8 @@ if (!isSupabaseConfigured) {
   } else {
     console.error('❌ Configuration Supabase manquante !');
     console.log('📝 Veuillez configurer vos clés Supabase dans le fichier .env :');
-    console.log('   VITE_SUPABASE_URL=https://your-project-id.supabase.co');
-    console.log('   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key');
+    console.log('   VITE_SUPABASE_URL=https://gpnjamtnogyfvykgdiwd.supabase.co');
+    console.log('   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A');
     throw new Error('Configuration Supabase requise');
   }
 }
