@@ -1,0 +1,49 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://mastercom.fr/sitemap.xml
+
+# Pages importantes
+Allow: /about
+Allow: /services
+Allow: /portfolio
+Allow: /blog
+Allow: /contact
+
+# Pages d'administration (à restreindre)
+Disallow: /dashboard
+Disallow: /crm
+Disallow: /login
+Disallow: /admin
+
+# Fichiers techniques
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Crawl-delay pour éviter la surcharge
+Crawl-delay: 1
+
+# Directives spécifiques pour les moteurs de recherche
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Blocage des bots indésirables
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

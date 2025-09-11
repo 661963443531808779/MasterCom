@@ -1,0 +1,200 @@
+{
+  "name": "MasterCom Analytics Dashboard",
+  "description": "Tableau de bord analytique pour MasterCom - Gestion des clients, factures, devis et tickets de support",
+  "version": "1.0.0",
+  "dataSource": {
+    "type": "REST API",
+    "url": "http://localhost:3001/api/powerbi/data",
+    "authentication": {
+      "type": "Bearer Token",
+      "tokenEndpoint": "http://localhost:3001/api/auth/login"
+    }
+  },
+  "tables": {
+    "users": {
+      "description": "Utilisateurs du système",
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "email": "TEXT",
+        "first_name": "TEXT",
+        "last_name": "TEXT",
+        "company": "TEXT",
+        "role": "TEXT",
+        "phone": "TEXT",
+        "address": "TEXT",
+        "city": "TEXT",
+        "region": "TEXT",
+        "country": "TEXT",
+        "created_at": "DATETIME"
+      }
+    },
+    "clients": {
+      "description": "Clients et prospects",
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "name": "TEXT",
+        "contact_person": "TEXT",
+        "email": "TEXT",
+        "phone": "TEXT",
+        "address": "TEXT",
+        "city": "TEXT",
+        "region": "TEXT",
+        "country": "TEXT",
+        "status": "TEXT",
+        "rating": "INTEGER",
+        "user_id": "INTEGER",
+        "created_at": "DATETIME"
+      }
+    },
+    "invoices": {
+      "description": "Factures émises",
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "invoice_number": "TEXT",
+        "client_id": "INTEGER",
+        "project_id": "INTEGER",
+        "amount": "REAL",
+        "tax_rate": "REAL",
+        "total_amount": "REAL",
+        "status": "TEXT",
+        "issue_date": "DATE",
+        "due_date": "DATE",
+        "payment_date": "DATE",
+        "notes": "TEXT",
+        "user_id": "INTEGER",
+        "created_at": "DATETIME"
+      }
+    },
+    "quotes": {
+      "description": "Devis créés",
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "quote_number": "TEXT",
+        "client_id": "INTEGER",
+        "project_id": "INTEGER",
+        "amount": "REAL",
+        "tax_rate": "REAL",
+        "total_amount": "REAL",
+        "status": "TEXT",
+        "valid_until": "DATE",
+        "accepted_date": "DATE",
+        "notes": "TEXT",
+        "user_id": "INTEGER",
+        "created_at": "DATETIME"
+      }
+    },
+    "support_tickets": {
+      "description": "Tickets de support",
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "ticket_number": "TEXT",
+        "client_id": "INTEGER",
+        "subject": "TEXT",
+        "description": "TEXT",
+        "priority": "TEXT",
+        "status": "TEXT",
+        "assigned_to": "INTEGER",
+        "created_by": "INTEGER",
+        "created_at": "DATETIME",
+        "updated_at": "DATETIME"
+      }
+    }
+  },
+  "relationships": [
+    {
+      "from": "clients.user_id",
+      "to": "users.id",
+      "type": "one-to-many"
+    },
+    {
+      "from": "invoices.client_id",
+      "to": "clients.id",
+      "type": "many-to-one"
+    },
+    {
+      "from": "quotes.client_id",
+      "to": "clients.id",
+      "type": "many-to-one"
+    },
+    {
+      "from": "support_tickets.client_id",
+      "to": "clients.id",
+      "type": "many-to-one"
+    },
+    {
+      "from": "support_tickets.assigned_to",
+      "to": "users.id",
+      "type": "many-to-one"
+    }
+  ],
+  "measures": {
+    "total_revenue": {
+      "description": "Chiffre d'affaires total",
+      "formula": "SUM(invoices[total_amount])",
+      "filter": "invoices[status] = 'paid'"
+    },
+    "total_clients": {
+      "description": "Nombre total de clients",
+      "formula": "COUNTROWS(clients)"
+    },
+    "active_clients": {
+      "description": "Nombre de clients actifs",
+      "formula": "CALCULATE(COUNTROWS(clients), clients[status] = 'active')"
+    },
+    "conversion_rate": {
+      "description": "Taux de conversion devis -> factures",
+      "formula": "DIVIDE(COUNTROWS(FILTER(quotes, quotes[status] = 'accepted')), COUNTROWS(quotes))"
+    },
+    "average_ticket_resolution": {
+      "description": "Temps moyen de résolution des tickets",
+      "formula": "AVERAGE(DATEDIFF(support_tickets[created_at], support_tickets[updated_at], DAY))"
+    }
+  },
+  "visualizations": {
+    "revenue_trend": {
+      "type": "Line Chart",
+      "description": "Évolution du chiffre d'affaires par mois",
+      "x_axis": "invoices[issue_date]",
+      "y_axis": "total_revenue",
+      "group_by": "MONTH(invoices[issue_date])"
+    },
+    "clients_by_region": {
+      "type": "Pie Chart",
+      "description": "Répartition des clients par région",
+      "values": "clients[region]",
+      "count": "total_clients"
+    },
+    "invoice_status": {
+      "type": "Bar Chart",
+      "description": "Statut des factures",
+      "x_axis": "invoices[status]",
+      "y_axis": "COUNTROWS(invoices)"
+    },
+    "support_priority": {
+      "type": "Donut Chart",
+      "description": "Répartition des tickets par priorité",
+      "values": "support_tickets[priority]",
+      "count": "COUNTROWS(support_tickets)"
+    }
+  },
+  "refresh_schedule": {
+    "frequency": "hourly",
+    "timezone": "Europe/Paris"
+  },
+  "security": {
+    "roles": {
+      "admin": {
+        "permissions": ["read", "write", "export"],
+        "description": "Accès complet aux données"
+      },
+      "manager": {
+        "permissions": ["read", "export"],
+        "description": "Accès en lecture seule avec export"
+      },
+      "client": {
+        "permissions": ["read"],
+        "description": "Accès limité aux données du client"
+      }
+    }
+  }
+}

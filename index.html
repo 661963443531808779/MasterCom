@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Meta Tags -->
+    <title>MasterCom - Agence de Communication Professionnelle | CRM & Analytics</title>
+    <meta name="description" content="MasterCom est une agence de communication professionnelle offrant des services de branding, marketing digital, réseaux sociaux et événementiel. Gestion CRM intégrée et analytics avancés." />
+    <meta name="keywords" content="agence communication, marketing digital, branding, réseaux sociaux, événementiel, CRM, analytics, MasterCom" />
+    <meta name="author" content="MasterCom" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="MasterCom - Agence de Communication Professionnelle" />
+    <meta property="og:description" content="Services de communication professionnelle avec CRM intégré et analytics avancés" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mastercom.fr" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:locale" content="fr_FR" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MasterCom - Agence de Communication" />
+    <meta name="twitter:description" content="Services de communication professionnelle avec CRM intégré" />
+    <meta name="twitter:image" content="/twitter-image.jpg" />
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" href="https://mastercom.fr" />
+    <meta name="theme-color" content="#3B82F6" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style" />
+    <link rel="preload" href="/src/main.tsx" as="script" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://your-project-id.supabase.co">
+    
+    <!-- Optimisations de performance -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Optimisations de rendu -->
+    <style>
+      /* CSS critique inline pour éviter le FOUC */
+      body { 
+        margin: 0; 
+        font-family: system-ui, -apple-system, sans-serif; 
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root { min-height: 100vh; }
+      .loading-spinner {
+        width: 32px; 
+        height: 32px; 
+        border: 3px solid #e5e7eb; 
+        border-top: 3px solid #3b82f6; 
+        border-radius: 50%; 
+        animation: spin 0.8s linear infinite; 
+        margin: 0 auto 12px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Loading fallback optimisé -->
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f9fafb;">
+        <div style="text-align: center;">
+          <div class="loading-spinner"></div>
+          <p style="color: #6b7280; font-family: system-ui, sans-serif; font-size: 14px;">Chargement de MasterCom...</p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
