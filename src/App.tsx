@@ -36,8 +36,8 @@ function AppRoutes() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login onLogin={() => {}} />} />
-          <Route path="/crm" element={<Login onLogin={() => {}} />} />
-          <Route path="/dashboard" element={<Login onLogin={() => {}} />} />
+          <Route path="/crm" element={<CRM userRole="client" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />

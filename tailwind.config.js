@@ -45,10 +45,6 @@ export default {
     objectPosition: false,
     overflow: true,
     overscrollBehavior: false,
-    position: true,
-    inset: true,
-    visibility: false,
-    zIndex: true,
   },
   // Purge agressif - configuration v3
   safelist: [
