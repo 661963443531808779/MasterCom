@@ -398,3 +398,68 @@ export const projectService = {
     }
   }
 };
+
+// Service de gestion des utilisateurs
+export const userManagementService = {
+  async getUsers() {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des utilisateurs:', error);
+      return [];
+    }
+  },
+
+  async createUser(userData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert([userData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      throw error;
+    }
+  },
+
+  async updateUser(id: string, userData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(userData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+      throw error;
+    }
+  },
+
+  async deleteUser(id: string) {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'utilisateur:', error);
+      throw error;
+    }
+  }
+};
