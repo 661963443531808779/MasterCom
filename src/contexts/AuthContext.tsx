@@ -25,55 +25,10 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Commencer directement en false
+  const [isLoading] = useState(false); // Toujours false, jamais de chargement
 
-  useEffect(() => {
-    // Initialisation immédiate et synchrone
-    console.log('🔐 Initialisation de l\'authentification...');
-    
-    // Vérifier s'il y a un token dans le localStorage
-    const token = localStorage.getItem('sb-gpnjamtnogyfvykgdiwd-auth-token');
-    console.log('🔑 Token trouvé:', !!token);
-    
-    if (token) {
-      try {
-        const parsedToken = JSON.parse(token);
-        const user = parsedToken?.user;
-        
-        if (user && user.email?.toLowerCase()?.startsWith('master')) {
-          console.log('🔑 Compte Master détecté via token');
-          setUser({
-            id: user.id,
-            email: user.email,
-            first_name: 'Master',
-            last_name: 'Administrator',
-            role_id: 'master',
-            is_active: true,
-            created_at: user.created_at || new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            country: 'France',
-            roles: {
-              id: 'master',
-              name: 'master',
-              description: 'Administrateur principal',
-              permissions: { all: true }
-            }
-          });
-        } else {
-          console.log('👤 Compte commercial détecté via token');
-          setUser(null);
-        }
-      } catch (error) {
-        console.warn('⚠️ Erreur lors du parsing du token:', error);
-        setUser(null);
-      }
-    } else {
-      console.log('❌ Aucun token trouvé');
-      setUser(null);
-    }
-    
-    console.log('✅ Initialisation terminée');
-  }, []);
+  // Pas de useEffect, pas de blocage, pas de chargement
+  console.log('🔐 AuthProvider rendu - user:', user?.email || 'Aucun');
 
   const login = async (email: string, password: string) => {
     try {

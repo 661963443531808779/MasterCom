@@ -24,15 +24,8 @@ const AppRoutes = memo(() => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Chargement immédiat sans attendre l'auth
-  if (isLoading) {
-    // Timeout de sécurité pour éviter le blocage infini
-    setTimeout(() => {
-      console.log('⚠️ Timeout de chargement - passage en mode non-authentifié');
-    }, 2000);
-    
-    return <FastLoading message="Chargement de MasterCom..." fullScreen showProgress />;
-  }
+  // Supprimer complètement le chargement infini
+  console.log('🚀 AppRoutes rendu - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
 
   const handleLogout = async () => {
     try {
@@ -43,6 +36,7 @@ const AppRoutes = memo(() => {
     }
   };
 
+  // Afficher directement la page d'accueil sans attendre l'auth
   return (
     <div className="min-h-screen bg-white">
       <Navbar 
@@ -95,7 +89,12 @@ function App() {
       <ErrorBoundary>
         <AuthProvider>
           <Router>
-            <Suspense fallback={<FastLoading message="Chargement..." />}>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white">
+              <div className="text-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Chargement...</p>
+              </div>
+            </div>}>
               <AppRoutes />
             </Suspense>
           </Router>
