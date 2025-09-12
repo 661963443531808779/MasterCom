@@ -3,10 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ErrorBoundary from './components/ErrorBoundary';
-import GlobalErrorHandler from './components/GlobalErrorHandler';
 
-// Lazy loading des pages pour optimiser le chargement initial
+// Lazy loading des pages
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
@@ -18,7 +16,6 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Login = lazy(() => import('./pages/Login'));
 
 function AppRoutes() {
-  // Version ultra-simplifiée sans auth
   console.log('🚀 AppRoutes rendu');
 
   return (
@@ -48,16 +45,20 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </div>
-      </div>}>
-        <AppRoutes />
-      </Suspense>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="text-center">
+              <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Chargement...</p>
+            </div>
+          </div>
+        }>
+          <AppRoutes />
+        </Suspense>
+      </Router>
+    </AuthProvider>
   );
 }
 
