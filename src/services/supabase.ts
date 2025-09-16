@@ -10,7 +10,7 @@ const isSupabaseConfigured = supabaseUrl && supabaseAnonKey;
 // En mode production (Vercel), on ne lance pas d'erreur pour éviter les crashes
 if (!isSupabaseConfigured) {
   if (import.meta.env.PROD) {
-    console.warn('⚠️ Configuration Supabase manquante en production');
+    console.warn('⚠️ Configuration Supabase manquante en production - Mode dégradé activé');
   } else {
     console.error('❌ Configuration Supabase manquante !');
     console.log('📝 Veuillez configurer vos clés Supabase dans le fichier .env :');

@@ -28,7 +28,7 @@ export default defineConfig({
     }
   },
   build: {
-    // Configuration de build simplifiée pour Vercel
+    // Configuration de build optimisée pour Vercel
     target: 'es2015',
     minify: 'esbuild',
     sourcemap: false,
@@ -56,6 +56,9 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
     reportCompressedSize: false,
+    // Optimisations pour Vercel
+    emptyOutDir: true,
+    assetsDir: 'assets',
   },
   server: {
     // Configuration du serveur de développement
