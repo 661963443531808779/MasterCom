@@ -29,14 +29,5 @@ DEPLOYMENT.md
 DEPLOYMENT-GUIDE.md
 TROUBLESHOOTING.md
 
-# Fichiers de configuration de développement
-eslint.config.js
-postcss.config.js
-tailwind.config.js
-tsconfig.*.json
-
 # Fichiers SQL (déjà déployés)
 *.sql
-
-# Fichiers de configuration Vercel alternatifs
-vercel-*.json
