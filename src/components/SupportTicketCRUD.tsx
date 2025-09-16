@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { 
   Plus, Edit, Trash2, Search, 
   MessageSquare, Calendar, User, AlertTriangle, CheckCircle
@@ -19,7 +19,7 @@ interface SupportTicket {
   updated_at: string;
 }
 
-const SupportTicketCRUD: React.FC = () => {
+const SupportTicketCRUD: FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,9 +1,9 @@
-import React from 'react';
+import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Target, Lightbulb, Award } from 'lucide-react';
 import SEO from '../components/SEO';
 
-const Home: React.FC = () => {
+const Home: FC = () => {
   const services = [
     {
       icon: <Target className="h-8 w-8" />,

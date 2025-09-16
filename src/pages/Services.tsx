@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { ArrowRight, Check, Target, Palette, Share2, Calendar, Megaphone, BarChart3 } from 'lucide-react';
 
-const Services: React.FC = () => {
+const Services: FC = () => {
   const [selectedService, setSelectedService] = useState(0);
 
   const services = [

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { 
   Plus, Edit, Trash2, Eye, Search, Filter, 
   Mail, Phone, MapPin, Calendar, Star, User
@@ -23,7 +23,7 @@ interface Client {
   updated_at: string;
 }
 
-const ClientCRUD: React.FC = () => {
+const ClientCRUD: FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');

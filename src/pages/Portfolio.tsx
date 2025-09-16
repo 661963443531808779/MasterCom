@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { ArrowRight, ExternalLink, Calendar, Target } from 'lucide-react';
 
-const Portfolio: React.FC = () => {
+const Portfolio: FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [

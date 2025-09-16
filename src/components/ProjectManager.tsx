@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, FC } from 'react';
 import { 
   FolderOpen, Plus, Search, Edit, Trash2, Eye, 
   Calendar, Clock, Users, Target, CheckCircle, AlertCircle, 
@@ -15,7 +15,7 @@ interface ProjectManagerProps {
   userRole: string;
 }
 
-const ProjectManager: React.FC<ProjectManagerProps> = ({ userRole }) => {
+const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { 
   Plus, Edit, Trash2, Search, 
   FileText
@@ -21,7 +21,7 @@ interface Quote {
   updated_at: string;
 }
 
-const QuoteCRUD: React.FC = () => {
+const QuoteCRUD: FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [searchTerm, setSearchTerm] = useState('');

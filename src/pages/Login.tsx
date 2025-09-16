@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
   Key, UserCheck, Settings
@@ -10,7 +10,7 @@ interface LoginProps {
   onLogin: (role: string) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: FC<LoginProps> = ({ onLogin }) => {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');

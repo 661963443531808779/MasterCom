@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, BarChart3 } from 'lucide-react';
 
@@ -8,7 +8,7 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
+const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 

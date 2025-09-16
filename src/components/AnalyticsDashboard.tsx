@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 interface AnalyticsData {
@@ -16,7 +16,7 @@ interface ChartData {
   color?: string;
 }
 
-const AnalyticsDashboard: React.FC = () => {
+const AnalyticsDashboard: FC = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     visitors: 0,
     pageViews: 0,

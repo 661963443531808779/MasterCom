@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { Mail, Linkedin, Phone } from 'lucide-react';
 
-const About: React.FC = () => {
+const About: FC = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
 
   const teamMembers = [

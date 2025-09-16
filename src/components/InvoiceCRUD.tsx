@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { 
   Plus, Edit, Trash2, Eye, Search, Filter, 
   FileText, Calendar, Euro, User, Download
@@ -22,7 +22,7 @@ interface Invoice {
   updated_at: string;
 }
 
-const InvoiceCRUD: React.FC = () => {
+const InvoiceCRUD: FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [searchTerm, setSearchTerm] = useState('');

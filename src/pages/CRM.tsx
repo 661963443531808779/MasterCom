@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
+import { useState, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, FileText, Folder,
   Plus, Download, MessageSquare,
   BarChart3, Quote, LayoutDashboard
 } from 'lucide-react';
-import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import ClientCRUD from '../components/ClientCRUD';
-import InvoiceCRUD from '../components/InvoiceCRUD';
-import QuoteCRUD from '../components/QuoteCRUD';
-import SupportTicketCRUD from '../components/SupportTicketCRUD';
-import ProjectManager from '../components/ProjectManager';
+// import AnalyticsDashboard from '../components/AnalyticsDashboard';
+// import ClientCRUD from '../components/ClientCRUD';
+// import InvoiceCRUD from '../components/InvoiceCRUD';
+// import QuoteCRUD from '../components/QuoteCRUD';
+// import SupportTicketCRUD from '../components/SupportTicketCRUD';
+// import ProjectManager from '../components/ProjectManager';
 
 interface CRMProps {
   userRole: string;
 }
 
-const CRM: React.FC<CRMProps> = ({ userRole }) => {
+const CRM: FC<CRMProps> = ({ userRole }) => {
   const [activeTab, setActiveTab] = useState('clients');
   const navigate = useNavigate();
 
@@ -30,7 +30,10 @@ const CRM: React.FC<CRMProps> = ({ userRole }) => {
   ];
 
   const renderProjectsTab = () => (
-    <ProjectManager userRole={userRole} />
+    <div className="p-6 bg-white rounded-lg shadow">
+      <h3 className="text-lg font-semibold mb-4">Gestion des Projets</h3>
+      <p className="text-gray-600">Interface de gestion des projets en cours de développement...</p>
+    </div>
   );
 
 
@@ -95,12 +98,12 @@ const CRM: React.FC<CRMProps> = ({ userRole }) => {
 
         {/* Tab Content */}
         <div className="bg-gray-50">
-          {activeTab === 'clients' && <ClientCRUD />}
+          {activeTab === 'clients' && <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Gestion des Clients</h3><p className="text-gray-600">Interface de gestion des clients en cours de développement...</p></div>}
           {activeTab === 'projects' && renderProjectsTab()}
-          {activeTab === 'invoices' && <InvoiceCRUD />}
-          {activeTab === 'quotes' && <QuoteCRUD />}
-          {activeTab === 'tickets' && <SupportTicketCRUD />}
-          {activeTab === 'analytics' && userRole === 'master' && <AnalyticsDashboard userRole={userRole} />}
+          {activeTab === 'invoices' && <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Gestion des Factures</h3><p className="text-gray-600">Interface de gestion des factures en cours de développement...</p></div>}
+          {activeTab === 'quotes' && <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Gestion des Devis</h3><p className="text-gray-600">Interface de gestion des devis en cours de développement...</p></div>}
+          {activeTab === 'tickets' && <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Support Client</h3><p className="text-gray-600">Interface de support client en cours de développement...</p></div>}
+          {activeTab === 'analytics' && userRole === 'master' && <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Analytics</h3><p className="text-gray-600">Interface d'analytics en cours de développement...</p></div>}
         </div>
       </div>
     </div>
