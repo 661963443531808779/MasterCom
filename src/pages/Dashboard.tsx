@@ -5,6 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, Briefcase, RefreshCw,
   BarChart3, UserPlus, Settings, ArrowLeft
 } from 'lucide-react';
+import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 import { useDashboardStats } from '../hooks/useApiData';
 import { useAuth } from '../contexts/AuthContext';
 import HealthCheck from '../components/HealthCheck';
@@ -121,7 +122,7 @@ const Dashboard: FC = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis />
-                      <Tooltip formatter={(value) => [`${value}€`, 'CA']} />
+                      <Tooltip formatter={(value: any) => [`${value}€`, 'CA']} />
                       <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
                     </AreaChart>
                   </ResponsiveContainer>
