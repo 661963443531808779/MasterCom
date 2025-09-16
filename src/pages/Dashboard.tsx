@@ -8,9 +8,9 @@ import {
 import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 import { useDashboardStats } from '../hooks/useApiData';
 import { useAuth } from '../contexts/AuthContext';
-import HealthCheck from '../components/HealthCheck';
-import UserManagement from '../components/UserManagement';
-import AnalyticsDashboard from '../components/AnalyticsDashboard';
+// import HealthCheck from '../components/HealthCheck';
+// import UserManagement from '../components/UserManagement';
+// import AnalyticsDashboard from '../components/AnalyticsDashboard';
 
 const Dashboard: FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('3months');
@@ -148,15 +148,17 @@ const Dashboard: FC = () => {
           </>
         );
       case 'analytics':
-        return <AnalyticsDashboard />;
+        return <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Analytics</h3><p className="text-gray-600">Interface d'analytics en cours de développement...</p></div>;
       case 'users':
-        return <UserManagement userRole={user?.role_id || 'master'} />;
+        return <div className="p-6 bg-white rounded-lg shadow"><h3 className="text-lg font-semibold mb-4">Gestion des Utilisateurs</h3><p className="text-gray-600">Interface de gestion des utilisateurs en cours de développement...</p></div>;
       case 'settings':
         return (
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">État du système</h3>
-              <HealthCheck />
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-gray-600">Health Check en cours de développement...</p>
+              </div>
             </div>
           </div>
         );
