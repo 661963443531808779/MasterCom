@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, FC } from 'react';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useNotification } from '../hooks/useNotification';
 import Notification from './Notification';
@@ -12,7 +12,7 @@ interface UserManagementProps {
   userRole: string;
 }
 
-const UserManagement: React.FC<UserManagementProps> = ({ userRole }) => {
+const UserManagement: FC<UserManagementProps> = ({ userRole }) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

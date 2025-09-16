@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Cloud } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
@@ -8,7 +8,7 @@ interface HealthStatus {
   database: boolean;
 }
 
-const HealthCheck: React.FC = () => {
+const HealthCheck: FC = () => {
   const [status, setStatus] = useState<HealthStatus>({
     frontend: false,
     supabase: false,

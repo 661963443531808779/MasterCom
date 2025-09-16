@@ -1,5 +1,5 @@
 import { useState, useEffect, FC } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface AnalyticsData {
   visitors: number;
@@ -207,7 +207,7 @@ const AnalyticsDashboard: FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, value }) => `${name} ${value}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
