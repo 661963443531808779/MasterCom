@@ -11,6 +11,7 @@ import Blog from './pages/Blog';
 import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
+import { AuthProvider } from './contexts/AuthContext';
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -62,12 +63,14 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version optimisée pour Netlify');
+  console.log('🚀 App MasterCom - Version complète avec Supabase');
 
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

@@ -1,41 +1,71 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
-  Key, Settings
+  Key, UserCheck, Settings
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useSecureForm, validationRules } from '../hooks/useSecureForm';
 
 interface LoginProps {
   onLogin: (role: string) => void;
 }
 
 const Login: FC<LoginProps> = ({ onLogin }) => {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const {
+    values: formData,
+    errors,
+    isSubmitting,
+    csrfToken,
+    handleChange,
+    handleSubmit
+  } = useSecureForm({
+    initialValues: {
+      email: '',
+      password: ''
+    },
+    validationRules: {
+      email: validationRules.email,
+      password: validationRules.required
+    },
+    enableCSRF: true
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: any) => {
     setError('');
-    setIsSubmitting(true);
-
     try {
-      // Simulation de connexion simple mais réaliste
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Logique de connexion avec validation
-      if (email === 'admin@mastercom.fr' && password === 'admin123') {
-        onLogin('master');
-      } else if (email === 'client@mastercom.fr' && password === 'client123') {
-        onLogin('client');
+      const user = await login(values.email, values.password);
+      
+      if (user) {
+        // Utiliser le rôle retourné par Supabase
+        const userRole = user.roles?.name || user.role_id || 'client';
+        onLogin(userRole);
       } else {
-        setError('Email ou mot de passe incorrect');
+        setError('Aucun utilisateur retourné');
       }
-    } catch (error) {
-      setError('Erreur de connexion');
-    } finally {
-      setIsSubmitting(false);
+    } catch (error: any) {
+      
+      // Messages d'erreur plus spécifiques
+      let errorMessage = 'Erreur de connexion';
+      
+      if (error.message) {
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email ou mot de passe incorrect';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Veuillez confirmer votre email avant de vous connecter';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard';
+        } else if (error.message.includes('User not found')) {
+          errorMessage = 'Aucun compte trouvé avec cet email';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -62,7 +92,10 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(onSubmit);
+          }} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Adresse email administrateur
@@ -71,12 +104,18 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="email"
+                  name="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.email ? 'border-red-300' : 'border-gray-300'
+                  }`}
                   placeholder="admin@mastercom.fr"
                 />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                )}
               </div>
             </div>
 
@@ -88,10 +127,13 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.password ? 'border-red-300' : 'border-gray-300'
+                  }`}
                   placeholder="••••••••"
                   minLength={6}
                 />

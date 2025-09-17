@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm ci && npm run build"
+  command = "chmod +x netlify-build.sh && ./netlify-build.sh"
 
 [[redirects]]
   from = "/*"
@@ -11,6 +11,7 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--production=false"
   NODE_OPTIONS = "--max-old-space-size=4096"
+  VITE_LEGACY_BUILD = "false"
 
 [build.processing]
   skip_processing = false
@@ -28,3 +29,6 @@
 
 [build.processing.images]
   compress = true
+
+[functions]
+  node_bundler = "esbuild"
