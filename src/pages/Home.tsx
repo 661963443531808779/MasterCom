@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Target, Lightbulb, Award } from 'lucide-react';
-import SEO from '../components/SEO';
 
 const Home: FC = () => {
   const services = [
@@ -28,13 +27,7 @@ const Home: FC = () => {
   ];
 
   return (
-    <>
-      <SEO 
-        title="Accueil - MasterCom"
-        description="Découvrez MasterCom, votre agence de communication professionnelle. Services de branding, marketing digital, réseaux sociaux et événementiel avec CRM intégré."
-        keywords="agence communication, branding, marketing digital, réseaux sociaux, événementiel, MasterCom"
-      />
-      <div>
+    <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -149,8 +142,7 @@ const Home: FC = () => {
           </Link>
         </div>
       </section>
-      </div>
-    </>
+    </div>
   );
 };
 

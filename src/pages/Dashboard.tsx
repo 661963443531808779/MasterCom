@@ -4,7 +4,6 @@ import {
   TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw,
   BarChart3, UserPlus, Settings, ArrowLeft
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 
 const Dashboard: FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('3months');
@@ -19,7 +18,7 @@ const Dashboard: FC = () => {
     { label: 'Taux de satisfaction', value: '94%', change: '+2%', trend: 'up' },
   ];
 
-  // Données pour les graphiques
+  // Données pour les graphiques (simplifiées)
   const monthlyRevenue = [
     { month: 'Jan', revenue: 12000 },
     { month: 'Fév', revenue: 13500 },
@@ -96,37 +95,39 @@ const Dashboard: FC = () => {
         ))}
       </div>
 
-      {/* Graphiques */}
+      {/* Graphiques simplifiés */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Graphique CA */}
+        {/* Graphique CA simplifié */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Évolution du CA</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value: any) => [`${value}€`, 'CA']} />
-                <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="h-64 flex items-end justify-between space-x-2">
+            {monthlyRevenue.map((item, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <div 
+                  className="bg-blue-500 rounded-t w-8 mb-2"
+                  style={{ height: `${(item.revenue / 20000) * 200}px` }}
+                ></div>
+                <span className="text-xs text-gray-600">{item.month}</span>
+                <span className="text-xs text-gray-500">{item.revenue}€</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Graphique Projets */}
+        {/* Graphique Projets simplifié */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Projets par mois</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={projectData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="projects" fill="#10B981" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-64 flex items-end justify-between space-x-2">
+            {projectData.map((item, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <div 
+                  className="bg-green-500 rounded-t w-8 mb-2"
+                  style={{ height: `${(item.projects / 20) * 200}px` }}
+                ></div>
+                <span className="text-xs text-gray-600">{item.month}</span>
+                <span className="text-xs text-gray-500">{item.projects}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
