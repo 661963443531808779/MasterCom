@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -8,14 +9,38 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login-debug';
+import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('client');
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Vérifier l'état de connexion au chargement
+    const checkAuth = async () => {
+      try {
+        const { authService } = await import('./services/supabase');
+        const user = await authService.getCurrentUser();
+        
+        if (user) {
+          setIsLoggedIn(true);
+          // Récupérer le profil utilisateur pour déterminer le rôle
+          const profile = await authService.getUserProfile(user.id);
+          setUserRole(profile.roles.name);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification de l\'authentification:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const handleLogin = (role: string) => {
     console.log('🔐 Connexion réussie avec le rôle:', role);
@@ -29,12 +54,29 @@ function AppContent() {
     }
   };
 
-  const handleLogout = () => {
-    console.log('🚪 Déconnexion');
-    setIsLoggedIn(false);
-    setUserRole('client');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      const { authService } = await import('./services/supabase');
+      await authService.signOut();
+      console.log('🚪 Déconnexion');
+      setIsLoggedIn(false);
+      setUserRole('client');
+      navigate('/');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-spinner"></div>
+          <p className="text-gray-600 mt-4">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -62,12 +104,14 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version debug sans AuthProvider');
+  console.log('🚀 App MasterCom - Version avec AuthProvider');
 
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

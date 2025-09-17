@@ -216,6 +216,57 @@ export const supportService = {
     }
   },
 
+  async createContactTicket(ticketData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('contact_tickets')
+        .insert([{
+          name: ticketData.name,
+          email: ticketData.email,
+          phone: ticketData.phone,
+          company: ticketData.company,
+          subject: ticketData.subject,
+          message: ticketData.message,
+          status: 'new',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la création du ticket de contact:', error);
+      throw error;
+    }
+  },
+
+  async createQuoteRequest(quoteData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('quote_requests')
+        .insert([{
+          name: quoteData.name,
+          email: quoteData.email,
+          phone: quoteData.phone,
+          company: quoteData.company,
+          project_description: quoteData.project_description,
+          budget: quoteData.budget,
+          timeline: quoteData.timeline,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la création de la demande de devis:', error);
+      throw error;
+    }
+  },
+
   async getTickets() {
     try {
       const { data, error } = await supabase

@@ -1,23 +1,100 @@
-import { useState, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw,
   BarChart3, UserPlus, Settings, ArrowLeft
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
+import { clientService, projectService, invoiceService, quoteService, supportService } from '../services/supabase';
 
 const Dashboard: FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('3months');
   const [activeTab, setActiveTab] = useState('overview');
+  const [isLoading, setIsLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    clients: [] as any[],
+    projects: [] as any[],
+    invoices: [] as any[],
+    quotes: [] as any[],
+    tickets: [] as any[]
+  });
   const navigate = useNavigate();
 
-  // Données optimisées et réalistes
-  const kpiData = [
-    { label: 'Chiffre d\'affaires', value: '15,200€', change: '+12%', trend: 'up' },
-    { label: 'Nouveaux clients', value: '8', change: '+25%', trend: 'up' },
-    { label: 'Projets actifs', value: '12', change: '+8%', trend: 'up' },
-    { label: 'Taux de satisfaction', value: '94%', change: '+2%', trend: 'up' },
-  ];
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const [clientsData, projectsData, invoicesData, quotesData, ticketsData] = await Promise.all([
+        clientService.getClients(),
+        projectService.getProjects(),
+        invoiceService.getInvoices(),
+        quoteService.getQuotes(),
+        supportService.getTickets()
+      ]);
+      
+      setDashboardData({
+        clients: clientsData || [],
+        projects: projectsData || [],
+        invoices: invoicesData || [],
+        quotes: quotesData || [],
+        tickets: ticketsData || []
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement des données du dashboard:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Calculer les KPIs à partir des vraies données
+  const calculateKPIs = () => {
+    const totalRevenue = dashboardData.invoices
+      .filter((invoice: any) => invoice.status === 'paid')
+      .reduce((sum: number, invoice: any) => sum + (invoice.amount || 0), 0);
+    
+    const newClients = dashboardData.clients.length;
+    const activeProjects = dashboardData.projects.filter((project: any) => 
+      project.status === 'in_progress' || project.status === 'pending'
+    ).length;
+    
+    const resolvedTickets = dashboardData.tickets.filter((ticket: any) => 
+      ticket.status === 'resolved' || ticket.status === 'closed'
+    ).length;
+    const totalTickets = dashboardData.tickets.length;
+    const satisfactionRate = totalTickets > 0 ? Math.round((resolvedTickets / totalTickets) * 100) : 100;
+
+    return [
+      { 
+        label: 'Chiffre d\'affaires', 
+        value: `${totalRevenue.toLocaleString('fr-FR')}€`, 
+        change: '+12%', 
+        trend: 'up' 
+      },
+      { 
+        label: 'Nouveaux clients', 
+        value: newClients.toString(), 
+        change: '+25%', 
+        trend: 'up' 
+      },
+      { 
+        label: 'Projets actifs', 
+        value: activeProjects.toString(), 
+        change: '+8%', 
+        trend: 'up' 
+      },
+      { 
+        label: 'Taux de satisfaction', 
+        value: `${satisfactionRate}%`, 
+        change: '+2%', 
+        trend: 'up' 
+      },
+    ];
+  };
+
+  const kpiData = calculateKPIs();
 
   // Données pour les graphiques
   const monthlyRevenue = [
@@ -164,60 +241,61 @@ const Dashboard: FC = () => {
   const renderUsersTab = () => (
     <div className="p-6 bg-white rounded-lg shadow">
       <h3 className="text-lg font-semibold mb-4">Gestion des Utilisateurs</h3>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Nom
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rôle
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Statut
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            <tr>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                Admin Master
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                admin@mastercom.com
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                Master
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  Actif
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                Client Alpha
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                client@alpha.com
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                Client
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  Actif
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="loading-spinner"></div>
+          <span className="ml-2 text-gray-600">Chargement des utilisateurs...</span>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nom
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rôle
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {dashboardData.clients.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                    Aucun utilisateur trouvé
+                  </td>
+                </tr>
+              ) : (
+                dashboardData.clients.map((client: any) => (
+                  <tr key={client.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {client.name || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {client.email || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      Client
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Actif
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 
@@ -293,7 +371,7 @@ const Dashboard: FC = () => {
                 <option value="1year">1 an</option>
               </select>
               <button
-                onClick={() => window.location.reload()}
+                onClick={loadDashboardData}
                 className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
