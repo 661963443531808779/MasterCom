@@ -8,10 +8,11 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login-debug';
+import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
+// Version simplifiée sans AuthProvider pour debug
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('client');

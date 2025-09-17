@@ -65,9 +65,18 @@ export const isValidPassword = (password: string): boolean => {
  * @returns Un token CSRF
  */
 export const generateCSRFToken = (): string => {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  // Fallback pour les navigateurs qui ne supportent pas crypto.getRandomValues
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+  
+  // Fallback simple pour la compatibilité
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
 };
 
 /**
