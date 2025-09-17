@@ -22,8 +22,7 @@ function AppContent() {
     console.log('🔐 Connexion réussie avec le rôle:', role);
     setIsLoggedIn(true);
     setUserRole(role);
-    
-    // Redirection selon le rôle
+
     if (role === 'master' || role === 'admin') {
       navigate('/dashboard');
     } else {
@@ -40,10 +39,10 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar 
-        isLoggedIn={isLoggedIn} 
-        userRole={userRole} 
-        onLogout={handleLogout} 
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        userRole={userRole}
+        onLogout={handleLogout}
       />
       <main>
         <Routes>
@@ -64,7 +63,7 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App rendu - version corrigée pour Vercel');
+  console.log('🚀 App MasterCom - Version complète restaurée');
 
   return (
     <AuthProvider>
