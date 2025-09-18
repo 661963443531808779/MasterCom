@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -9,7 +8,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login-working';
+import Login from './pages/Login-supabase-only';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
@@ -23,27 +22,23 @@ function AppContent() {
     // Vérifier l'état de connexion au chargement
     const checkAuth = async () => {
       try {
-        // Délai pour éviter les problèmes de chargement
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Import statique pour éviter les conflits
-        const { authService } = require('./services/supabase');
-        const user = await authService.getCurrentUser();
+        const { supabase } = await import('./services/supabase');
+        const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
           setIsLoggedIn(true);
-          // Récupérer le profil utilisateur pour déterminer le rôle
-          try {
-            const profile = await authService.getUserProfile(user.id);
-            setUserRole(profile.roles?.name || 'client');
-          } catch (profileError) {
-            console.warn('Erreur profil, utilisation du rôle par défaut:', profileError);
-            setUserRole('client');
-          }
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('*, roles(*)')
+            .eq('id', user.id)
+            .single();
+          
+          setUserRole(profile?.roles?.name || 'client');
         }
       } catch (error) {
-        console.warn('Erreur lors de la vérification de l\'authentification:', error);
-        // En cas d'erreur, on continue sans authentification
+        console.warn('Erreur vérification auth:', error);
       } finally {
         setIsLoading(false);
       }
@@ -66,14 +61,14 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      const { authService } = require('./services/supabase');
-      await authService.signOut();
+      const { supabase } = await import('./services/supabase');
+      await supabase.auth.signOut();
       console.log('🚪 Déconnexion');
       setIsLoggedIn(false);
       setUserRole('client');
       navigate('/');
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      console.error('Erreur déconnexion:', error);
     }
   };
 
@@ -81,7 +76,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="loading-spinner"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="text-gray-600 mt-4">Chargement...</p>
         </div>
       </div>
@@ -104,8 +99,12 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/crm" element={<CRM userRole={userRole} />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {isLoggedIn && (
+            <>
+              <Route path="/crm" element={<CRM userRole={userRole} />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+            </>
+          )}
         </Routes>
       </main>
       <Footer />
@@ -114,14 +113,12 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version avec AuthProvider');
-
+  console.log('🚀 App MasterCom - Version finale avec vraies pages');
+  
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
