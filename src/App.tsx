@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import Home from './pages/Home';
-import About from './pages/About';
-import Services from './pages/Services';
-import Contact from './pages/Contact';
-import Portfolio from './pages/Portfolio';
-import Blog from './pages/Blog';
 import Login from './pages/Login';
-import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard-simple';
 import { supabase } from './services/supabase';
 
 function AppContent() {
@@ -20,7 +11,7 @@ function AppContent() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Vérifier l'état de connexion au chargement
+    console.log('🔍 AppContent useEffect - Début');
     const checkAuth = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -49,16 +40,12 @@ function AppContent() {
 
   const handleLogin = (role: string) => {
     console.log('🔐 Connexion réussie avec le rôle:', role);
-    console.log('🔍 État avant connexion - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
     setIsLoggedIn(true);
     setUserRole(role);
-    console.log('🔍 État après connexion - isLoggedIn:', true, 'userRole:', role);
 
     if (role === 'master' || role === 'admin') {
-      console.log('🔍 Redirection vers dashboard');
       navigate('/dashboard');
     } else {
-      console.log('🔍 Redirection vers CRM');
       navigate('/crm');
     }
   };
@@ -86,35 +73,52 @@ function AppContent() {
     );
   }
 
-  console.log('🔍 Rendu AppContent - isLoggedIn:', isLoggedIn, 'userRole:', userRole, 'pathname:', window.location.pathname);
+  console.log('🔍 Rendu AppContent - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        userRole={userRole}
-        onLogout={handleLogout}
-      />
+      <nav className="bg-blue-600 text-white p-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-bold">MasterCom</h1>
+          {isLoggedIn ? (
+            <div className="flex items-center space-x-4">
+              <span>Rôle: {userRole}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 px-4 py-2 rounded hover:bg-red-700"
+              >
+                Déconnexion
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+            >
+              Connexion
+            </button>
+          )}
+        </div>
+      </nav>
+      
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/crm" element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} />
-          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} />
+          <Route path="/crm" element={isLoggedIn ? <div className="p-8 text-center">CRM - En construction</div> : <Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={isLoggedIn ? <div className="p-8 text-center">Dashboard - En construction</div> : <Login onLogin={handleLogin} />} />
         </Routes>
       </main>
-      <Footer />
+      
+      <footer className="bg-gray-800 text-white p-4 text-center">
+        <p>&copy; 2024 MasterCom. Tous droits réservés.</p>
+      </footer>
     </div>
   );
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version finale corrigée');
+  console.log('🚀 App MasterCom - Version ultra-simple');
   
   return (
     <Router>

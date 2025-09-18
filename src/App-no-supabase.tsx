@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import { supabase } from './services/supabase';
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,30 +11,11 @@ function AppContent() {
 
   useEffect(() => {
     console.log('🔍 AppContent useEffect - Début');
-    const checkAuth = async () => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          setIsLoggedIn(true);
-          const { data: profile } = await supabase
-            .from('user_profiles')
-            .select('*, roles(*)')
-            .eq('id', user.id)
-            .single();
-          
-          setUserRole(profile?.roles?.name || 'client');
-        }
-      } catch (error) {
-        console.warn('Erreur vérification auth:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    // Simulation simple sans Supabase
+    setTimeout(() => {
+      console.log('🔍 AppContent useEffect - Fin');
+      setIsLoading(false);
+    }, 100);
   }, []);
 
   const handleLogin = (role: string) => {
@@ -50,16 +30,11 @@ function AppContent() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      console.log('🚪 Déconnexion');
-      setIsLoggedIn(false);
-      setUserRole('client');
-      navigate('/');
-    } catch (error) {
-      console.error('Erreur déconnexion:', error);
-    }
+  const handleLogout = () => {
+    console.log('🚪 Déconnexion');
+    setIsLoggedIn(false);
+    setUserRole('client');
+    navigate('/');
   };
 
   if (isLoading) {
@@ -79,7 +54,7 @@ function AppContent() {
     <div className="min-h-screen bg-white">
       <nav className="bg-blue-600 text-white p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold">MasterCom - Test Step 1</h1>
+          <h1 className="text-xl font-bold">MasterCom - Sans Supabase</h1>
           {isLoggedIn ? (
             <div className="flex items-center space-x-4">
               <span>Rôle: {userRole}</span>
@@ -105,8 +80,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/crm" element={<div className="p-8 text-center">CRM - En construction</div>} />
-          <Route path="/dashboard" element={<div className="p-8 text-center">Dashboard - En construction</div>} />
+          <Route path="/crm" element={isLoggedIn ? <div className="p-8 text-center">CRM - En construction</div> : <Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={isLoggedIn ? <div className="p-8 text-center">Dashboard - En construction</div> : <Login onLogin={handleLogin} />} />
         </Routes>
       </main>
       
@@ -118,7 +93,7 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Test Step 1');
+  console.log('🚀 App MasterCom - Version sans Supabase');
   
   return (
     <Router>
