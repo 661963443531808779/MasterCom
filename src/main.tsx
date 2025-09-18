@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App-final.tsx';
+import App from './App-supabase-simple.tsx';
 import './index.css';
 
 // Vérifier que l'élément root existe
