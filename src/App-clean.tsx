@@ -8,7 +8,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login-supabase-only';
+import Login from './pages/Login-simple';
 
 // CRM complet avec composants réels
 function CRM() {
