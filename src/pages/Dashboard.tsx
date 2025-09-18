@@ -2,7 +2,7 @@ import { useState, useEffect, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw,
-  BarChart3, UserPlus, Settings, ArrowLeft, Users, Folder, FileText, MessageSquare
+  BarChart3, UserPlus, Settings, ArrowLeft
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 import { clientService, projectService, invoiceService, quoteService, supportService } from '../services/supabase';
@@ -13,7 +13,6 @@ import HealthCheck from '../components/HealthCheck';
 const Dashboard: FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('3months');
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     clients: [] as any[],
     projects: [] as any[],
@@ -30,7 +29,6 @@ const Dashboard: FC = () => {
 
   const loadDashboardData = async () => {
     try {
-      setIsLoading(true);
       const [clientsData, projectsData, invoicesData, quotesData, ticketsData] = await Promise.all([
         clientService.getClients(),
         projectService.getProjects(),
@@ -48,8 +46,6 @@ const Dashboard: FC = () => {
       });
     } catch (error) {
       console.error('Erreur lors du chargement des données du dashboard:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -214,133 +210,18 @@ const Dashboard: FC = () => {
     </>
   );
 
-  const renderAnalyticsTab = () => (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h3 className="text-lg font-semibold mb-4">Analytics</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-900">Visiteurs</h4>
-          <p className="text-2xl font-bold text-blue-600 mt-2">1,234</p>
-          <p className="text-sm text-blue-700">+15% ce mois</p>
-        </div>
-        <div className="p-4 bg-green-50 rounded-lg">
-          <h4 className="font-medium text-green-900">Conversions</h4>
-          <p className="text-2xl font-bold text-green-600 mt-2">89</p>
-          <p className="text-sm text-green-700">+8% ce mois</p>
-        </div>
-        <div className="p-4 bg-purple-50 rounded-lg">
-          <h4 className="font-medium text-purple-900">Taux de rebond</h4>
-          <p className="text-2xl font-bold text-purple-600 mt-2">32%</p>
-          <p className="text-sm text-purple-700">-3% ce mois</p>
-        </div>
-        <div className="p-4 bg-orange-50 rounded-lg">
-          <h4 className="font-medium text-orange-900">Temps moyen</h4>
-          <p className="text-2xl font-bold text-orange-600 mt-2">4m 32s</p>
-          <p className="text-sm text-orange-700">+12% ce mois</p>
-        </div>
-      </div>
-    </div>
-  );
 
-  const renderUsersTab = () => (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h3 className="text-lg font-semibold mb-4">Gestion des Utilisateurs</h3>
-      {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="loading-spinner"></div>
-          <span className="ml-2 text-gray-600">Chargement des utilisateurs...</span>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nom
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rôle
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {dashboardData.clients.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                    Aucun utilisateur trouvé
-                  </td>
-                </tr>
-              ) : (
-                dashboardData.clients.map((client: any) => (
-                  <tr key={client.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {client.name || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {client.email || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      Client
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Actif
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderSettingsTab = () => (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Paramètres système</h3>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700">Notifications email</span>
-            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600">
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-            </button>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700">Mode sombre</span>
-            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200">
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
-            </button>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700">Sauvegarde automatique</span>
-            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600">
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
         return renderOverviewTab();
       case 'analytics':
-        return renderAnalyticsTab();
+        return <AnalyticsDashboard />;
       case 'users':
-        return renderUsersTab();
+        return <UserManagement userRole="master" />;
       case 'settings':
-        return renderSettingsTab();
+        return <HealthCheck />;
       default:
         return renderOverviewTab();
     }
