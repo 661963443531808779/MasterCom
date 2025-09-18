@@ -23,17 +23,26 @@ function AppContent() {
     // Vérifier l'état de connexion au chargement
     const checkAuth = async () => {
       try {
+        // Délai pour éviter les problèmes de chargement
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const { authService } = await import('./services/supabase');
         const user = await authService.getCurrentUser();
         
         if (user) {
           setIsLoggedIn(true);
           // Récupérer le profil utilisateur pour déterminer le rôle
-          const profile = await authService.getUserProfile(user.id);
-          setUserRole(profile.roles.name);
+          try {
+            const profile = await authService.getUserProfile(user.id);
+            setUserRole(profile.roles?.name || 'client');
+          } catch (profileError) {
+            console.warn('Erreur profil, utilisation du rôle par défaut:', profileError);
+            setUserRole('client');
+          }
         }
       } catch (error) {
-        console.error('Erreur lors de la vérification de l\'authentification:', error);
+        console.warn('Erreur lors de la vérification de l\'authentification:', error);
+        // En cas d'erreur, on continue sans authentification
       } finally {
         setIsLoading(false);
       }

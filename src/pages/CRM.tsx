@@ -3,9 +3,9 @@ import {
   Users, FileText, Folder,
   Plus, Download, MessageSquare,
   BarChart3, Quote, Settings,
-  Search, Filter, Eye, Edit, Trash2,
-  Calendar, Phone, Mail, MapPin,
-  TrendingUp, DollarSign, Clock
+  Search, Filter,
+  Calendar,
+  TrendingUp, DollarSign
 } from 'lucide-react';
 import ClientCRUD from '../components/ClientCRUD';
 import InvoiceCRUD from '../components/InvoiceCRUD';
@@ -48,7 +48,7 @@ const CRM: FC<CRMProps> = ({ userRole }) => {
 
   const renderProjectsTab = () => (
     <div className="p-6">
-      <ProjectManager />
+      <ProjectManager userRole={userRole} />
     </div>
   );
 
