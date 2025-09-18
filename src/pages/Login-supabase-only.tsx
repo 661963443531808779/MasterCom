@@ -3,6 +3,7 @@ import {
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
   Key, UserCheck, Settings
 } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface LoginProps {
   onLogin: (role: string) => void;
@@ -11,6 +12,7 @@ interface LoginProps {
 const Login: FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -20,7 +22,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     const initializeRoles = async () => {
       setIsInitializing(true);
       try {
-        const { supabase } = await import('../services/supabase');
+        // Utilisation de l'import statique
         
         // Créer les rôles si nécessaire
         const { error: roleError } = await supabase
@@ -64,8 +66,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     try {
       console.log('🔐 Tentative de connexion Supabase avec:', email);
       
-      // Import dynamique de Supabase
-      const { supabase } = await import('../services/supabase');
+      // Utilisation de l'import statique
       
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
