@@ -11,6 +11,7 @@ import Blog from './pages/Blog';
 import Login from './pages/Login-supabase-only';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
+import { supabase } from './services/supabase';
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,7 +25,6 @@ function AppContent() {
       try {
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        const { supabase } = await import('./services/supabase');
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
@@ -61,7 +61,6 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      const { supabase } = await import('./services/supabase');
       await supabase.auth.signOut();
       console.log('🚪 Déconnexion');
       setIsLoggedIn(false);
@@ -113,7 +112,7 @@ function AppContent() {
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version finale avec vraies pages');
+  console.log('🚀 App MasterCom - Version finale corrigée');
   
   return (
     <Router>
