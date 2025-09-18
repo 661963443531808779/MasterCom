@@ -10,7 +10,7 @@ import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
 import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard-simple';
 import { supabase } from './services/supabase';
 
 function AppContent() {
