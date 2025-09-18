@@ -1,10 +1,11 @@
-import { useState, FC } from 'react';
+import { useState, FC, useEffect } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
   Key, UserCheck, Settings
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureForm, validationRules } from '../hooks/useSecureForm';
+import { initTestUsers, checkTestUsers } from '../utils/initTestUsers';
 
 interface LoginProps {
   onLogin: (role: string) => void;
@@ -14,6 +15,27 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isInitializing, setIsInitializing] = useState(false);
+
+  // Initialiser les utilisateurs de test au chargement
+  useEffect(() => {
+    const initializeUsers = async () => {
+      setIsInitializing(true);
+      try {
+        const usersExist = await checkTestUsers();
+        if (!usersExist) {
+          console.log('🔧 Initialisation des utilisateurs de test...');
+          await initTestUsers();
+        }
+      } catch (error) {
+        console.warn('⚠️ Erreur lors de l\'initialisation:', error);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializeUsers();
+  }, []);
   
   const {
     values: formData,
@@ -83,6 +105,11 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             <p className="text-gray-600">
               Accédez à votre espace personnel
             </p>
+            {isInitializing && (
+              <div className="mt-2 text-sm text-blue-600">
+                🔧 Initialisation des utilisateurs de test...
+              </div>
+            )}
           </div>
 
           {error && (
