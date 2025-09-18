@@ -46,7 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   console.log('🔐 AuthProvider rendu - user:', user?.email || 'Aucun');
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<UserProfile> => {
     // Simulation simple de connexion
     if (email.toLowerCase().startsWith('master')) {
       const masterProfile: UserProfile = {

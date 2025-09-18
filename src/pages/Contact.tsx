@@ -25,7 +25,6 @@ const Contact: FC = () => {
     e.preventDefault();
     
     try {
-      
       // Déterminer le type de demande
       const isQuoteRequest = formData.budget || formData.timeline;
       
@@ -40,6 +39,7 @@ const Contact: FC = () => {
           budget: formData.budget,
           timeline: formData.timeline
         });
+        console.log('✅ Demande de devis créée:', result);
         alert('Votre demande de devis a été envoyée ! Nous vous recontacterons rapidement.');
       } else {
         // Créer un ticket de contact
@@ -51,6 +51,7 @@ const Contact: FC = () => {
           subject: formData.subject,
           message: formData.message
         });
+        console.log('✅ Ticket de contact créé:', result);
         alert('Votre message a été envoyé ! Nous vous recontacterons rapidement.');
       }
       
@@ -65,13 +66,13 @@ const Contact: FC = () => {
         budget: '',
         timeline: '',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erreur lors de l\'envoi:', error);
       
       // Message d'erreur plus détaillé
       let errorMessage = 'Une erreur est survenue. ';
       
-      if (error.message) {
+      if (error?.message) {
         if (error.message.includes('permission denied')) {
           errorMessage += 'Problème de permissions. Vérifiez la configuration Supabase.';
         } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
@@ -81,6 +82,8 @@ const Contact: FC = () => {
         } else {
           errorMessage += `Détails: ${error.message}`;
         }
+      } else {
+        errorMessage += 'Erreur inconnue.';
       }
       
       alert(errorMessage);

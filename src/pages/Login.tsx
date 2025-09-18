@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
-  Key, UserCheck, Settings
+  Key, Settings
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureForm, validationRules } from '../hooks/useSecureForm';

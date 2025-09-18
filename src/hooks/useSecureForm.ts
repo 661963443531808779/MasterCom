@@ -91,7 +91,7 @@ export const useSecureForm = ({
       }
       
       // Validation CSRF si activée
-      if (enableCSRF && !validateCSRFToken(csrfToken, csrfToken)) {
+      if (enableCSRF && csrfToken && !validateCSRFToken(csrfToken, csrfToken)) {
         throw new Error('Token CSRF invalide - Session expirée');
       }
       

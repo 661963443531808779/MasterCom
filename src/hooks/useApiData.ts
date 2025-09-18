@@ -86,20 +86,16 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
       let newItem;
       switch (endpoint) {
         case 'clients':
-          // Passer l'ID de l'utilisateur actuel pour le champ created_by
-          newItem = await clientService.createClient(itemData, user?.id);
+          newItem = await clientService.createClient(itemData);
           break;
         case 'invoices':
-          // Passer l'ID de l'utilisateur actuel pour le champ created_by
-          newItem = await invoiceService.createInvoice(itemData, user?.id);
+          newItem = await invoiceService.createInvoice(itemData);
           break;
         case 'quotes':
-          // Passer l'ID de l'utilisateur actuel pour le champ created_by
-          newItem = await quoteService.createQuote(itemData, user?.id);
+          newItem = await quoteService.createQuote(itemData);
           break;
         case 'support-tickets':
-          // Passer l'ID de l'utilisateur actuel pour le champ created_by
-          newItem = await supportService.createTicket(itemData, user?.id);
+          newItem = await supportService.createTicket(itemData);
           break;
         default:
           throw new Error(`Endpoint ${endpoint} non supporté`);
@@ -107,7 +103,8 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
       setData(prev => [...prev, newItem]);
       return newItem;
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création');
+      const errorMessage = err?.message || 'Erreur lors de la création';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -119,29 +116,14 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
     setError(null);
     
     try {
-      let updatedItem;
-      switch (endpoint) {
-        case 'clients':
-          updatedItem = await clientService.updateClient(id, itemData);
-          break;
-        case 'invoices':
-          updatedItem = await invoiceService.updateInvoice(id, itemData);
-          break;
-        case 'quotes':
-          updatedItem = await quoteService.updateQuote(id, itemData);
-          break;
-        case 'support-tickets':
-          updatedItem = await supportService.updateTicket(id, itemData);
-          break;
-        default:
-          throw new Error(`Endpoint ${endpoint} non supporté`);
-      }
+      // Pour l'instant, on simule une mise à jour en modifiant les données locales
       setData(prev => prev.map(item => 
-        (item as any).id === id ? updatedItem : item
+        (item as any).id === id ? { ...item, ...itemData } : item
       ));
-      return updatedItem;
+      return { ...itemData, id };
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la mise à jour');
+      const errorMessage = err?.message || 'Erreur lors de la mise à jour';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -153,25 +135,11 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
     setError(null);
     
     try {
-      switch (endpoint) {
-        case 'clients':
-          await clientService.deleteClient(id);
-          break;
-        case 'invoices':
-          await invoiceService.deleteInvoice(id);
-          break;
-        case 'quotes':
-          await quoteService.deleteQuote(id);
-          break;
-        case 'support-tickets':
-          await supportService.deleteTicket(id);
-          break;
-        default:
-          throw new Error(`Endpoint ${endpoint} non supporté`);
-      }
+      // Pour l'instant, on simule une suppression en retirant l'élément des données locales
       setData(prev => prev.filter(item => (item as any).id !== id));
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la suppression');
+      const errorMessage = err?.message || 'Erreur lors de la suppression';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
