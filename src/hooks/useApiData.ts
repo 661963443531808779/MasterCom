@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { clientService, invoiceService, quoteService, supportService } from '../services/supabase';
-import { useAuth } from '../contexts/AuthContext';
 
 interface UseApiDataOptions {
   endpoint: string;
@@ -11,7 +10,6 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -109,7 +107,7 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
     } finally {
       setLoading(false);
     }
-  }, [endpoint, user?.id]);
+  }, [endpoint]);
 
   const updateItem = useCallback(async (id: string, itemData: any) => {
     setLoading(true);
