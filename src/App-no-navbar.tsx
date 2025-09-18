@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -83,11 +81,30 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        userRole={userRole}
-        onLogout={handleLogout}
-      />
+      <nav className="bg-blue-600 text-white p-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-bold">MasterCom</h1>
+          {isLoggedIn ? (
+            <div className="flex items-center space-x-4">
+              <span>Rôle: {userRole}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 px-4 py-2 rounded hover:bg-red-700"
+              >
+                Déconnexion
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+            >
+              Connexion
+            </button>
+          )}
+        </div>
+      </nav>
+      
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -101,13 +118,16 @@ function AppContent() {
           <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} />
         </Routes>
       </main>
-      <Footer />
+      
+      <footer className="bg-gray-800 text-white p-4 text-center">
+        <p>&copy; 2024 MasterCom. Tous droits réservés.</p>
+      </footer>
     </div>
   );
 }
 
 function App() {
-  console.log('🚀 App MasterCom - Version complète restaurée');
+  console.log('🚀 App MasterCom - Version sans Navbar/Footer');
   
   return (
     <Router>
