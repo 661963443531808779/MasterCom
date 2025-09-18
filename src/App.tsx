@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -9,9 +9,11 @@ import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
-import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
 import { supabase } from './services/supabase';
+
+// Chargement paresseux des composants lourds
+const CRM = lazy(() => import('./pages/CRM'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -104,8 +106,30 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/crm" element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} />
-          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} />
+          <Route path="/crm" element={isLoggedIn ? (
+            <Suspense fallback={
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-gray-600 mt-4">Chargement du CRM...</p>
+                </div>
+              </div>
+            }>
+              <CRM userRole={userRole} />
+            </Suspense>
+          ) : <Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={isLoggedIn ? (
+            <Suspense fallback={
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-gray-600 mt-4">Chargement du Dashboard...</p>
+                </div>
+              </div>
+            }>
+              <Dashboard />
+            </Suspense>
+          ) : <Login onLogin={handleLogin} />} />
         </Routes>
       </main>
       <Footer />
