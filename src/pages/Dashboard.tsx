@@ -4,7 +4,7 @@ import {
   TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw,
   BarChart3, UserPlus, Settings, ArrowLeft
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
+// import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 import { clientService, projectService, invoiceService, quoteService, supportService } from '../services/supabase';
 
 const Dashboard: FC = () => {
@@ -178,32 +178,16 @@ const Dashboard: FC = () => {
         {/* Graphique CA */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Évolution du CA</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value: any) => [`${value}€`, 'CA']} />
-                <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+            <p className="text-gray-500">Graphique CA (Recharts temporairement désactivé)</p>
           </div>
         </div>
 
         {/* Graphique Projets */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Projets par mois</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={projectData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="projects" fill="#10B981" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+            <p className="text-gray-500">Graphique Projets (Recharts temporairement désactivé)</p>
           </div>
         </div>
       </div>
