@@ -34,7 +34,7 @@ const Pagination: React.FC<PaginationProps> = ({
     }
     
     // Ajouter la première page et des ellipses si nécessaire
-    if (startPage > 1) {
+    if (showFirstLast && startPage > 1) {
       pages.push(1);
       if (startPage > 2) {
         pages.push('...');
@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({
     }
     
     // Ajouter des ellipses et la dernière page si nécessaire
-    if (endPage < totalPages) {
+    if (showFirstLast && endPage < totalPages) {
       if (endPage < totalPages - 1) {
         pages.push('...');
       }

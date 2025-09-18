@@ -12,7 +12,7 @@ export default [
     ],
   },
   {
-    files: ['src/**/*.{js,jsx}'],
+    files: ['src/**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: 'module',
@@ -24,7 +24,7 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off', // Désactivé pour TypeScript
       'no-console': 'off',
     },
   },

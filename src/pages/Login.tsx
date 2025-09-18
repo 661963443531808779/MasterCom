@@ -3,69 +3,62 @@ import {
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
   Key, Settings
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useSecureForm, validationRules } from '../hooks/useSecureForm';
+import { supabase } from '../services/supabase';
 
 interface LoginProps {
   onLogin: (role: string) => void;
 }
 
 const Login: FC<LoginProps> = ({ onLogin }) => {
-  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  
-  const {
-    values: formData,
-    errors,
-    isSubmitting,
-    csrfToken,
-    handleChange,
-    handleSubmit
-  } = useSecureForm({
-    initialValues: {
-      email: '',
-      password: ''
-    },
-    validationRules: {
-      email: validationRules.email,
-      password: validationRules.required
-    },
-    enableCSRF: true
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (values: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
+    setIsLoading(true);
+
     try {
-      const user = await login(values.email, values.password);
+      console.log('🔐 Tentative de connexion Supabase avec:', email);
       
-      if (user) {
-        // Utiliser le rôle retourné par Supabase
-        const userRole = user.roles?.name || user.role_id || 'client';
-        onLogin(userRole);
-      } else {
-        setError('Aucun utilisateur retourné');
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        console.error('❌ Erreur Supabase:', authError.message);
+        setError('Email ou mot de passe incorrect');
+        return;
       }
-    } catch (error: any) {
-      
-      // Messages d'erreur plus spécifiques
-      let errorMessage = 'Erreur de connexion';
-      
-      if (error.message) {
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Email ou mot de passe incorrect';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Veuillez confirmer votre email avant de vous connecter';
-        } else if (error.message.includes('Too many requests')) {
-          errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard';
-        } else if (error.message.includes('User not found')) {
-          errorMessage = 'Aucun compte trouvé avec cet email';
+
+      if (data.user) {
+        console.log('✅ Connexion Supabase réussie:', data.user.email);
+        
+        // Récupérer le profil utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*, roles(*)')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.warn('⚠️ Erreur profil, utilisation du rôle par défaut:', profileError);
+          onLogin('client');
         } else {
-          errorMessage = error.message;
+          const userRole = profile.roles?.name || 'client';
+          console.log('✅ Rôle utilisateur:', userRole);
+          onLogin(userRole);
         }
       }
-      
-      setError(errorMessage);
+    } catch (error: any) {
+      console.error('❌ Erreur de connexion:', error);
+      setError('Erreur de connexion. Vérifiez votre connexion internet.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -78,10 +71,10 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
               <Shield className="h-8 w-8 text-blue-600" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Connexion Administrateur
+              Connexion MasterCom
             </h2>
             <p className="text-gray-600">
-              Accédez à l'interface d'administration MasterCom
+              Accédez à votre espace personnel
             </p>
           </div>
 
@@ -92,48 +85,36 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             </div>
           )}
 
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(onSubmit);
-          }} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adresse email administrateur
+                Adresse email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="email"
-                  name="email"
                   required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="admin@mastercom.fr"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Votre email Supabase"
                 />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                )}
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe administrateur
+                Mot de passe
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  name="password"
                   required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="••••••••"
                   minLength={6}
                 />
@@ -159,10 +140,10 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isLoading}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              {isSubmitting ? (
+              {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   Connexion...
@@ -170,7 +151,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
               ) : (
                 <>
                   <Key className="h-5 w-5 mr-2" />
-                  Se connecter en tant qu'administrateur
+                  Se connecter avec Supabase
                 </>
               )}
             </button>
@@ -181,11 +162,11 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
               <Settings className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
               <div>
                 <h3 className="text-sm font-medium text-blue-900 mb-1">
-                  Accès administrateur requis
+                  Authentification Supabase
                 </h3>
                 <p className="text-xs text-blue-700">
-                  Seuls les comptes administrateur peuvent accéder à cette interface. 
-                  Contactez votre administrateur système pour obtenir les identifiants.
+                  Utilisez vos identifiants Supabase pour vous connecter.
+                  Créez un compte si vous n'en avez pas encore.
                 </p>
               </div>
             </div>

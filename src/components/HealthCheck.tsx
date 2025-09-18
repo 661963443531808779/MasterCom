@@ -1,5 +1,5 @@
 import { useState, useEffect, FC } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Cloud } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
 interface HealthStatus {
@@ -24,7 +24,7 @@ const HealthCheck: FC = () => {
 
         // Test Supabase
         try {
-          const { data, error } = await supabase.auth.getSession();
+          const { error } = await supabase.auth.getSession();
           if (error) {
             console.warn('Supabase non accessible:', error);
             setStatus(prev => ({ ...prev, supabase: false }));
@@ -38,7 +38,7 @@ const HealthCheck: FC = () => {
 
         // Test base de données Supabase
         try {
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('roles')
             .select('id')
             .limit(1);

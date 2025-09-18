@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
-  Plus, Edit, Trash2, Eye, Search, Filter, 
-  FileText, Calendar, Euro, User, Download
+  Plus, Edit, Trash2, Search, 
+  FileText
 } from 'lucide-react';
 import { useApiData } from '../hooks/useApiData';
 import { useSecureForm, validationRules } from '../hooks/useSecureForm';
@@ -141,8 +141,8 @@ const InvoiceCRUD: FC = () => {
   };
 
   const getClientName = (clientId: string) => {
-    const client = clients.find(c => c.id === clientId);
-    return client ? client.name : 'Client inconnu';
+    const client = clients.find((c: any) => c.id === clientId);
+    return client ? (client as any).name : 'Client inconnu';
   };
 
   if (loading) {
@@ -359,7 +359,7 @@ const InvoiceCRUD: FC = () => {
                       }`}
                     >
                       <option value="">Sélectionner un client</option>
-                      {clients.map(client => (
+                      {clients.map((client: any) => (
                         <option key={client.id} value={client.id}>{client.name}</option>
                       ))}
                     </select>

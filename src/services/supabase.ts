@@ -84,6 +84,13 @@ export interface Client {
   email: string;
   phone: string;
   company: string;
+  contact_person?: string;
+  address?: string;
+  city?: string;
+  region?: string;
+  country: string;
+  status: 'prospect' | 'active' | 'inactive';
+  rating?: number;
   created_at: string;
   updated_at: string;
 }
@@ -312,6 +319,38 @@ export const clientService = {
       return data;
     } catch (error) {
       console.error('Erreur lors de la création du client:', error);
+      throw error;
+    }
+  },
+
+  async updateClient(id: string, clientData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .update(clientData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du client:', error);
+      throw error;
+    }
+  },
+
+  async deleteClient(id: string) {
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression du client:', error);
       throw error;
     }
   }

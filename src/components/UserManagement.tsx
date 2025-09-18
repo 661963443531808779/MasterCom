@@ -6,7 +6,30 @@ import {
   Users, Plus, Search, Edit, Trash2, Shield, UserCheck,
   MapPin, Crown, Briefcase, User, X
 } from 'lucide-react';
-import { userManagementService, UserProfile } from '../services/supabase';
+import { userManagementService } from '../services/supabase';
+
+interface UserProfile {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role_id: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  country: string;
+  phone?: string;
+  company?: string;
+  address?: string;
+  city?: string;
+  region?: string;
+  roles: {
+    id: string;
+    name: string;
+    description: string;
+    permissions: { all: boolean };
+  };
+}
 
 interface UserManagementProps {
   userRole: string;
@@ -63,7 +86,7 @@ const UserManagement: FC<UserManagementProps> = ({ userRole }) => {
         await userManagementService.updateUser(editingUser.id, formData);
         showNotification('success', 'Succès', 'Utilisateur modifié avec succès');
       } else {
-        await userManagementService.createCommercialUser(formData);
+        await userManagementService.createUser(formData);
         showNotification('success', 'Succès', 'Utilisateur créé avec succès');
       }
       

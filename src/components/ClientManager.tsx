@@ -10,7 +10,7 @@ interface ClientManagerProps {
   userRole: string;
 }
 
-const ClientManager: React.FC<ClientManagerProps> = memo(({ userRole }) => {
+const ClientManager: React.FC<ClientManagerProps> = memo(() => {
   const { user } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,8 +53,9 @@ const ClientManager: React.FC<ClientManagerProps> = memo(({ userRole }) => {
       if (editingClient) {
         await clientService.updateClient(editingClient.id, formData);
       } else {
-        // Passer l'ID de l'utilisateur actuel pour le champ created_by
-        await clientService.createClient(formData, user?.id);
+        // Ajouter l'ID de l'utilisateur actuel au formData
+        const clientData = { ...formData, created_by: user?.id };
+        await clientService.createClient(clientData);
       }
       await loadClients();
       setShowModal(false);
@@ -281,7 +282,7 @@ const ClientManager: React.FC<ClientManagerProps> = memo(({ userRole }) => {
                   <Star
                     key={i}
                     className={`h-4 w-4 ${
-                      i < client.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                      i < (client.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                     }`}
                   />
                 ))}
@@ -557,7 +558,7 @@ const ClientManager: React.FC<ClientManagerProps> = memo(({ userRole }) => {
                           <Star
                             key={i}
                             className={`h-4 w-4 ${
-                              i < selectedClient.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                              i < (selectedClient.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                             }`}
                           />
                         ))}

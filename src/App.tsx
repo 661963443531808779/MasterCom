@@ -8,7 +8,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login-supabase-only';
+import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 import { supabase } from './services/supabase';

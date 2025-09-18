@@ -4,8 +4,32 @@ import {
   Calendar, Clock, Users, Target, CheckCircle, AlertCircle, 
   Play, BarChart3, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { projectService, Project, Client } from '../services/supabase';
-import { clientService } from '../services/supabase';
+import { projectService, clientService } from '../services/supabase';
+
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  client_id: string;
+  status: 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+  start_date: string;
+  end_date: string;
+  budget: number;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  commercial_id?: string;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+  client_name?: string;
+}
+
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+}
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useNotification } from '../hooks/useNotification';
 import { validateProjectData, sanitizeProjectData } from '../utils/security';

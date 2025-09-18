@@ -1,7 +1,6 @@
 import { useState, FC } from 'react';
 import { 
-  Plus, Edit, Trash2, Eye, Search, Filter, 
-  Mail, Phone, MapPin, Calendar, Star, User
+  Plus, Edit, Trash2, Search, Star, User
 } from 'lucide-react';
 import { useApiData } from '../hooks/useApiData';
 import { useSecureForm, validationRules } from '../hooks/useSecureForm';
@@ -17,7 +16,7 @@ interface Client {
   region?: string;
   country: string;
   status: 'prospect' | 'active' | 'inactive';
-  rating: number;
+  rating?: number;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -253,7 +252,7 @@ const ClientCRUD: FC = () => {
                         <Star
                           key={i}
                           className={`h-4 w-4 ${
-                            i < client.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                            i < (client.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                           }`}
                         />
                       ))}
