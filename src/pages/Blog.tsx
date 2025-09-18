@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Calendar, User, ArrowRight, Search, Filter } from 'lucide-react';
+import { Calendar, User, ArrowRight, Search } from 'lucide-react';
 
 const Blog: FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
