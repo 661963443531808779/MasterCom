@@ -49,12 +49,16 @@ function AppContent() {
 
   const handleLogin = (role: string) => {
     console.log('🔐 Connexion réussie avec le rôle:', role);
+    console.log('🔍 État avant connexion - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
     setIsLoggedIn(true);
     setUserRole(role);
+    console.log('🔍 État après connexion - isLoggedIn:', true, 'userRole:', role);
 
     if (role === 'master' || role === 'admin') {
+      console.log('🔍 Redirection vers dashboard');
       navigate('/dashboard');
     } else {
+      console.log('🔍 Redirection vers CRM');
       navigate('/crm');
     }
   };
@@ -82,6 +86,8 @@ function AppContent() {
     );
   }
 
+  console.log('🔍 Rendu AppContent - isLoggedIn:', isLoggedIn, 'userRole:', userRole, 'pathname:', window.location.pathname);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar
@@ -98,12 +104,8 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          {isLoggedIn && (
-            <>
-              <Route path="/crm" element={<CRM userRole={userRole} />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-            </>
-          )}
+          <Route path="/crm" element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} />
         </Routes>
       </main>
       <Footer />
