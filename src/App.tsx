@@ -26,7 +26,8 @@ function AppContent() {
         // Délai pour éviter les problèmes de chargement
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        const { authService } = await import('./services/supabase');
+        // Import statique pour éviter les conflits
+        const { authService } = require('./services/supabase');
         const user = await authService.getCurrentUser();
         
         if (user) {
@@ -65,7 +66,7 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      const { authService } = await import('./services/supabase');
+      const { authService } = require('./services/supabase');
       await authService.signOut();
       console.log('🚪 Déconnexion');
       setIsLoggedIn(false);
