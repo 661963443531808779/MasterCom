@@ -139,7 +139,14 @@ function AppContent() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            {/* Routes CRM et Dashboard à ajouter dans la prochaine étape */}
+            <Route
+              path="/crm"
+              element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />}
+            />
+            <Route
+              path="/dashboard"
+              element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />}
+            />
           </Routes>
         </Suspense>
       </main>
