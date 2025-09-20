@@ -12,7 +12,26 @@ import Blog from './pages/Blog';
 import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
-import { supabase } from './services/supabase';
+
+// Import Supabase avec gestion d'erreur robuste
+import { supabase as supabaseClient } from './services/supabase';
+
+let supabase: any = null;
+
+try {
+  supabase = supabaseClient;
+  console.log('✅ Supabase initialisé dans App.tsx');
+} catch (error) {
+  console.warn('⚠️ Erreur initialisation Supabase dans App.tsx:', error);
+  // Mock Supabase pour éviter les crashes
+  supabase = {
+    auth: {
+      getUser: async () => ({ data: { user: null }, error: null }),
+      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non disponible' } }),
+      signOut: async () => ({ error: null })
+    }
+  };
+}
 
 // Gestion d'erreur globale
 window.addEventListener('error', (event) => {
