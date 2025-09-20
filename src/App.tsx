@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -13,10 +14,21 @@ import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 import { supabase } from './services/supabase';
 
+// Gestion d'erreur globale
+window.addEventListener('error', (event) => {
+  console.error('❌ Erreur globale:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('❌ Promesse rejetée:', event.reason);
+  event.preventDefault(); // Empêche l'erreur de remonter
+});
+
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('client');
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,12 +39,13 @@ function AppContent() {
         console.log('🔍 Vérification de l\'authentification...');
         
         // Vérification avec timeout pour éviter les blocages
-        const authPromise = supabase.auth.getUser();
+        const authPromise = supabase?.auth?.getUser ? supabase.auth.getUser() : Promise.resolve({ data: { user: null }, error: null });
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), 5000)
+          setTimeout(() => reject(new Error('Timeout')), 3000)
         );
         
-        const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]) as any;
+        const result = await Promise.race([authPromise, timeoutPromise]) as any;
+        const { data: { user }, error } = result || { data: { user: null }, error: null };
         
         if (error) {
           console.warn('⚠️ Erreur auth (non bloquante):', error.message);
@@ -52,7 +65,8 @@ function AppContent() {
       }
     };
 
-    checkAuth();
+    // Délai pour éviter les problèmes de timing
+    setTimeout(checkAuth, 100);
   }, []);
 
   const handleLogin = (role: string) => {
@@ -80,6 +94,31 @@ function AppContent() {
     }
   };
 
+  // Gestion d'erreur globale
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="h-16 w-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Erreur de Chargement</h1>
+          <p className="text-gray-600 mb-6">
+            Une erreur s'est produite lors du chargement de l'application. Veuillez rafraîchir la page.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Rafraîchir la Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -93,46 +132,74 @@ function AppContent() {
 
   console.log('🔍 Rendu AppContent - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
 
-  return (
-    <div className="min-h-screen bg-white">
-      <Navbar 
-        isLoggedIn={isLoggedIn} 
-        userRole={userRole} 
-        onLogout={handleLogout}
-      />
-      
-      <main className="min-h-screen">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route 
-            path="/crm" 
-            element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} 
-          />
-          <Route 
-            path="/dashboard" 
-            element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} 
-          />
-        </Routes>
-      </main>
-      
-      <Footer />
-    </div>
-  );
+  try {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar 
+          isLoggedIn={isLoggedIn} 
+          userRole={userRole} 
+          onLogout={handleLogout}
+        />
+        
+        <main className="min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route 
+              path="/crm" 
+              element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} 
+            />
+          </Routes>
+        </main>
+        
+        <Footer />
+      </div>
+    );
+  } catch (error) {
+    console.error('❌ Erreur lors du rendu:', error);
+    setHasError(true);
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="h-16 w-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Erreur de Rendu</h1>
+          <p className="text-gray-600 mb-6">
+            Une erreur s'est produite lors du rendu de l'application.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Rafraîchir la Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
 
 function App() {
   console.log('🚀 App MasterCom - Version complète');
   
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   );
 }
 
