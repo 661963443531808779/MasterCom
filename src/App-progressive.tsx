@@ -16,8 +16,8 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const Blog = lazy(() => import('./pages/Blog'));
 const Login = lazy(() => import('./pages/Login-test'));
-const CRM = lazy(() => import('./pages/CRM'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+// const CRM = lazy(() => import('./pages/CRM'));
+// const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 // Composant de loading simple
 const LoadingSpinner = () => (
@@ -76,12 +76,9 @@ function AppContent() {
     setIsLoggedIn(true);
     setUserRole(role);
     
-    // Redirection après login
-    if (role === 'master' || role === 'admin') {
-      navigate('/dashboard');
-    } else {
-      navigate('/crm');
-    }
+    // Redirection après login - temporairement vers la page d'accueil
+    navigate('/');
+    console.log('✅ Connexion réussie, redirection vers la page d\'accueil');
   };
 
   const handleLogout = () => {
@@ -139,14 +136,7 @@ function AppContent() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route
-              path="/crm"
-              element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />}
-            />
-            <Route
-              path="/dashboard"
-              element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />}
-            />
+            {/* Routes CRM et Dashboard temporairement désactivées pour debug */}
           </Routes>
         </Suspense>
       </main>
