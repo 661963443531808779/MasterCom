@@ -26,11 +26,16 @@ function AppContent() {
       try {
         console.log('🔍 Vérification de l\'authentification...');
         
-        // Vérification simple sans délai
-        const { data: { user }, error } = await supabase.auth.getUser();
+        // Vérification avec timeout pour éviter les blocages
+        const authPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        );
+        
+        const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]) as any;
         
         if (error) {
-          console.warn('Erreur auth:', error);
+          console.warn('⚠️ Erreur auth (non bloquante):', error.message);
         } else if (user) {
           console.log('✅ Utilisateur connecté:', user.email);
           setIsLoggedIn(true);
@@ -39,7 +44,8 @@ function AppContent() {
           console.log('❌ Aucun utilisateur connecté');
         }
       } catch (error) {
-        console.error('Erreur vérification auth:', error);
+        console.warn('⚠️ Erreur vérification auth (non bloquante):', error);
+        // Continuer même en cas d'erreur
       } finally {
         setIsLoading(false);
         console.log('✅ Chargement terminé');

@@ -26,47 +26,68 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     try {
       console.log('🔐 Tentative de connexion Supabase avec:', email);
       
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      // Ajouter un timeout pour éviter les blocages
+      const authPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout de connexion')), 10000)
+      );
+      
+      const { data, error: authError } = await Promise.race([authPromise, timeoutPromise]) as any;
 
       if (authError) {
         console.error('❌ Erreur Supabase:', authError.message);
-        setError('Email ou mot de passe incorrect');
+        if (authError.message.includes('Supabase non configuré')) {
+          setError('Service d\'authentification temporairement indisponible');
+        } else {
+          setError('Email ou mot de passe incorrect');
+        }
         return;
       }
 
-      if (data.user) {
+      if (data && data.user) {
         console.log('✅ Connexion Supabase réussie:', data.user.email);
         setIsSuccess(true);
         
-        // Récupérer le profil utilisateur
+        // Récupérer le profil utilisateur avec timeout
         try {
-          const { data: profile, error: profileError } = await supabase
+          const profilePromise = supabase
             .from('user_profiles')
             .select('*, roles(*)')
             .eq('id', data.user.id)
             .single();
+          
+          const profileTimeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout profil')), 5000)
+          );
+          
+          const { data: profile, error: profileError } = await Promise.race([profilePromise, profileTimeoutPromise]) as any;
 
           if (profileError) {
             console.warn('⚠️ Erreur profil, utilisation du rôle par défaut:', profileError);
-            // Attendre un peu pour montrer le succès
             setTimeout(() => onLogin('client'), 1000);
           } else {
             const userRole = profile?.roles?.name || 'client';
             console.log('✅ Rôle utilisateur récupéré:', userRole);
-            // Attendre un peu pour montrer le succès
             setTimeout(() => onLogin(userRole), 1000);
           }
         } catch (profileError) {
           console.warn('⚠️ Erreur récupération profil:', profileError);
           setTimeout(() => onLogin('client'), 1000);
         }
+      } else {
+        setError('Connexion échouée');
       }
     } catch (error) {
       console.error('❌ Erreur lors de la connexion:', error);
-      setError('Une erreur inattendue s\'est produite');
+      if (error instanceof Error && error.message.includes('Timeout')) {
+        setError('Connexion trop lente. Veuillez réessayer.');
+      } else {
+        setError('Une erreur inattendue s\'est produite');
+      }
     } finally {
       setIsLoading(false);
     }
