@@ -1,6 +1,6 @@
 import { useState, useEffect, FC } from 'react';
 import { 
-  TrendingUp, BarChart3, UserPlus, Settings, Users, Folder, FileText, MessageSquare
+  TrendingUp, BarChart3, UserPlus, Settings, Users, Folder, FileText
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, BarChart, Bar } from 'recharts';
 import { clientService, projectService, invoiceService, quoteService, supportService } from '../services/supabase';

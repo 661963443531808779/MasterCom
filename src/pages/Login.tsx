@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
-  Key, Settings, User, CheckCircle
+  Key, Settings, CheckCircle
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
