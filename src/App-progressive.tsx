@@ -15,7 +15,9 @@ const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const Blog = lazy(() => import('./pages/Blog'));
-const Login = lazy(() => import('./pages/Login'));
+const Login = lazy(() => import('./pages/Login-test'));
+const CRM = lazy(() => import('./pages/CRM'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 // Composant de loading simple
 const LoadingSpinner = () => (
