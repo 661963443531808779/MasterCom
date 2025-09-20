@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
-  Key, Settings
+  Key, Settings, User, CheckCircle
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
@@ -15,11 +15,13 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    setIsSuccess(false);
 
     try {
       console.log('🔐 Tentative de connexion Supabase avec:', email);
@@ -37,137 +39,179 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
 
       if (data.user) {
         console.log('✅ Connexion Supabase réussie:', data.user.email);
+        setIsSuccess(true);
         
         // Récupérer le profil utilisateur
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*, roles(*)')
-          .eq('id', data.user.id)
-          .single();
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('*, roles(*)')
+            .eq('id', data.user.id)
+            .single();
 
-        if (profileError) {
-          console.warn('⚠️ Erreur profil, utilisation du rôle par défaut:', profileError);
-          onLogin('client');
-        } else {
-          const userRole = profile.roles?.name || 'client';
-          console.log('✅ Rôle utilisateur:', userRole);
-          onLogin(userRole);
+          if (profileError) {
+            console.warn('⚠️ Erreur profil, utilisation du rôle par défaut:', profileError);
+            // Attendre un peu pour montrer le succès
+            setTimeout(() => onLogin('client'), 1000);
+          } else {
+            const userRole = profile?.roles?.name || 'client';
+            console.log('✅ Rôle utilisateur récupéré:', userRole);
+            // Attendre un peu pour montrer le succès
+            setTimeout(() => onLogin(userRole), 1000);
+          }
+        } catch (profileError) {
+          console.warn('⚠️ Erreur récupération profil:', profileError);
+          setTimeout(() => onLogin('client'), 1000);
         }
       }
-    } catch (error: any) {
-      console.error('❌ Erreur de connexion:', error);
-      setError('Erreur de connexion. Vérifiez votre connexion internet.');
+    } catch (error) {
+      console.error('❌ Erreur lors de la connexion:', error);
+      setError('Une erreur inattendue s\'est produite');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 flex items-center justify-center px-4 py-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <Shield className="h-8 w-8 text-blue-600" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Connexion MasterCom
-            </h2>
-            <p className="text-gray-600">
-              Accédez à votre espace personnel
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center">
+            <Shield className="h-6 w-6 text-white" />
           </div>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            Connexion MasterCom
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Accédez à votre espace de gestion
+          </p>
+        </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-              <span className="text-red-700">{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Formulaire */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Adresse email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
+                  id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Votre email Supabase"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="votre@email.com"
                 />
               </div>
             </div>
 
+            {/* Mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Mot de passe
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
+                  id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   placeholder="••••••••"
-                  minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
                 </button>
               </div>
             </div>
+          </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input type="checkbox" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                <span className="ml-2 text-sm text-gray-700">Se souvenir de moi</span>
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-500">
-                Mot de passe oublié ?
-              </a>
+          {/* Message d'erreur */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
+          )}
 
+          {/* Message de succès */}
+          {isSuccess && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+              <p className="text-sm text-green-700">Connexion réussie ! Redirection en cours...</p>
+            </div>
+          )}
+
+          {/* Bouton de connexion */}
+          <button
+            type="submit"
+            disabled={isLoading || isSuccess}
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Connexion en cours...
+              </>
+            ) : isSuccess ? (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Connexion réussie
+              </>
+            ) : (
+              <>
+                <Key className="h-4 w-4 mr-2" />
+                Se connecter
+              </>
+            )}
+          </button>
+
+          {/* Options supplémentaires */}
+          <div className="text-center">
             <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              type="button"
+              className="text-sm text-blue-600 hover:text-blue-500 font-medium"
             >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Connexion...
-                </>
-              ) : (
-                <>
-                  <Key className="h-5 w-5 mr-2" />
-                  Se connecter avec Supabase
-                </>
-              )}
+              Mot de passe oublié ?
             </button>
-          </form>
+          </div>
+        </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-start">
-              <Settings className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-medium text-blue-900 mb-1">
-                  Authentification Supabase
-                </h3>
-                <p className="text-xs text-blue-700">
-                  Utilisez vos identifiants Supabase pour vous connecter.
-                  Créez un compte si vous n'en avez pas encore.
-                </p>
+        {/* Informations de test */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start space-x-3">
+            <Settings className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <h3 className="font-medium text-blue-900 mb-1">Informations de connexion</h3>
+              <p className="text-blue-700 mb-2">
+                Utilisez vos identifiants Supabase pour vous connecter au système.
+              </p>
+              <div className="text-xs text-blue-600">
+                <p>• Email : Votre adresse email Supabase</p>
+                <p>• Mot de passe : Votre mot de passe Supabase</p>
               </div>
             </div>
           </div>

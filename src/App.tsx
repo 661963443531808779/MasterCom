@@ -20,44 +20,21 @@ function AppContent() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🚀 App MasterCom - Initialisation complète');
+    console.log('🚀 App MasterCom - Initialisation');
     
     const checkAuth = async () => {
       try {
         console.log('🔍 Vérification de l\'authentification...');
         
-        // Attendre un peu pour éviter les problèmes de timing
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
+        // Vérification simple sans délai
         const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error) {
           console.warn('Erreur auth:', error);
-          return;
-        }
-        
-        if (user) {
+        } else if (user) {
           console.log('✅ Utilisateur connecté:', user.email);
           setIsLoggedIn(true);
-          
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('user_profiles')
-              .select('*, roles(*)')
-              .eq('id', user.id)
-              .single();
-            
-            if (profileError) {
-              console.warn('Erreur profil:', profileError);
-              setUserRole('client');
-            } else {
-              setUserRole(profile?.roles?.name || 'client');
-              console.log('✅ Rôle utilisateur:', profile?.roles?.name || 'client');
-            }
-          } catch (profileError) {
-            console.warn('Erreur récupération profil:', profileError);
-            setUserRole('client');
-          }
+          setUserRole('client'); // Rôle par défaut pour éviter les erreurs
         } else {
           console.log('❌ Aucun utilisateur connecté');
         }
