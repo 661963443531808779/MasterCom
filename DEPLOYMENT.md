@@ -23,6 +23,7 @@
    - Headers de sécurité
    - Cache optimisé
    - Rewrites SPA
+   - Configuration simplifiée (pas de fonctions API)
 
 ### 🔧 Variables d'Environnement Vercel
 
