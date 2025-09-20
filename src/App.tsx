@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
-import About from './pages/About';
-import Services from './pages/Services';
-import Contact from './pages/Contact';
-import Portfolio from './pages/Portfolio';
-import Blog from './pages/Blog';
-import Login from './pages/Login';
-import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
+
+// Lazy loading pour réduire la taille du bundle initial
+const About = lazy(() => import('./pages/About'));
+const Services = lazy(() => import('./pages/Services'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const Blog = lazy(() => import('./pages/Blog'));
+const Login = lazy(() => import('./pages/Login'));
+const CRM = lazy(() => import('./pages/CRM'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 // Import Supabase avec gestion d'erreur robuste
 import { supabase as supabaseClient } from './services/supabase';
@@ -151,38 +153,47 @@ function AppContent() {
 
   console.log('🔍 Rendu AppContent - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
 
-  try {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navbar 
-          isLoggedIn={isLoggedIn} 
-          userRole={userRole} 
-          onLogout={handleLogout}
-        />
-        
-        <main className="min-h-screen">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route 
-              path="/crm" 
-              element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />} 
-            />
-            <Route 
-              path="/dashboard" 
-              element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />} 
-            />
-          </Routes>
-        </main>
-        
-        <Footer />
-      </div>
-    );
+         try {
+           return (
+             <div className="min-h-screen bg-white">
+               <Navbar
+                 isLoggedIn={isLoggedIn}
+                 userRole={userRole}
+                 onLogout={handleLogout}
+               />
+
+               <main className="min-h-screen">
+                 <Suspense fallback={
+                   <div className="min-h-screen flex items-center justify-center">
+                     <div className="text-center">
+                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                       <p className="text-gray-600 mt-4">Chargement...</p>
+                     </div>
+                   </div>
+                 }>
+                   <Routes>
+                     <Route path="/" element={<Home />} />
+                     <Route path="/about" element={<About />} />
+                     <Route path="/services" element={<Services />} />
+                     <Route path="/portfolio" element={<Portfolio />} />
+                     <Route path="/blog" element={<Blog />} />
+                     <Route path="/contact" element={<Contact />} />
+                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                     <Route
+                       path="/crm"
+                       element={isLoggedIn ? <CRM userRole={userRole} /> : <Login onLogin={handleLogin} />}
+                     />
+                     <Route
+                       path="/dashboard"
+                       element={isLoggedIn ? <Dashboard /> : <Login onLogin={handleLogin} />}
+                     />
+                   </Routes>
+                 </Suspense>
+               </main>
+
+               <Footer />
+             </div>
+           );
   } catch (error) {
     console.error('❌ Erreur lors du rendu:', error);
     setHasError(true);
