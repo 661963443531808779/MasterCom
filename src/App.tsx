@@ -14,6 +14,17 @@ import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
+// Composants avancés
+import NotificationSystem from './components/NotificationSystem';
+import GlobalSearch from './components/GlobalSearch';
+import ThemeSelector from './components/ThemeSelector';
+
+// Hooks avancés
+import { useAnalytics } from './utils/analytics';
+import { useToast } from './hooks/useNotifications';
+import { trackPageLoad, trackUserEngagement } from './utils/analytics';
+import { preloadCriticalResources } from './utils/performance';
+
 // Types d'authentification
 interface User {
   id: string;
@@ -67,7 +78,24 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  console.log('🚀 App MasterCom - Démarrage avec Supabase');
+  // Hooks avancés
+  const analytics = useAnalytics();
+  const toast = useToast();
+
+  console.log('🚀 App MasterCom - Démarrage avec Supabase et fonctionnalités avancées');
+
+  // Initialiser les fonctionnalités avancées
+  useEffect(() => {
+    // Initialiser les analytics et le tracking
+    trackPageLoad();
+    trackUserEngagement();
+    
+    // Précharger les ressources critiques
+    preloadCriticalResources();
+    
+    // Notifier le démarrage
+    toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
+  }, [toast]);
 
   // Initialiser l'authentification
   useEffect(() => {
