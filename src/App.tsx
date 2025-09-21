@@ -79,12 +79,18 @@ function App() {
       try {
         console.log('🔍 Vérification de la session utilisateur...');
         
-        // Vérifier la session actuelle
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Vérifier la session actuelle avec gestion d'erreur
+        let session = null;
+        try {
+          const { data: { session: sessionData }, error } = await supabase.auth.getSession();
+          if (!error && sessionData) {
+            session = sessionData;
+          }
+        } catch (sessionError) {
+          console.warn('⚠️ Erreur session Supabase:', sessionError);
+        }
         
-        if (error) {
-          console.warn('⚠️ Erreur lors de la récupération de la session:', error.message);
-        } else if (session?.user) {
+        if (session?.user) {
           console.log('✅ Session trouvée:', session.user.email);
           if (mounted) {
             setUser(session.user);
@@ -94,25 +100,33 @@ function App() {
           console.log('ℹ️ Aucune session active');
         }
 
-        // Écouter les changements d'authentification
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event: any, session: any) => {
-            console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
-            
-            if (mounted) {
-              if (session?.user) {
-                setUser(session.user);
-                await loadUserProfile(session.user.id);
-              } else {
-                setUser(null);
-                setUserProfile(null);
+        // Écouter les changements d'authentification avec gestion d'erreur
+        let subscription = null;
+        try {
+          const { data: { subscription: subData } } = supabase.auth.onAuthStateChange(
+            async (event: any, session: any) => {
+              console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
+              
+              if (mounted) {
+                if (session?.user) {
+                  setUser(session.user);
+                  await loadUserProfile(session.user.id);
+                } else {
+                  setUser(null);
+                  setUserProfile(null);
+                }
               }
             }
-          }
-        );
+          );
+          subscription = subData;
+        } catch (authError) {
+          console.warn('⚠️ Erreur auth listener:', authError);
+        }
 
         return () => {
-          subscription.unsubscribe();
+          if (subscription?.unsubscribe) {
+            subscription.unsubscribe();
+          }
         };
       } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation auth:', error);
@@ -136,22 +150,33 @@ function App() {
     try {
       console.log('👤 Chargement du profil utilisateur:', userId);
       
-      const { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select(`
-          *,
-          roles (
-            id,
-            name,
-            description,
-            permissions
-          )
-        `)
-        .eq('id', userId)
-        .single();
+      let profile = null;
+      try {
+        const { data: profileData, error } = await supabase
+          .from('user_profiles')
+          .select(`
+            *,
+            roles (
+              id,
+              name,
+              description,
+              permissions
+            )
+          `)
+          .eq('id', userId)
+          .single();
 
-      if (error) {
-        console.warn('⚠️ Erreur profil utilisateur:', error.message);
+        if (!error && profileData) {
+          profile = profileData;
+        }
+      } catch (profileError) {
+        console.warn('⚠️ Erreur profil utilisateur:', profileError);
+      }
+
+      if (profile) {
+        console.log('✅ Profil utilisateur chargé:', profile);
+        setUserProfile(profile);
+      } else {
         // Créer un profil par défaut si nécessaire
         const defaultProfile: UserProfile = {
           id: userId,
@@ -171,9 +196,6 @@ function App() {
           }
         };
         setUserProfile(defaultProfile);
-      } else {
-        console.log('✅ Profil utilisateur chargé:', profile);
-        setUserProfile(profile);
       }
     } catch (error) {
       console.error('❌ Erreur lors du chargement du profil:', error);
@@ -200,6 +222,8 @@ function App() {
         setUser(data.user);
         await loadUserProfile(data.user.id);
         return data.user;
+      } else {
+        throw new Error('Aucun utilisateur retourné');
       }
     } catch (error) {
       console.error('❌ Erreur lors de la connexion:', error);
