@@ -3,10 +3,9 @@ import {
   Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
   Key, Settings, CheckCircle
 } from 'lucide-react';
-import { supabase } from '../services/supabase';
 
 interface LoginProps {
-  onLogin: (role: string) => void;
+  onLogin: (email: string, password: string) => Promise<any>;
 }
 
 const Login: FC<LoginProps> = ({ onLogin }) => {
@@ -24,69 +23,34 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     setIsSuccess(false);
 
     try {
-      console.log('🔐 Tentative de connexion Supabase avec:', email);
+      console.log('🔐 Tentative de connexion avec:', email);
       
-      // Ajouter un timeout pour éviter les blocages
-      const authPromise = supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Utiliser la fonction onLogin passée en prop
+      const user = await onLogin(email, password);
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout de connexion')), 10000)
-      );
-      
-      const { data, error: authError } = await Promise.race([authPromise, timeoutPromise]) as any;
-
-      if (authError) {
-        console.error('❌ Erreur Supabase:', authError.message);
-        if (authError.message.includes('Supabase non configuré')) {
-          setError('Service d\'authentification temporairement indisponible');
-        } else {
-          setError('Email ou mot de passe incorrect');
-        }
-        return;
-      }
-
-      if (data && data.user) {
-        console.log('✅ Connexion Supabase réussie:', data.user.email);
+      if (user) {
+        console.log('✅ Connexion réussie:', user.email);
         setIsSuccess(true);
         
-        // Récupérer le profil utilisateur avec timeout
-        try {
-          const profilePromise = supabase
-            .from('user_profiles')
-            .select('*, roles(*)')
-            .eq('id', data.user.id)
-            .single();
-          
-          const profileTimeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout profil')), 5000)
-          );
-          
-          const { data: profile, error: profileError } = await Promise.race([profilePromise, profileTimeoutPromise]) as any;
-
-          if (profileError) {
-            console.warn('⚠️ Erreur profil, utilisation du rôle par défaut:', profileError);
-            setTimeout(() => onLogin('client'), 1000);
-          } else {
-            const userRole = profile?.roles?.name || 'client';
-            console.log('✅ Rôle utilisateur récupéré:', userRole);
-            setTimeout(() => onLogin(userRole), 1000);
-          }
-        } catch (profileError) {
-          console.warn('⚠️ Erreur récupération profil:', profileError);
-          setTimeout(() => onLogin('client'), 1000);
-        }
-      } else {
-        setError('Connexion échouée');
+        // Redirection automatique après succès
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erreur lors de la connexion:', error);
-      if (error instanceof Error && error.message.includes('Timeout')) {
-        setError('Connexion trop lente. Veuillez réessayer.');
+      
+      // Gestion des erreurs spécifiques
+      if (error.message.includes('Invalid login credentials')) {
+        setError('Email ou mot de passe incorrect');
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Veuillez confirmer votre email avant de vous connecter');
+      } else if (error.message.includes('Too many requests')) {
+        setError('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
+      } else if (error.message.includes('Supabase non configuré')) {
+        setError('Service d\'authentification temporairement indisponible');
       } else {
-        setError('Une erreur inattendue s\'est produite');
+        setError('Une erreur inattendue s\'est produite. Veuillez réessayer.');
       }
     } finally {
       setIsLoading(false);
@@ -221,18 +185,19 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
           </div>
         </form>
 
-        {/* Informations de test */}
+        {/* Informations de connexion */}
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <Settings className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <h3 className="font-medium text-blue-900 mb-1">Informations de connexion</h3>
+              <h3 className="font-medium text-blue-900 mb-1">Accès MasterCom</h3>
               <p className="text-blue-700 mb-2">
-                Utilisez vos identifiants Supabase pour vous connecter au système.
+                Connectez-vous avec vos identifiants Supabase pour accéder au CRM et Dashboard.
               </p>
-              <div className="text-xs text-blue-600">
-                <p>• Email : Votre adresse email Supabase</p>
-                <p>• Mot de passe : Votre mot de passe Supabase</p>
+              <div className="text-xs text-blue-600 space-y-1">
+                <p>• Accès sécurisé via Supabase Auth</p>
+                <p>• Gestion des rôles et permissions</p>
+                <p>• Session persistante</p>
               </div>
             </div>
           </div>
