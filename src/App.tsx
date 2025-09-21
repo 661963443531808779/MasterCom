@@ -2,7 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import conditionnel de Supabase pour éviter les erreurs
-import { supabase } from './services/supabase';
+let supabase: any = null;
+try {
+  const supabaseModule = require('./services/supabase');
+  supabase = supabaseModule.supabase;
+} catch (error) {
+  console.warn('⚠️ Supabase non disponible, mode dégradé:', error);
+  // Mode dégradé sans Supabase
+  supabase = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signOut: async () => ({ error: null }),
+      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non configuré' } })
+    }
+  };
+}
 
 // Import des composants
 import Navbar from './components/Navbar';
