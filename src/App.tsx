@@ -1,24 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import conditionnel de Supabase pour éviter les erreurs
-let supabase: any = null;
-try {
-  const supabaseModule = require('./services/supabase');
-  supabase = supabaseModule.supabase;
-} catch (error) {
-  console.warn('⚠️ Supabase non disponible, mode dégradé:', error);
-  // Mode dégradé sans Supabase
-  supabase = {
-    auth: {
-      getSession: async () => ({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      signOut: async () => ({ error: null }),
-      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non configuré' } })
-    }
-  };
-}
-
 // Import des composants
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -84,67 +66,78 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  console.log('🚀 App MasterCom - Démarrage avec Supabase');
+  console.log('🚀 App MasterCom - Démarrage');
 
-  // Initialiser l'authentification
+  // Initialiser l'authentification de manière simple
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
       try {
-        console.log('🔍 Vérification de la session utilisateur...');
+        console.log('🔍 Initialisation de l\'authentification...');
         
-        // Vérifier la session actuelle avec gestion d'erreur
-        let session = null;
+        // Import dynamique de Supabase pour éviter les erreurs
+        let supabase: any = null;
         try {
-          const { data: { session: sessionData }, error } = await supabase.auth.getSession();
-          if (!error && sessionData) {
-            session = sessionData;
-          }
-        } catch (sessionError) {
-          console.warn('⚠️ Erreur session Supabase:', sessionError);
+          const supabaseModule = await import('./services/supabase');
+          supabase = supabaseModule.supabase;
+          console.log('✅ Supabase chargé avec succès');
+        } catch (error) {
+          console.warn('⚠️ Supabase non disponible, mode dégradé:', error);
+          supabase = {
+            auth: {
+              getSession: async () => ({ data: { session: null }, error: null }),
+              onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+              signOut: async () => ({ error: null }),
+              signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non configuré' } })
+            }
+          };
         }
         
-        if (session?.user) {
-          console.log('✅ Session trouvée:', session.user.email);
-          if (mounted) {
-            setUser(session.user);
-            await loadUserProfile(session.user.id);
-          }
-        } else {
-          console.log('ℹ️ Aucune session active');
-        }
-
-        // Écouter les changements d'authentification avec gestion d'erreur
-        let subscription = null;
-        try {
-          const { data: { subscription: subData } } = supabase.auth.onAuthStateChange(
-            async (event: any, session: any) => {
-              console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
-              
+        // Vérifier la session actuelle
+        if (supabase && supabase.auth) {
+          try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (!error && session?.user) {
+              console.log('✅ Session trouvée:', session.user.email);
               if (mounted) {
-                if (session?.user) {
-                  setUser(session.user);
-                  await loadUserProfile(session.user.id);
-                } else {
-                  setUser(null);
-                  setUserProfile(null);
+                setUser(session.user);
+                await loadUserProfile(session.user.id, supabase);
+              }
+            } else {
+              console.log('ℹ️ Aucune session active');
+            }
+
+            // Écouter les changements d'authentification
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(
+              async (event: any, session: any) => {
+                console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
+                
+                if (mounted) {
+                  if (session?.user) {
+                    setUser(session.user);
+                    await loadUserProfile(session.user.id, supabase);
+                  } else {
+                    setUser(null);
+                    setUserProfile(null);
+                  }
                 }
               }
-            }
-          );
-          subscription = subData;
-        } catch (authError) {
-          console.warn('⚠️ Erreur auth listener:', authError);
-        }
+            );
 
-        return () => {
-          if (subscription?.unsubscribe) {
-            subscription.unsubscribe();
+            // Nettoyer la subscription au démontage
+            return () => {
+              if (subscription?.unsubscribe) {
+                subscription.unsubscribe();
+              }
+            };
+          } catch (authError) {
+            console.warn('⚠️ Erreur auth Supabase:', authError);
           }
-        };
+        }
       } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation auth:', error);
+        console.error('❌ Erreur lors de l\'initialisation:', error);
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -161,38 +154,40 @@ function App() {
   }, []);
 
   // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (userId: string, supabase: any) => {
     try {
       console.log('👤 Chargement du profil utilisateur:', userId);
       
       let profile = null;
-      try {
-        const { data: profileData, error } = await supabase
-          .from('user_profiles')
-          .select(`
-            *,
-            roles (
-              id,
-              name,
-              description,
-              permissions
-            )
-          `)
-          .eq('id', userId)
-          .single();
+      if (supabase && supabase.from) {
+        try {
+          const { data: profileData, error } = await supabase
+            .from('user_profiles')
+            .select(`
+              *,
+              roles (
+                id,
+                name,
+                description,
+                permissions
+              )
+            `)
+            .eq('id', userId)
+            .single();
 
-        if (!error && profileData) {
-          profile = profileData;
+          if (!error && profileData) {
+            profile = profileData;
+          }
+        } catch (profileError) {
+          console.warn('⚠️ Erreur profil utilisateur:', profileError);
         }
-      } catch (profileError) {
-        console.warn('⚠️ Erreur profil utilisateur:', profileError);
       }
 
       if (profile) {
         console.log('✅ Profil utilisateur chargé:', profile);
         setUserProfile(profile);
       } else {
-        // Créer un profil par défaut si nécessaire
+        // Créer un profil par défaut
         const defaultProfile: UserProfile = {
           id: userId,
           email: user?.email || '',
@@ -222,6 +217,10 @@ function App() {
     try {
       console.log('🔐 Tentative de connexion avec:', email);
       
+      // Import dynamique de Supabase
+      const supabaseModule = await import('./services/supabase');
+      const supabase = supabaseModule.supabase;
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -235,7 +234,7 @@ function App() {
       if (data.user) {
         console.log('✅ Connexion réussie:', data.user.email);
         setUser(data.user);
-        await loadUserProfile(data.user.id);
+        await loadUserProfile(data.user.id, supabase);
         return data.user;
       } else {
         throw new Error('Aucun utilisateur retourné');
@@ -250,12 +249,20 @@ function App() {
   const handleLogout = async () => {
     try {
       console.log('🚪 Déconnexion en cours...');
+      
+      // Import dynamique de Supabase
+      const supabaseModule = await import('./services/supabase');
+      const supabase = supabaseModule.supabase;
+      
       await supabase.auth.signOut();
       setUser(null);
       setUserProfile(null);
       console.log('✅ Déconnexion réussie');
     } catch (error) {
       console.error('❌ Erreur lors de la déconnexion:', error);
+      // Forcer la déconnexion même en cas d'erreur
+      setUser(null);
+      setUserProfile(null);
     }
   };
 
