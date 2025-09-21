@@ -14,17 +14,6 @@ import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
-// Composants avancés
-import NotificationSystem from './components/NotificationSystem';
-import GlobalSearch from './components/GlobalSearch';
-import ThemeSelector from './components/ThemeSelector';
-
-// Hooks avancés
-import { useAnalytics } from './utils/analytics';
-import { useToast } from './hooks/useNotifications';
-import { trackPageLoad, trackUserEngagement } from './utils/analytics';
-import { preloadCriticalResources } from './utils/performance';
-
 // Types d'authentification
 interface User {
   id: string;
@@ -78,24 +67,7 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  // Hooks avancés
-  const analytics = useAnalytics();
-  const toast = useToast();
-
-  console.log('🚀 App MasterCom - Démarrage avec Supabase et fonctionnalités avancées');
-
-  // Initialiser les fonctionnalités avancées
-  useEffect(() => {
-    // Initialiser les analytics et le tracking
-    trackPageLoad();
-    trackUserEngagement();
-    
-    // Précharger les ressources critiques
-    preloadCriticalResources();
-    
-    // Notifier le démarrage
-    toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
-  }, [toast]);
+  console.log('🚀 App MasterCom - Version de travail');
 
   // Initialiser l'authentification
   useEffect(() => {
@@ -242,9 +214,6 @@ function App() {
     try {
       console.log('🔐 Tentative de connexion avec:', email);
       
-      // Tracking analytics
-      analytics.trackUserAction('login_attempt', { email });
-      
       // Import dynamique de Supabase
       const supabaseModule = await import('./services/supabase');
       const supabase = supabaseModule.supabase;
@@ -256,21 +225,11 @@ function App() {
 
       if (error) {
         console.error('❌ Erreur de connexion:', error.message);
-        analytics.trackEvent('auth', 'login_failed', error.message);
-        toast.error('Erreur de connexion', error.message);
         throw error;
       }
 
       if (data.user) {
         console.log('✅ Connexion réussie:', data.user.email);
-        
-        // Tracking analytics
-        analytics.trackEvent('auth', 'login_success', data.user.email);
-        analytics.trackUserAction('login_success', { email: data.user.email });
-        
-        // Notification de succès
-        toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
-        
         setUser(data.user);
         await loadUserProfile(data.user.id, supabase);
         return data.user;
@@ -279,7 +238,6 @@ function App() {
       }
     } catch (error) {
       console.error('❌ Erreur lors de la connexion:', error);
-      analytics.trackError(error as Error, { action: 'login', email });
       throw error;
     }
   };
@@ -289,27 +247,16 @@ function App() {
     try {
       console.log('🚪 Déconnexion en cours...');
       
-      // Tracking analytics
-      analytics.trackUserAction('logout_attempt');
-      
       // Import dynamique de Supabase
       const supabaseModule = await import('./services/supabase');
       const supabase = supabaseModule.supabase;
       
       await supabase.auth.signOut();
-      
-      // Tracking analytics
-      analytics.trackEvent('auth', 'logout_success');
-      
-      // Notification
-      toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
-      
       setUser(null);
       setUserProfile(null);
       console.log('✅ Déconnexion réussie');
     } catch (error) {
       console.error('❌ Erreur lors de la déconnexion:', error);
-      analytics.trackError(error as Error, { action: 'logout' });
       // Forcer la déconnexion même en cas d'erreur
       setUser(null);
       setUserProfile(null);
@@ -323,25 +270,16 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-        {/* Composants globaux avancés */}
-        <NotificationSystem />
-        <GlobalSearch />
-        
+      <div className="min-h-screen bg-white">
         <Navbar
           isLoggedIn={!!user}
           userRole={userProfile?.roles?.name || 'client'}
           onLogout={handleLogout}
         />
 
-        {/* Sélecteur de thème flottant */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <ThemeSelector />
-        </div>
-
         {/* Affichage des erreurs Supabase */}
         {supabaseError && (
-          <div className="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
             <div className="flex">
               <div className="ml-3">
                 <p className="text-sm">
