@@ -11,8 +11,8 @@ import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
-import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
+import CRM from './components/CRM';
+import Dashboard from './components/Dashboard';
 
 // Types d'authentification
 interface User {
@@ -65,10 +65,11 @@ function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  console.log('🚀 App MasterCom - Démarrage');
+  console.log('🚀 App MasterCom - Démarrage avec Supabase');
 
-  // Initialiser l'authentification de manière simple
+  // Initialiser l'authentification
   useEffect(() => {
     let mounted = true;
 
@@ -76,26 +77,20 @@ function App() {
       try {
         console.log('🔍 Initialisation de l\'authentification...');
         
-        // Import dynamique de Supabase pour éviter les erreurs
+        // Import dynamique de Supabase avec gestion d'erreur robuste
         let supabase: any = null;
         try {
           const supabaseModule = await import('./services/supabase');
           supabase = supabaseModule.supabase;
           console.log('✅ Supabase chargé avec succès');
         } catch (error) {
-          console.warn('⚠️ Supabase non disponible, mode dégradé:', error);
-          supabase = {
-            auth: {
-              getSession: async () => ({ data: { session: null }, error: null }),
-              onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-              signOut: async () => ({ error: null }),
-              signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non configuré' } })
-            }
-          };
+          console.warn('⚠️ Supabase non disponible:', error);
+          setSupabaseError('Supabase non configuré - Mode dégradé');
+          supabase = null;
         }
         
-        // Vérifier la session actuelle
-        if (supabase && supabase.auth) {
+        if (supabase) {
+          // Vérifier la session actuelle avec gestion d'erreur
           try {
             const { data: { session }, error } = await supabase.auth.getSession();
             
@@ -134,10 +129,12 @@ function App() {
             };
           } catch (authError) {
             console.warn('⚠️ Erreur auth Supabase:', authError);
+            setSupabaseError('Erreur d\'authentification Supabase');
           }
         }
       } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation:', error);
+        setSupabaseError('Erreur d\'initialisation');
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -279,6 +276,19 @@ function App() {
           userRole={userProfile?.roles?.name || 'client'}
           onLogout={handleLogout}
         />
+
+        {/* Affichage des erreurs Supabase */}
+        {supabaseError && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm">
+                  <strong>Mode dégradé :</strong> {supabaseError}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <main className="min-h-screen">
           <Routes>
