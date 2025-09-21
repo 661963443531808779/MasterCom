@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Import conditionnel de Supabase pour éviter les erreurs
 import { supabase } from './services/supabase';
 
 // Import des composants
@@ -94,7 +96,7 @@ function App() {
 
         // Écouter les changements d'authentification
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
+          async (event: any, session: any) => {
             console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
             
             if (mounted) {
