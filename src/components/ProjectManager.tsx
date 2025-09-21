@@ -30,10 +30,7 @@ interface Client {
   phone?: string;
   company?: string;
 }
-import { useErrorHandler } from '../hooks/useErrorHandler';
-import { useNotification } from '../hooks/useNotification';
 import { validateProjectData, sanitizeProjectData } from '../utils/security';
-import Notification from './Notification';
 
 interface ProjectManagerProps {
   userRole: string;
@@ -52,8 +49,14 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   
-  const { handleError } = useErrorHandler();
-  const { showNotification } = useNotification();
+  // Gestion d'erreur simplifiée
+  const handleError = (error: any) => {
+    console.error('Erreur:', error);
+  };
+  
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    console.log(`${type.toUpperCase()}: ${message}`);
+  };
 
   // Form states
   const [formData, setFormData] = useState<{
