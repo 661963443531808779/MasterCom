@@ -11,8 +11,8 @@ import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
-import CRM from './components/CRM';
-import Dashboard from './components/Dashboard';
+import CRM from './pages/CRM';
+import Dashboard from './pages/Dashboard';
 
 // Types d'authentification
 interface User {
