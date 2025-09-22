@@ -1,337 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-// Import des composants
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import About from './pages/About';
-import Services from './pages/Services';
-import Contact from './pages/Contact';
-import Portfolio from './pages/Portfolio';
-import Blog from './pages/Blog';
-import Login from './pages/Login';
-import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
+// Composant de navigation simple
+const Navbar = () => (
+  <nav className="bg-blue-600 text-white p-4">
+    <div className="container mx-auto flex justify-between items-center">
+      <Link to="/" className="text-2xl font-bold">
+        MasterCom
+      </Link>
+      <div className="space-x-4">
+        <Link to="/" className="hover:text-blue-200">Accueil</Link>
+        <Link to="/about" className="hover:text-blue-200">À propos</Link>
+        <Link to="/services" className="hover:text-blue-200">Services</Link>
+        <Link to="/contact" className="hover:text-blue-200">Contact</Link>
+      </div>
+    </div>
+  </nav>
+);
 
-// Types d'authentification
-interface User {
-  id: string;
-  email: string;
-  user_metadata?: {
-    first_name?: string;
-    last_name?: string;
-  };
-}
-
-interface UserProfile {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role_id: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  country: string;
-  roles: {
-    id: string;
-    name: string;
-    description: string;
-    permissions: { all: boolean };
-  };
-}
-
-// Composant de chargement
-const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-      <p className="text-gray-600 mt-4">Chargement...</p>
+// Page d'accueil
+const Home = () => (
+  <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto px-4 py-16">
+      <div className="text-center">
+        <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          Bienvenue chez <span className="text-blue-600">MasterCom</span>
+        </h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Votre partenaire de confiance pour tous vos besoins en communication.
+          Nous transformons vos idées en succès mesurables.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">Stratégie</h3>
+            <p className="text-gray-600">Développement de stratégies sur-mesure pour optimiser votre image de marque.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">Créativité</h3>
+            <p className="text-gray-600">Création d'identités visuelles impactantes et mémorables.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">Digital</h3>
+            <p className="text-gray-600">Gestion complète de votre présence sur les réseaux sociaux.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 );
 
-// Composant de protection des routes
-const ProtectedRoute = ({ children, user }: { children: React.ReactNode; user: User | null }) => {
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
-};
+// Page À propos
+const About = () => (
+  <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto px-4 py-16">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6">À propos de MasterCom</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          MasterCom est une agence de communication moderne qui allie créativité et stratégie 
+          pour créer des campagnes mémorables et efficaces.
+        </p>
+      </div>
+    </div>
+  </div>
+);
 
+// Page Services
+const Services = () => (
+  <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto px-4 py-16">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6">Nos Services</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">Communication Digitale</h3>
+            <p className="text-gray-600">Stratégie et création de contenu pour vos réseaux sociaux.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">Branding</h3>
+            <p className="text-gray-600">Création d'identité visuelle et développement de marque.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Page Contact
+const Contact = () => (
+  <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto px-4 py-16">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6">Contactez-nous</h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Prêt à donner une nouvelle dimension à votre communication ? 
+          Discutons de votre projet.
+        </p>
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+          <form className="space-y-4">
+            <input 
+              type="text" 
+              placeholder="Votre nom" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input 
+              type="email" 
+              placeholder="Votre email" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <textarea 
+              placeholder="Votre message" 
+              rows={4}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            ></textarea>
+            <button 
+              type="submit"
+              className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Envoyer le message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Footer
+const Footer = () => (
+  <footer className="bg-gray-800 text-white py-8">
+    <div className="container mx-auto px-4 text-center">
+      <p>&copy; 2024 MasterCom. Tous droits réservés.</p>
+    </div>
+  </footer>
+);
+
+// Application principale
 function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [supabaseError, setSupabaseError] = useState<string | null>(null);
-
-  console.log('🚀 App MasterCom - Version de travail');
-
-  // Initialiser l'authentification
-  useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        console.log('🔍 Initialisation de l\'authentification...');
-        
-        // Import dynamique de Supabase avec gestion d'erreur robuste
-        let supabase: any = null;
-        try {
-          const supabaseModule = await import('./services/supabase');
-          supabase = supabaseModule.supabase;
-          console.log('✅ Supabase chargé avec succès');
-        } catch (error) {
-          console.warn('⚠️ Supabase non disponible:', error);
-          setSupabaseError('Supabase non configuré - Mode dégradé');
-          supabase = null;
-        }
-        
-        if (supabase) {
-          // Vérifier la session actuelle avec gestion d'erreur
-          try {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (!error && session?.user) {
-              console.log('✅ Session trouvée:', session.user.email);
-              if (mounted) {
-                setUser(session.user);
-                await loadUserProfile(session.user.id, supabase);
-              }
-            } else {
-              console.log('ℹ️ Aucune session active');
-            }
-
-            // Écouter les changements d'authentification
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(
-              async (event: any, session: any) => {
-                console.log('🔄 Changement d\'état auth:', event, session?.user?.email);
-                
-                if (mounted) {
-                  if (session?.user) {
-                    setUser(session.user);
-                    await loadUserProfile(session.user.id, supabase);
-                  } else {
-                    setUser(null);
-                    setUserProfile(null);
-                  }
-                }
-              }
-            );
-
-            // Nettoyer la subscription au démontage
-            return () => {
-              if (subscription?.unsubscribe) {
-                subscription.unsubscribe();
-              }
-            };
-          } catch (authError) {
-            console.warn('⚠️ Erreur auth Supabase:', authError);
-            setSupabaseError('Erreur d\'authentification Supabase');
-          }
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
-        setSupabaseError('Erreur d\'initialisation');
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-          setIsInitialized(true);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string, supabase: any) => {
-    try {
-      console.log('👤 Chargement du profil utilisateur:', userId);
-      
-      let profile = null;
-      if (supabase && supabase.from) {
-        try {
-          const { data: profileData, error } = await supabase
-            .from('user_profiles')
-            .select(`
-              *,
-              roles (
-                id,
-                name,
-                description,
-                permissions
-              )
-            `)
-            .eq('id', userId)
-            .single();
-
-          if (!error && profileData) {
-            profile = profileData;
-          }
-        } catch (profileError) {
-          console.warn('⚠️ Erreur profil utilisateur:', profileError);
-        }
-      }
-
-      if (profile) {
-        console.log('✅ Profil utilisateur chargé:', profile);
-        setUserProfile(profile);
-      } else {
-        // Créer un profil par défaut
-        const defaultProfile: UserProfile = {
-          id: userId,
-          email: user?.email || '',
-          first_name: user?.user_metadata?.first_name || 'Utilisateur',
-          last_name: user?.user_metadata?.last_name || '',
-          role_id: 'client',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          country: 'France',
-          roles: {
-            id: 'client',
-            name: 'client',
-            description: 'Client',
-            permissions: { all: false }
-          }
-        };
-        setUserProfile(defaultProfile);
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors du chargement du profil:', error);
-    }
-  };
-
-  // Gestion de la connexion
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      console.log('🔐 Tentative de connexion avec:', email);
-      
-      // Import dynamique de Supabase
-      const supabaseModule = await import('./services/supabase');
-      const supabase = supabaseModule.supabase;
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('❌ Erreur de connexion:', error.message);
-        throw error;
-      }
-
-      if (data.user) {
-        console.log('✅ Connexion réussie:', data.user.email);
-        setUser(data.user);
-        await loadUserProfile(data.user.id, supabase);
-        return data.user;
-      } else {
-        throw new Error('Aucun utilisateur retourné');
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de la connexion:', error);
-      throw error;
-    }
-  };
-
-  // Gestion de la déconnexion
-  const handleLogout = async () => {
-    try {
-      console.log('🚪 Déconnexion en cours...');
-      
-      // Import dynamique de Supabase
-      const supabaseModule = await import('./services/supabase');
-      const supabase = supabaseModule.supabase;
-      
-      await supabase.auth.signOut();
-      setUser(null);
-      setUserProfile(null);
-      console.log('✅ Déconnexion réussie');
-    } catch (error) {
-      console.error('❌ Erreur lors de la déconnexion:', error);
-      // Forcer la déconnexion même en cas d'erreur
-      setUser(null);
-      setUserProfile(null);
-    }
-  };
-
-  // Affichage du chargement initial
-  if (!isInitialized || isLoading) {
-    return <LoadingSpinner />;
-  }
+  console.log('🚀 MasterCom - Version fonctionnelle avec Tailwind');
 
   return (
     <Router>
       <div className="min-h-screen bg-white">
-        <Navbar
-          isLoggedIn={!!user}
-          userRole={userProfile?.roles?.name || 'client'}
-          onLogout={handleLogout}
-        />
-
-        {/* Affichage des erreurs Supabase */}
-        {supabaseError && (
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm">
-                  <strong>Mode dégradé :</strong> {supabaseError}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <main className="min-h-screen">
+        <Navbar />
+        
+        <main>
           <Routes>
-            {/* Routes publiques */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/blog" element={<Blog />} />
             <Route path="/contact" element={<Contact />} />
-            
-            {/* Route de connexion */}
-            <Route 
-              path="/login" 
-              element={
-                user ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Login onLogin={handleLogin} />
-                )
-              } 
-            />
-            
-            {/* Routes protégées */}
-            <Route 
-              path="/crm" 
-              element={
-                <ProtectedRoute user={user}>
-                  <CRM userRole={userProfile?.roles?.name || 'client'} />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute user={user}>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Route par défaut */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Home />} />
           </Routes>
         </main>
 
