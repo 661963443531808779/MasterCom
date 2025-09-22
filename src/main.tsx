@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App-vercel-optimized.tsx'; // Version optimisée pour Vercel
+import App from './App-minimal-vercel.tsx'; // Version minimal pour Vercel
 import './index.css';
 
 // Gestion d'erreur globale pour le rendu
