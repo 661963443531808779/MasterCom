@@ -268,13 +268,31 @@ function App() {
       const supabaseModule = await import('./services/supabase');
       const supabase = supabaseModule.supabase;
       
+      console.log('🔍 Client Supabase chargé:', !!supabase);
+      console.log('🔍 Configuration Supabase:', {
+        url: supabase?.supabaseUrl || 'Non défini',
+        hasKey: !!supabase?.supabaseKey
+      });
+      
+      // Test de connexion basique
+      if (!supabase) {
+        throw new Error('Client Supabase non initialisé');
+      }
+      
+      // Vérifier que le client est bien configuré
+      if (!supabase.auth) {
+        throw new Error('Module d\'authentification Supabase non disponible');
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log('📊 Réponse Supabase:', { data: !!data, error: error?.message });
+
       if (error) {
-        console.error('❌ Erreur de connexion:', error.message);
+        console.error('❌ Erreur de connexion Supabase:', error.message);
         if (analytics && analytics.trackEvent) {
           analytics.trackEvent('auth', 'login_failed', error.message);
         }
@@ -304,14 +322,39 @@ function App() {
         await loadUserProfile(data.user.id, supabase);
         return data.user;
       } else {
-        throw new Error('Aucun utilisateur retourné');
+        throw new Error('Aucun utilisateur retourné par Supabase');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erreur lors de la connexion:', error);
       if (analytics && analytics.trackError) {
         analytics.trackError(error as Error, { action: 'login', email });
       }
-      throw error;
+      
+      // Gestion spécifique des erreurs Supabase
+      console.error('🔍 Détails de l\'erreur:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        statusCode: error.statusCode
+      });
+      
+      if (error.message?.includes('Invalid login credentials')) {
+        throw new Error('Email ou mot de passe incorrect');
+      } else if (error.message?.includes('Email not confirmed')) {
+        throw new Error('Veuillez confirmer votre email avant de vous connecter');
+      } else if (error.message?.includes('Too many requests')) {
+        throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
+      } else if (error.message?.includes('Supabase non configuré')) {
+        throw new Error('Service d\'authentification temporairement indisponible');
+      } else if (error.message?.includes('Network')) {
+        throw new Error('Problème de connexion réseau. Vérifiez votre connexion internet.');
+      } else if (error.message?.includes('fetch')) {
+        throw new Error('Erreur de connexion au serveur. Vérifiez votre connexion.');
+      } else {
+        // Afficher l'erreur complète pour debug
+        console.error('❌ Erreur complète:', error);
+        throw new Error(`Erreur: ${error.message || 'Connexion impossible'}. Code: ${error.code || 'UNKNOWN'}`);
+      }
     }
   };
 

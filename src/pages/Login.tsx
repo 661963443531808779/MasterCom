@@ -175,13 +175,49 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
           </button>
 
           {/* Options supplémentaires */}
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <button
               type="button"
               className="text-sm text-blue-600 hover:text-blue-500 font-medium"
             >
               Mot de passe oublié ?
             </button>
+            
+            {/* Bouton de test de connexion Supabase */}
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    console.log('🧪 Test de connexion Supabase...');
+                    
+                    // Import dynamique de Supabase
+                    const { supabase } = await import('../services/supabase');
+                    
+                    console.log('🔍 Client Supabase:', !!supabase);
+                    console.log('🔍 Auth module:', !!supabase?.auth);
+                    
+                    // Test basique
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    
+                    if (error) {
+                      console.error('❌ Erreur session:', error);
+                      setError(`Erreur Supabase: ${error.message}`);
+                    } else {
+                      console.log('✅ Session actuelle:', session);
+                      setError('');
+                      alert(`✅ Connexion Supabase OK ! Session: ${session ? 'Active' : 'Aucune'}`);
+                    }
+                  } catch (error: any) {
+                    console.error('❌ Erreur test:', error);
+                    setError(`Erreur test: ${error.message}`);
+                  }
+                }}
+                className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+              >
+                🔧 Tester connexion Supabase
+              </button>
+            </div>
           </div>
         </form>
 
@@ -190,13 +226,13 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
           <div className="flex items-start space-x-3">
             <Settings className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <h3 className="font-medium text-blue-900 mb-1">Accès MasterCom</h3>
+              <h3 className="font-medium text-blue-900 mb-1">Authentification Supabase</h3>
               <p className="text-blue-700 mb-2">
-                Connectez-vous avec vos identifiants Supabase pour accéder au CRM et Dashboard.
+                Utilisez vos identifiants Supabase existants pour vous connecter.
               </p>
               <div className="text-xs text-blue-600 space-y-1">
-                <p>• Accès sécurisé via Supabase Auth</p>
-                <p>• Gestion des rôles et permissions</p>
+                <p>• Connexion sécurisée via Supabase Auth</p>
+                <p>• Accès au CRM et Dashboard</p>
                 <p>• Session persistante</p>
               </div>
             </div>
