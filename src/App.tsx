@@ -19,17 +19,17 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
-// Hooks avancés - version production
+// Hooks avancés - version production simplifiée
 const useAnalytics = () => ({
-  trackUserAction: () => {},
-  trackEvent: () => {},
-  trackError: () => {}
+  trackUserAction: (action: string, details?: any) => {},
+  trackEvent: (category: string, action: string, label?: string) => {},
+  trackError: (error: Error, context?: any) => {}
 });
 
 const useToast = () => ({
-  success: () => {},
-  error: () => {},
-  info: () => {}
+  success: (title: string, message: string) => {},
+  error: (title: string, message: string) => {},
+  info: (title: string, message: string) => {}
 });
 
 const trackPageLoad = () => {};
@@ -99,16 +99,14 @@ function App() {
   useEffect(() => {
     try {
       // Initialiser les analytics et le tracking
-      if (trackPageLoad) trackPageLoad();
-      if (trackUserEngagement) trackUserEngagement();
+      trackPageLoad();
+      trackUserEngagement();
       
       // Précharger les ressources critiques
-      if (preloadCriticalResources) preloadCriticalResources();
+      preloadCriticalResources();
       
       // Notifier le démarrage
-      if (toast && toast.success) {
-        toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
-      }
+      toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
     } catch (error) {
       console.warn('Erreur lors de l\'initialisation des fonctionnalités avancées:', error);
     }
@@ -260,9 +258,7 @@ function App() {
       console.log('🔐 Tentative de connexion avec:', email);
       
       // Tracking analytics
-      if (analytics && analytics.trackUserAction) {
-        analytics.trackUserAction('login_attempt', { email });
-      }
+      analytics.trackUserAction('login_attempt', { email });
       
       // Import direct de Supabase pour Vercel
       const { supabase } = await import('./services/supabase');
@@ -292,12 +288,8 @@ function App() {
 
       if (error) {
         console.error('❌ Erreur de connexion Supabase:', error.message);
-        if (analytics && analytics.trackEvent) {
-          analytics.trackEvent('auth', 'login_failed', error.message);
-        }
-        if (toast && toast.error) {
-          toast.error('Erreur de connexion', error.message);
-        }
+        analytics.trackEvent('auth', 'login_failed', error.message);
+        toast.error('Erreur de connexion', error.message);
         throw error;
       }
 
@@ -305,17 +297,11 @@ function App() {
         console.log('✅ Connexion réussie:', data.user.email);
         
         // Tracking analytics
-        if (analytics && analytics.trackEvent) {
-          analytics.trackEvent('auth', 'login_success', data.user.email);
-        }
-        if (analytics && analytics.trackUserAction) {
-          analytics.trackUserAction('login_success', { email: data.user.email });
-        }
+        analytics.trackEvent('auth', 'login_success', data.user.email);
+        analytics.trackUserAction('login_success', { email: data.user.email });
         
         // Notification de succès
-        if (toast && toast.success) {
-          toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
-        }
+        toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
         
         setUser(data.user);
         await loadUserProfile(data.user.id, supabase);
@@ -325,9 +311,7 @@ function App() {
       }
     } catch (error: any) {
       console.error('❌ Erreur lors de la connexion:', error);
-      if (analytics && analytics.trackError) {
-        analytics.trackError(error as Error, { action: 'login', email });
-      }
+      analytics.trackError(error as Error, { action: 'login', email });
       
       // Gestion spécifique des erreurs Supabase
       console.error('🔍 Détails de l\'erreur:', {
@@ -363,9 +347,7 @@ function App() {
       console.log('🚪 Déconnexion en cours...');
       
       // Tracking analytics
-      if (analytics && analytics.trackUserAction) {
-        analytics.trackUserAction('logout_attempt');
-      }
+      analytics.trackUserAction('logout_attempt');
       
       // Import direct de Supabase pour Vercel
       const { supabase } = await import('./services/supabase');
@@ -373,23 +355,17 @@ function App() {
       await supabase.auth.signOut();
       
       // Tracking analytics
-      if (analytics && analytics.trackEvent) {
-        analytics.trackEvent('auth', 'logout_success');
-      }
+      analytics.trackEvent('auth', 'logout_success');
       
       // Notification
-      if (toast && toast.info) {
-        toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
-      }
+      toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
       
       setUser(null);
       setUserProfile(null);
       console.log('✅ Déconnexion réussie');
     } catch (error) {
       console.error('❌ Erreur lors de la déconnexion:', error);
-      if (analytics && analytics.trackError) {
-        analytics.trackError(error as Error, { action: 'logout' });
-      }
+      analytics.trackError(error as Error, { action: 'logout' });
       // Forcer la déconnexion même en cas d'erreur
       setUser(null);
       setUserProfile(null);

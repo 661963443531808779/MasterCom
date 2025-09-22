@@ -1,15 +1,31 @@
 import React, { useEffect, useRef } from 'react';
 import { Search, X, Clock, FileText, Users, Folder, DollarSign, MessageSquare, ExternalLink } from 'lucide-react';
 
+// Types pour la recherche
+interface SearchResult {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  url: string;
+  metadata?: any;
+}
+
+interface SearchSuggestion {
+  id: string;
+  text: string;
+  type: string;
+}
+
 // Hook de recherche - version production
 const useGlobalSearch = () => ({
   query: '',
-  results: [],
+  results: [] as SearchResult[],
   isSearching: false,
-  suggestions: [],
+  suggestions: [] as SearchSuggestion[],
   isOpen: false,
-  setIsOpen: () => {},
-  searchInstant: () => {},
+  setIsOpen: (open: boolean) => {},
+  searchInstant: (query: string) => {},
   clearSearch: () => {}
 });
 
@@ -155,7 +171,7 @@ const GlobalSearch: React.FC = () => {
               <div className="px-6 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                 Résultats ({results.length})
               </div>
-              {results.map((result) => (
+              {results.map((result: SearchResult) => (
                 <button
                   key={result.id}
                   onClick={() => handleResultClick(result)}
@@ -215,15 +231,15 @@ const GlobalSearch: React.FC = () => {
                 <Clock className="h-3 w-3 mr-1" />
                 Suggestions
               </div>
-              {suggestions.map((suggestion, index) => (
+              {suggestions.map((suggestion: SearchSuggestion, index: number) => (
                 <button
                   key={index}
-                  onClick={() => handleSuggestionClick(suggestion)}
+                  onClick={() => handleSuggestionClick(suggestion.text)}
                   className="w-full px-6 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
                 >
                   <div className="flex items-center space-x-3">
                     <Search className="h-4 w-4 text-gray-400" />
-                    <span>{suggestion}</span>
+                    <span>{suggestion.text}</span>
                   </div>
                 </button>
               ))}

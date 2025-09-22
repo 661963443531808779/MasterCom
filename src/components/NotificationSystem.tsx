@@ -1,10 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Bell, BellOff } from 'lucide-react';
 
+// Types pour les notifications
+interface Notification {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  duration?: number;
+  actions?: Array<{
+    label: string;
+    action: () => void;
+    style?: 'primary' | 'secondary' | 'danger';
+  }>;
+  persistent?: boolean;
+}
+
 // Hooks de notifications - version production
 const useNotifications = () => ({ 
-  notifications: [], 
-  removeNotification: () => {}, 
+  notifications: [] as Notification[], 
+  removeNotification: (id: string) => {}, 
   clearAll: () => {} 
 });
 
@@ -103,7 +118,7 @@ const NotificationSystem: React.FC = () => {
 
       {/* Notification Container */}
       <div className="fixed top-20 right-4 z-40 space-y-2 max-w-sm">
-        {notifications.map((notification) => (
+        {notifications.map((notification: Notification) => (
           <div
             key={notification.id}
             className={`p-4 rounded-lg border shadow-lg transform transition-all duration-300 ease-in-out animate-slide-in-right ${getBackgroundColor(notification.type)}`}
@@ -151,22 +166,24 @@ const NotificationSystem: React.FC = () => {
       </div>
 
       {/* Styles pour les animations */}
-      <style jsx>{`
-        @keyframes slide-in-right {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes slide-in-right {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
           }
-          to {
-            transform: translateX(0);
-            opacity: 1;
+          
+          .animate-slide-in-right {
+            animation: slide-in-right 0.3s ease-out;
           }
-        }
-        
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out;
-        }
-      `}</style>
+        `
+      }} />
     </>
   );
 };
