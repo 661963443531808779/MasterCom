@@ -12,7 +12,8 @@
     "clean": "rm -rf node_modules/.vite dist .vite",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
-    "vercel:build": "npm run build:production"
+    "vercel:build": "npm run build:production",
+    "postbuild": "node build-error-handler.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

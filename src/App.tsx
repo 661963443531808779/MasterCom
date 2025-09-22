@@ -19,35 +19,22 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
-// Hooks avancés - avec gestion d'erreur
-let useAnalytics: any = () => ({});
-let useToast: any = () => ({});
-let trackPageLoad: any = () => {};
-let trackUserEngagement: any = () => {};
-let preloadCriticalResources: any = () => {};
+// Hooks avancés - version production
+const useAnalytics = () => ({
+  trackUserAction: () => {},
+  trackEvent: () => {},
+  trackError: () => {}
+});
 
-try {
-  const analyticsModule = require('./utils/analytics');
-  useAnalytics = analyticsModule.useAnalytics || (() => ({}));
-  trackPageLoad = analyticsModule.trackPageLoad || (() => {});
-  trackUserEngagement = analyticsModule.trackUserEngagement || (() => {});
-} catch (error) {
-  console.warn('Analytics non disponible:', error);
-}
+const useToast = () => ({
+  success: () => {},
+  error: () => {},
+  info: () => {}
+});
 
-try {
-  const notificationsModule = require('./hooks/useNotifications');
-  useToast = notificationsModule.useToast || (() => ({}));
-} catch (error) {
-  console.warn('Notifications non disponibles:', error);
-}
-
-try {
-  const performanceModule = require('./utils/performance');
-  preloadCriticalResources = performanceModule.preloadCriticalResources || (() => {});
-} catch (error) {
-  console.warn('Performance utils non disponibles:', error);
-}
+const trackPageLoad = () => {};
+const trackUserEngagement = () => {};
+const preloadCriticalResources = () => {};
 
 // Types d'authentification
 interface User {

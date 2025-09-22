@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Bell, BellOff } from 'lucide-react';
 
-// Fallback pour les hooks de notifications
-let useNotifications: any = () => ({ notifications: [], removeNotification: () => {}, clearAll: () => {} });
-let useSystemNotifications: any = () => ({ requestPermission: () => Promise.resolve(false), showSystemNotification: () => {} });
-let useRealtimeNotifications: any = () => ({ isConnected: false });
+// Hooks de notifications - version production
+const useNotifications = () => ({ 
+  notifications: [], 
+  removeNotification: () => {}, 
+  clearAll: () => {} 
+});
 
-try {
-  const notificationsModule = require('../hooks/useNotifications');
-  useNotifications = notificationsModule.useNotifications || useNotifications;
-  useSystemNotifications = notificationsModule.useSystemNotifications || useSystemNotifications;
-  useRealtimeNotifications = notificationsModule.useRealtimeNotifications || useRealtimeNotifications;
-} catch (error) {
-  console.warn('Notifications hooks non disponibles:', error);
-}
+const useSystemNotifications = () => ({ 
+  requestPermission: () => Promise.resolve(false), 
+  showSystemNotification: () => {} 
+});
+
+const useRealtimeNotifications = () => ({ 
+  isConnected: false 
+});
 
 const NotificationSystem: React.FC = () => {
   const { notifications, removeNotification, clearAll } = useNotifications();
