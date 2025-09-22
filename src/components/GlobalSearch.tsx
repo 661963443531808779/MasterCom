@@ -1,6 +1,24 @@
 import React, { useEffect, useRef } from 'react';
 import { Search, X, Clock, FileText, Users, Folder, DollarSign, MessageSquare, ExternalLink } from 'lucide-react';
-import { useGlobalSearch } from '../hooks/useSearch';
+
+// Fallback pour le hook de recherche
+let useGlobalSearch: any = () => ({
+  query: '',
+  results: [],
+  isSearching: false,
+  suggestions: [],
+  isOpen: false,
+  setIsOpen: () => {},
+  searchInstant: () => {},
+  clearSearch: () => {}
+});
+
+try {
+  const searchModule = require('../hooks/useSearch');
+  useGlobalSearch = searchModule.useGlobalSearch || useGlobalSearch;
+} catch (error) {
+  console.warn('Search hook non disponible:', error);
+}
 
 const GlobalSearch: React.FC = () => {
   const { 

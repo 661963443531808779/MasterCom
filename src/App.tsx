@@ -19,11 +19,35 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
-// Hooks avancés
-import { useAnalytics } from './utils/analytics';
-import { useToast } from './hooks/useNotifications';
-import { trackPageLoad, trackUserEngagement } from './utils/analytics';
-import { preloadCriticalResources } from './utils/performance';
+// Hooks avancés - avec gestion d'erreur
+let useAnalytics: any = () => ({});
+let useToast: any = () => ({});
+let trackPageLoad: any = () => {};
+let trackUserEngagement: any = () => {};
+let preloadCriticalResources: any = () => {};
+
+try {
+  const analyticsModule = require('./utils/analytics');
+  useAnalytics = analyticsModule.useAnalytics || (() => ({}));
+  trackPageLoad = analyticsModule.trackPageLoad || (() => {});
+  trackUserEngagement = analyticsModule.trackUserEngagement || (() => {});
+} catch (error) {
+  console.warn('Analytics non disponible:', error);
+}
+
+try {
+  const notificationsModule = require('./hooks/useNotifications');
+  useToast = notificationsModule.useToast || (() => ({}));
+} catch (error) {
+  console.warn('Notifications non disponibles:', error);
+}
+
+try {
+  const performanceModule = require('./utils/performance');
+  preloadCriticalResources = performanceModule.preloadCriticalResources || (() => {});
+} catch (error) {
+  console.warn('Performance utils non disponibles:', error);
+}
 
 // Types d'authentification
 interface User {
@@ -78,7 +102,7 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  // Hooks avancés
+  // Hooks avancés avec gestion d'erreur
   const analytics = useAnalytics();
   const toast = useToast();
 
@@ -86,15 +110,21 @@ function App() {
 
   // Initialiser les fonctionnalités avancées
   useEffect(() => {
-    // Initialiser les analytics et le tracking
-    trackPageLoad();
-    trackUserEngagement();
-    
-    // Précharger les ressources critiques
-    preloadCriticalResources();
-    
-    // Notifier le démarrage
-    toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
+    try {
+      // Initialiser les analytics et le tracking
+      if (trackPageLoad) trackPageLoad();
+      if (trackUserEngagement) trackUserEngagement();
+      
+      // Précharger les ressources critiques
+      if (preloadCriticalResources) preloadCriticalResources();
+      
+      // Notifier le démarrage
+      if (toast && toast.success) {
+        toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
+      }
+    } catch (error) {
+      console.warn('Erreur lors de l\'initialisation des fonctionnalités avancées:', error);
+    }
   }, [toast]);
 
   // Initialiser l'authentification
@@ -243,7 +273,9 @@ function App() {
       console.log('🔐 Tentative de connexion avec:', email);
       
       // Tracking analytics
-      analytics.trackUserAction('login_attempt', { email });
+      if (analytics && analytics.trackUserAction) {
+        analytics.trackUserAction('login_attempt', { email });
+      }
       
       // Import dynamique de Supabase
       const supabaseModule = await import('./services/supabase');
@@ -256,8 +288,12 @@ function App() {
 
       if (error) {
         console.error('❌ Erreur de connexion:', error.message);
-        analytics.trackEvent('auth', 'login_failed', error.message);
-        toast.error('Erreur de connexion', error.message);
+        if (analytics && analytics.trackEvent) {
+          analytics.trackEvent('auth', 'login_failed', error.message);
+        }
+        if (toast && toast.error) {
+          toast.error('Erreur de connexion', error.message);
+        }
         throw error;
       }
 
@@ -265,11 +301,17 @@ function App() {
         console.log('✅ Connexion réussie:', data.user.email);
         
         // Tracking analytics
-        analytics.trackEvent('auth', 'login_success', data.user.email);
-        analytics.trackUserAction('login_success', { email: data.user.email });
+        if (analytics && analytics.trackEvent) {
+          analytics.trackEvent('auth', 'login_success', data.user.email);
+        }
+        if (analytics && analytics.trackUserAction) {
+          analytics.trackUserAction('login_success', { email: data.user.email });
+        }
         
         // Notification de succès
-        toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
+        if (toast && toast.success) {
+          toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
+        }
         
         setUser(data.user);
         await loadUserProfile(data.user.id, supabase);
@@ -279,7 +321,9 @@ function App() {
       }
     } catch (error) {
       console.error('❌ Erreur lors de la connexion:', error);
-      analytics.trackError(error as Error, { action: 'login', email });
+      if (analytics && analytics.trackError) {
+        analytics.trackError(error as Error, { action: 'login', email });
+      }
       throw error;
     }
   };
@@ -290,7 +334,9 @@ function App() {
       console.log('🚪 Déconnexion en cours...');
       
       // Tracking analytics
-      analytics.trackUserAction('logout_attempt');
+      if (analytics && analytics.trackUserAction) {
+        analytics.trackUserAction('logout_attempt');
+      }
       
       // Import dynamique de Supabase
       const supabaseModule = await import('./services/supabase');
@@ -299,17 +345,23 @@ function App() {
       await supabase.auth.signOut();
       
       // Tracking analytics
-      analytics.trackEvent('auth', 'logout_success');
+      if (analytics && analytics.trackEvent) {
+        analytics.trackEvent('auth', 'logout_success');
+      }
       
       // Notification
-      toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
+      if (toast && toast.info) {
+        toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
+      }
       
       setUser(null);
       setUserProfile(null);
       console.log('✅ Déconnexion réussie');
     } catch (error) {
       console.error('❌ Erreur lors de la déconnexion:', error);
-      analytics.trackError(error as Error, { action: 'logout' });
+      if (analytics && analytics.trackError) {
+        analytics.trackError(error as Error, { action: 'logout' });
+      }
       // Forcer la déconnexion même en cas d'erreur
       setUser(null);
       setUserProfile(null);

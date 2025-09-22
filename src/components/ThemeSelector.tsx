@@ -1,6 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sun, Moon, Monitor, Palette, Type, Zap, RotateCcw } from 'lucide-react';
-import { useTheme, useThemeColors } from '../hooks/useTheme';
+
+// Fallback pour les hooks de thème
+let useTheme: any = () => ({
+  themeConfig: { theme: 'light', colorScheme: 'blue', fontSize: 'medium', animations: true },
+  setTheme: () => {},
+  setColorScheme: () => {},
+  setFontSize: () => {},
+  toggleAnimations: () => {},
+  resetTheme: () => {}
+});
+
+let useThemeColors: any = () => ({
+  colors: {
+    primary: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+    secondary: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
+    accent: { 50: '#fef3c7', 500: '#f59e0b', 600: '#d97706', 700: '#b45309' }
+  }
+});
+
+try {
+  const themeModule = require('../hooks/useTheme');
+  useTheme = themeModule.useTheme || useTheme;
+  useThemeColors = themeModule.useThemeColors || useThemeColors;
+} catch (error) {
+  console.warn('Theme hooks non disponibles:', error);
+}
 
 const ThemeSelector: React.FC = () => {
   const { 
@@ -13,7 +38,7 @@ const ThemeSelector: React.FC = () => {
   } = useTheme();
   
   const { colors } = useThemeColors();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const themeOptions = [
     { value: 'light', label: 'Clair', icon: Sun },

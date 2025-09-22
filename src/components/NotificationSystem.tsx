@@ -1,16 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Bell, BellOff } from 'lucide-react';
-import { useNotifications, useSystemNotifications, useRealtimeNotifications } from '../hooks/useNotifications';
+
+// Fallback pour les hooks de notifications
+let useNotifications: any = () => ({ notifications: [], removeNotification: () => {}, clearAll: () => {} });
+let useSystemNotifications: any = () => ({ requestPermission: () => Promise.resolve(false), showSystemNotification: () => {} });
+let useRealtimeNotifications: any = () => ({ isConnected: false });
+
+try {
+  const notificationsModule = require('../hooks/useNotifications');
+  useNotifications = notificationsModule.useNotifications || useNotifications;
+  useSystemNotifications = notificationsModule.useSystemNotifications || useSystemNotifications;
+  useRealtimeNotifications = notificationsModule.useRealtimeNotifications || useRealtimeNotifications;
+} catch (error) {
+  console.warn('Notifications hooks non disponibles:', error);
+}
 
 const NotificationSystem: React.FC = () => {
   const { notifications, removeNotification, clearAll } = useNotifications();
-  const { requestPermission, showSystemNotification } = useSystemNotifications();
+  const { requestPermission } = useSystemNotifications();
   const { isConnected } = useRealtimeNotifications();
-  const [systemNotificationsEnabled, setSystemNotificationsEnabled] = React.useState(false);
+  const [systemNotificationsEnabled, setSystemNotificationsEnabled] = useState(false);
 
   useEffect(() => {
     // Demander la permission pour les notifications système au chargement
-    requestPermission().then(enabled => {
+    requestPermission().then((enabled: boolean) => {
       setSystemNotificationsEnabled(enabled);
     });
   }, [requestPermission]);
