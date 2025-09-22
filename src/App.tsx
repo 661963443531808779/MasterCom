@@ -14,10 +14,10 @@ import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
-// Composants avancés - temporairement désactivés pour debug
-// import NotificationSystem from './components/NotificationSystem';
-// import GlobalSearch from './components/GlobalSearch';
-// import ThemeSelector from './components/ThemeSelector';
+// Composants avancés - réactivation progressive
+import NotificationSystem from './components/NotificationSystem';
+import GlobalSearch from './components/GlobalSearch';
+import ThemeSelector from './components/ThemeSelector';
 
 // Hooks avancés - version production
 const useAnalytics = () => ({
@@ -363,9 +363,9 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-        {/* Composants globaux avancés - temporairement désactivés */}
-        {/* <NotificationSystem />
-        <GlobalSearch /> */}
+        {/* Composants globaux avancés */}
+        <NotificationSystem />
+        <GlobalSearch />
         
         <Navbar
           isLoggedIn={!!user}
@@ -373,10 +373,10 @@ function App() {
           onLogout={handleLogout}
         />
 
-        {/* Sélecteur de thème flottant - temporairement désactivé */}
-        {/* <div className="fixed bottom-4 left-4 z-40">
+        {/* Sélecteur de thème flottant */}
+        <div className="fixed bottom-4 left-4 z-40">
           <ThemeSelector />
-        </div> */}
+        </div>
 
         {/* Affichage des erreurs Supabase */}
         {supabaseError && (
