@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import des composants
+// Import des composants de base
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -46,7 +46,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log('🚀 App MasterCom - Version ultra-simple');
+  console.log('🚀 App MasterCom - Version simplifiée');
 
   // Initialiser l'authentification
   useEffect(() => {
