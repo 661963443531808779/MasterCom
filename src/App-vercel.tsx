@@ -14,27 +14,8 @@ import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
 
-// Composants avancés - réactivation progressive
-import NotificationSystem from './components/NotificationSystem';
-import GlobalSearch from './components/GlobalSearch';
-import ThemeSelector from './components/ThemeSelector';
-
-// Hooks avancés - version production
-const useAnalytics = () => ({
-  trackUserAction: () => {},
-  trackEvent: () => {},
-  trackError: () => {}
-});
-
-const useToast = () => ({
-  success: () => {},
-  error: () => {},
-  info: () => {}
-});
-
-const trackPageLoad = () => {};
-const trackUserEngagement = () => {};
-const preloadCriticalResources = () => {};
+// Import direct de Supabase (pas d'import dynamique)
+import { supabase } from './services/supabase';
 
 // Types d'authentification
 interface User {
@@ -89,30 +70,7 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  // Hooks avancés avec gestion d'erreur
-  const analytics = useAnalytics();
-  const toast = useToast();
-
-  console.log('🚀 App MasterCom - Démarrage avec Supabase et fonctionnalités avancées');
-
-  // Initialiser les fonctionnalités avancées
-  useEffect(() => {
-    try {
-      // Initialiser les analytics et le tracking
-      if (trackPageLoad) trackPageLoad();
-      if (trackUserEngagement) trackUserEngagement();
-      
-      // Précharger les ressources critiques
-      if (preloadCriticalResources) preloadCriticalResources();
-      
-      // Notifier le démarrage
-      if (toast && toast.success) {
-        toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
-      }
-    } catch (error) {
-      console.warn('Erreur lors de l\'initialisation des fonctionnalités avancées:', error);
-    }
-  }, [toast]);
+  console.log('🚀 App MasterCom - Version Vercel');
 
   // Initialiser l'authentification
   useEffect(() => {
@@ -122,20 +80,8 @@ function App() {
       try {
         console.log('🔍 Initialisation de l\'authentification...');
         
-        // Import dynamique de Supabase avec gestion d'erreur robuste
-        let supabase: any = null;
-        try {
-          const supabaseModule = await import('./services/supabase');
-          supabase = supabaseModule.supabase;
-          console.log('✅ Supabase chargé avec succès');
-        } catch (error) {
-          console.warn('⚠️ Supabase non disponible:', error);
-          setSupabaseError('Supabase non configuré - Mode dégradé');
-          supabase = null;
-        }
-        
         if (supabase) {
-          // Vérifier la session actuelle avec gestion d'erreur
+          // Vérifier la session actuelle
           try {
             const { data: { session }, error } = await supabase.auth.getSession();
             
@@ -143,7 +89,7 @@ function App() {
               console.log('✅ Session trouvée:', session.user.email);
               if (mounted) {
                 setUser(session.user);
-                await loadUserProfile(session.user.id, supabase);
+                await loadUserProfile(session.user.id);
               }
             } else {
               console.log('ℹ️ Aucune session active');
@@ -157,7 +103,7 @@ function App() {
                 if (mounted) {
                   if (session?.user) {
                     setUser(session.user);
-                    await loadUserProfile(session.user.id, supabase);
+                    await loadUserProfile(session.user.id);
                   } else {
                     setUser(null);
                     setUserProfile(null);
@@ -196,7 +142,7 @@ function App() {
   }, []);
 
   // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string, supabase: any) => {
+  const loadUserProfile = async (userId: string) => {
     try {
       console.log('👤 Chargement du profil utilisateur:', userId);
       
@@ -259,28 +205,8 @@ function App() {
     try {
       console.log('🔐 Tentative de connexion avec:', email);
       
-      // Tracking analytics
-      if (analytics && analytics.trackUserAction) {
-        analytics.trackUserAction('login_attempt', { email });
-      }
-      
-      // Import direct de Supabase pour Vercel
-      const { supabase } = await import('./services/supabase');
-      
-      console.log('🔍 Client Supabase chargé:', !!supabase);
-      console.log('🔍 Configuration Supabase:', {
-        url: supabase?.supabaseUrl || 'Non défini',
-        hasKey: !!supabase?.supabaseKey
-      });
-      
-      // Test de connexion basique
       if (!supabase) {
         throw new Error('Client Supabase non initialisé');
-      }
-      
-      // Vérifier que le client est bien configuré
-      if (!supabase.auth) {
-        throw new Error('Module d\'authentification Supabase non disponible');
       }
       
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -292,67 +218,29 @@ function App() {
 
       if (error) {
         console.error('❌ Erreur de connexion Supabase:', error.message);
-        if (analytics && analytics.trackEvent) {
-          analytics.trackEvent('auth', 'login_failed', error.message);
-        }
-        if (toast && toast.error) {
-          toast.error('Erreur de connexion', error.message);
-        }
         throw error;
       }
 
       if (data.user) {
         console.log('✅ Connexion réussie:', data.user.email);
-        
-        // Tracking analytics
-        if (analytics && analytics.trackEvent) {
-          analytics.trackEvent('auth', 'login_success', data.user.email);
-        }
-        if (analytics && analytics.trackUserAction) {
-          analytics.trackUserAction('login_success', { email: data.user.email });
-        }
-        
-        // Notification de succès
-        if (toast && toast.success) {
-          toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
-        }
-        
         setUser(data.user);
-        await loadUserProfile(data.user.id, supabase);
+        await loadUserProfile(data.user.id);
         return data.user;
       } else {
         throw new Error('Aucun utilisateur retourné par Supabase');
       }
     } catch (error: any) {
       console.error('❌ Erreur lors de la connexion:', error);
-      if (analytics && analytics.trackError) {
-        analytics.trackError(error as Error, { action: 'login', email });
-      }
       
       // Gestion spécifique des erreurs Supabase
-      console.error('🔍 Détails de l\'erreur:', {
-        message: error.message,
-        code: error.code,
-        status: error.status,
-        statusCode: error.statusCode
-      });
-      
       if (error.message?.includes('Invalid login credentials')) {
         throw new Error('Email ou mot de passe incorrect');
       } else if (error.message?.includes('Email not confirmed')) {
         throw new Error('Veuillez confirmer votre email avant de vous connecter');
       } else if (error.message?.includes('Too many requests')) {
         throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
-      } else if (error.message?.includes('Supabase non configuré')) {
-        throw new Error('Service d\'authentification temporairement indisponible');
-      } else if (error.message?.includes('Network')) {
-        throw new Error('Problème de connexion réseau. Vérifiez votre connexion internet.');
-      } else if (error.message?.includes('fetch')) {
-        throw new Error('Erreur de connexion au serveur. Vérifiez votre connexion.');
       } else {
-        // Afficher l'erreur complète pour debug
-        console.error('❌ Erreur complète:', error);
-        throw new Error(`Erreur: ${error.message || 'Connexion impossible'}. Code: ${error.code || 'UNKNOWN'}`);
+        throw new Error(`Erreur: ${error.message || 'Connexion impossible'}`);
       }
     }
   };
@@ -362,24 +250,8 @@ function App() {
     try {
       console.log('🚪 Déconnexion en cours...');
       
-      // Tracking analytics
-      if (analytics && analytics.trackUserAction) {
-        analytics.trackUserAction('logout_attempt');
-      }
-      
-      // Import direct de Supabase pour Vercel
-      const { supabase } = await import('./services/supabase');
-      
-      await supabase.auth.signOut();
-      
-      // Tracking analytics
-      if (analytics && analytics.trackEvent) {
-        analytics.trackEvent('auth', 'logout_success');
-      }
-      
-      // Notification
-      if (toast && toast.info) {
-        toast.info('Déconnexion', 'Vous avez été déconnecté avec succès');
+      if (supabase) {
+        await supabase.auth.signOut();
       }
       
       setUser(null);
@@ -387,9 +259,6 @@ function App() {
       console.log('✅ Déconnexion réussie');
     } catch (error) {
       console.error('❌ Erreur lors de la déconnexion:', error);
-      if (analytics && analytics.trackError) {
-        analytics.trackError(error as Error, { action: 'logout' });
-      }
       // Forcer la déconnexion même en cas d'erreur
       setUser(null);
       setUserProfile(null);
@@ -404,20 +273,11 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-        {/* Composants globaux avancés */}
-        <NotificationSystem />
-        <GlobalSearch />
-        
         <Navbar
           isLoggedIn={!!user}
           userRole={userProfile?.roles?.name || 'client'}
           onLogout={handleLogout}
         />
-
-        {/* Sélecteur de thème flottant */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <ThemeSelector />
-        </div>
 
         {/* Affichage des erreurs Supabase */}
         {supabaseError && (
