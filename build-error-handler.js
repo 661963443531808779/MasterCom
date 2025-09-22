@@ -2,8 +2,8 @@
 console.log('🔧 Vérification de la configuration de build...');
 
 // Vérifier que tous les fichiers requis existent
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const requiredFiles = [
   'src/main.tsx',
