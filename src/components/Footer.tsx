@@ -6,7 +6,6 @@ const Footer: FC = () => {
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
           {/* Company Info */}
           <div>
             <h3 className="text-xl font-bold text-blue-400 mb-4">Master Com</h3>
@@ -15,18 +14,10 @@ const Footer: FC = () => {
               Nous transformons vos idées en succès.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-                <Facebook className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              </a>
-              <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
-                <Twitter className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              </a>
-              <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-                <Linkedin className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              </a>
-              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-                <Instagram className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              </a>
+              <Facebook className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
+              <Twitter className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
+              <Linkedin className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
+              <Instagram className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
             </div>
           </div>
 
@@ -60,9 +51,7 @@ const Footer: FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">
-                  123 Rue de la Communication<br />75001 Paris
-                </span>
+                <span className="text-gray-300">123 Rue de la Communication<br />75001 Paris</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-blue-400" />
@@ -76,7 +65,6 @@ const Footer: FC = () => {
           </div>
         </div>
 
-        {/* Footer Bottom */}
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <p className="text-gray-400">
             © 2025 Master Com. Tous droits réservés. | 
