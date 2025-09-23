@@ -19,6 +19,9 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
+// Import statique de Supabase
+import { supabase } from './services/supabase';
+
 // Hooks avancés - version production simplifiée
 const useAnalytics = () => ({
   trackUserAction: (action: string, details?: any) => {},
@@ -141,7 +144,7 @@ function App() {
               console.log('✅ Session trouvée:', session.user.email);
               if (mounted) {
                 setUser(session.user);
-                await loadUserProfile(session.user.id, supabase);
+                await loadUserProfile(session.user.id);
               }
             } else {
               console.log('ℹ️ Aucune session active');
@@ -155,7 +158,7 @@ function App() {
                 if (mounted) {
                   if (session?.user) {
                     setUser(session.user);
-                    await loadUserProfile(session.user.id, supabase);
+                    await loadUserProfile(session.user.id);
                   } else {
                     setUser(null);
                     setUserProfile(null);
@@ -194,7 +197,7 @@ function App() {
   }, []);
 
   // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string, supabase: any) => {
+  const loadUserProfile = async (userId: string) => {
     try {
       console.log('👤 Chargement du profil utilisateur:', userId);
       
@@ -260,23 +263,18 @@ function App() {
       // Tracking analytics
       analytics.trackUserAction('login_attempt', { email });
       
-      // Import direct de Supabase pour Vercel
-      const { supabase } = await import('./services/supabase');
-      
-      console.log('🔍 Client Supabase chargé:', !!supabase);
-      console.log('🔍 Configuration Supabase:', {
-        url: supabase?.supabaseUrl || 'Non défini',
-        hasKey: !!supabase?.supabaseKey
+      console.log('🔍 Client Supabase disponible:', !!supabase);
+      console.log('🔍 Module auth disponible:', !!supabase?.auth);
+      console.log('🔍 URL Supabase:', supabase?.supabaseUrl || 'Non définie');
+      console.log('🔍 Variables d\'environnement:', {
+        hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+        hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
       });
       
       // Test de connexion basique
-      if (!supabase) {
-        throw new Error('Client Supabase non initialisé');
-      }
-      
-      // Vérifier que le client est bien configuré
-      if (!supabase.auth) {
-        throw new Error('Module d\'authentification Supabase non disponible');
+      if (!supabase || !supabase.auth) {
+        console.error('❌ Client Supabase non initialisé');
+        throw new Error('Service d\'authentification non disponible');
       }
       
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -304,7 +302,7 @@ function App() {
         toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
         
         setUser(data.user);
-        await loadUserProfile(data.user.id, supabase);
+        await loadUserProfile(data.user.id);
         return data.user;
       } else {
         throw new Error('Aucun utilisateur retourné par Supabase');
@@ -318,7 +316,18 @@ function App() {
         message: error.message,
         code: error.code,
         status: error.status,
-        statusCode: error.statusCode
+        statusCode: error.statusCode,
+        name: error.name,
+        stack: error.stack
+      });
+      
+      // Diagnostic supplémentaire
+      console.error('🔍 Diagnostic Supabase:', {
+        supabaseClient: !!supabase,
+        authModule: !!supabase?.auth,
+        networkError: error.message?.includes('fetch'),
+        timeoutError: error.message?.includes('timeout'),
+        networkStatus: navigator.onLine
       });
       
       if (error.message?.includes('Invalid login credentials')) {
@@ -348,9 +357,6 @@ function App() {
       
       // Tracking analytics
       analytics.trackUserAction('logout_attempt');
-      
-      // Import direct de Supabase pour Vercel
-      const { supabase } = await import('./services/supabase');
       
       await supabase.auth.signOut();
       

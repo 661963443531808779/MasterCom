@@ -16,42 +16,27 @@ if (!isSupabaseConfigured) {
 }
 
 // Créer le client Supabase avec gestion d'erreur robuste
-let supabase: any = null;
-
-try {
-  supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      storageKey: 'mastercom-auth-token',
-      flowType: 'pkce'
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: 'mastercom-auth-token',
+    flowType: 'pkce'
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
-  });
-} catch (error) {
-  console.error('❌ Erreur lors de la création du client Supabase:', error);
-  // Créer un client mock en cas d'erreur
-  supabase = {
-    auth: {
-      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase non configuré' } }),
-      signOut: async () => ({ error: null }),
-      getUser: async () => ({ data: { user: null }, error: null })
-    },
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => ({ data: null, error: { message: 'Supabase non configuré' } })
-        })
-      })
-    })
-  };
-}
+  }
+});
+
+console.log('✅ Client Supabase initialisé:', {
+  url: supabaseUrl,
+  hasAuth: !!supabase.auth,
+  hasRealtime: !!supabase.realtime
+});
 
 export { supabase };
 
