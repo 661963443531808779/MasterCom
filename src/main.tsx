@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App-simple-vercel.tsx'; // Version ultra-simple pour Vercel
+import App from './App.tsx'; // Application complète MasterCom
 import './index.css';
 
 // Gestion d'erreur globale pour le rendu
