@@ -230,24 +230,26 @@ function App() {
         console.log('✅ Profil utilisateur chargé:', profile);
         setUserProfile(profile);
       } else {
-        // Créer un profil par défaut
+        // Créer un profil par défaut selon l'email
+        const isMasterAccount = user?.email === 'master@master.com';
         const defaultProfile: UserProfile = {
           id: userId,
           email: user?.email || '',
-          first_name: user?.user_metadata?.first_name || 'Utilisateur',
-          last_name: user?.user_metadata?.last_name || '',
-          role_id: 'client',
+          first_name: user?.user_metadata?.first_name || (isMasterAccount ? 'Master' : 'Utilisateur'),
+          last_name: user?.user_metadata?.last_name || (isMasterAccount ? 'Admin' : ''),
+          role_id: isMasterAccount ? 'master' : 'client',
           is_active: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           country: 'France',
           roles: {
-            id: 'client',
-            name: 'client',
-            description: 'Client',
-            permissions: { all: false }
+            id: isMasterAccount ? 'master' : 'client',
+            name: isMasterAccount ? 'master' : 'client',
+            description: isMasterAccount ? 'Administrateur Master' : 'Client',
+            permissions: isMasterAccount ? { all: true } : { all: false }
           }
         };
+        console.log('👤 Profil par défaut créé:', defaultProfile);
         setUserProfile(defaultProfile);
       }
     } catch (error) {
@@ -260,12 +262,12 @@ function App() {
     try {
       console.log('🔐 Tentative de connexion avec:', email);
       
-      // Tracking analytics
-      analytics.trackUserAction('login_attempt', { email });
+      // Tracking analytics (désactivé temporairement)
+      // analytics.trackUserAction('login_attempt', { email });
       
       console.log('🔍 Client Supabase disponible:', !!supabase);
       console.log('🔍 Module auth disponible:', !!supabase?.auth);
-      console.log('🔍 URL Supabase:', supabase?.supabaseUrl || 'Non définie');
+      console.log('🔍 URL Supabase:', import.meta.env.VITE_SUPABASE_URL || 'Non définie');
       console.log('🔍 Variables d\'environnement:', {
         hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
         hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -301,51 +303,49 @@ function App() {
         // Notification de succès
         toast.success('Connexion réussie !', `Bienvenue ${data.user.email}`);
         
-        setUser(data.user);
-        await loadUserProfile(data.user.id);
-        return data.user;
+        // Convertir le User Supabase en User de notre interface
+        if (data.user.email) {
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: data.user.user_metadata
+          };
+          setUser(user);
+          await loadUserProfile(data.user.id);
+          return user;
+        } else {
+          throw new Error('Email utilisateur manquant');
+        }
       } else {
         throw new Error('Aucun utilisateur retourné par Supabase');
       }
     } catch (error: any) {
       console.error('❌ Erreur lors de la connexion:', error);
-      analytics.trackError(error as Error, { action: 'login', email });
       
       // Gestion spécifique des erreurs Supabase
+      const errorMessage = error?.message || 'Erreur inconnue';
+      const errorCode = error?.code || 'UNKNOWN';
+      
       console.error('🔍 Détails de l\'erreur:', {
-        message: error.message,
-        code: error.code,
-        status: error.status,
-        statusCode: error.statusCode,
-        name: error.name,
-        stack: error.stack
+        message: errorMessage,
+        code: errorCode,
+        status: error?.status,
+        statusCode: error?.statusCode,
+        name: error?.name
       });
       
-      // Diagnostic supplémentaire
-      console.error('🔍 Diagnostic Supabase:', {
-        supabaseClient: !!supabase,
-        authModule: !!supabase?.auth,
-        networkError: error.message?.includes('fetch'),
-        timeoutError: error.message?.includes('timeout'),
-        networkStatus: navigator.onLine
-      });
-      
-      if (error.message?.includes('Invalid login credentials')) {
+      // Messages d'erreur spécifiques
+      if (errorMessage.includes('Invalid login credentials')) {
         throw new Error('Email ou mot de passe incorrect');
-      } else if (error.message?.includes('Email not confirmed')) {
+      } else if (errorMessage.includes('Email not confirmed')) {
         throw new Error('Veuillez confirmer votre email avant de vous connecter');
-      } else if (error.message?.includes('Too many requests')) {
+      } else if (errorMessage.includes('Too many requests')) {
         throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
-      } else if (error.message?.includes('Supabase non configuré')) {
-        throw new Error('Service d\'authentification temporairement indisponible');
-      } else if (error.message?.includes('Network')) {
+      } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
         throw new Error('Problème de connexion réseau. Vérifiez votre connexion internet.');
-      } else if (error.message?.includes('fetch')) {
-        throw new Error('Erreur de connexion au serveur. Vérifiez votre connexion.');
       } else {
-        // Afficher l'erreur complète pour debug
-        console.error('❌ Erreur complète:', error);
-        throw new Error(`Erreur: ${error.message || 'Connexion impossible'}. Code: ${error.code || 'UNKNOWN'}`);
+        // Message d'erreur générique mais informatif
+        throw new Error(`Erreur de connexion: ${errorMessage}`);
       }
     }
   };
@@ -441,7 +441,11 @@ function App() {
               path="/crm" 
               element={
                 <ProtectedRoute user={user}>
-                  <CRM userRole={userProfile?.roles?.name || 'client'} />
+                  {(() => {
+                    const userRole = userProfile?.roles?.name || 'client';
+                    console.log('🔍 CRM - UserRole:', userRole, 'UserProfile:', userProfile);
+                    return <CRM userRole={userRole} />;
+                  })()}
                 </ProtectedRoute>
               } 
             />

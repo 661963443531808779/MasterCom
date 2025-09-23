@@ -42,7 +42,7 @@ const CRM: FC<CRMProps> = ({ userRole }) => {
         case 'tickets':
           return <SupportTicketCRUD />;
         case 'projects':
-          return <ProjectManager />;
+          return <ProjectManager userRole={userRole} />;
         default:
           return <ClientCRUD />;
       }
