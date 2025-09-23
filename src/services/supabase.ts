@@ -35,8 +35,23 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 console.log('✅ Client Supabase initialisé:', {
   url: supabaseUrl,
   hasAuth: !!supabase.auth,
-  hasRealtime: !!supabase.realtime
+  hasRealtime: !!supabase.realtime,
+  envUrl: !!import.meta.env.VITE_SUPABASE_URL,
+  envKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
 });
+
+// Test de connectivité Supabase
+if (typeof window !== 'undefined') {
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.error('❌ Erreur de test Supabase:', error);
+    } else {
+      console.log('✅ Test Supabase réussi:', data.session ? 'Session active' : 'Aucune session');
+    }
+  }).catch(err => {
+    console.error('❌ Erreur de connectivité Supabase:', err);
+  });
+}
 
 export { supabase };
 
