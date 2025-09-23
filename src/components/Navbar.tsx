@@ -1,6 +1,6 @@
 import { useState, FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, BarChart3 } from 'lucide-react';
+import { Menu, X, User, BarChart3, Shield } from 'lucide-react';
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -63,13 +63,22 @@ const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
                   <User className="h-4 w-4" />
                   <span>CRM</span>
                 </Link>
-                {userRole === 'admin' && (
+                {(userRole === 'admin' || userRole === 'master') && (
                   <Link
                     to="/dashboard"
                     className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100"
                   >
                     <BarChart3 className="h-4 w-4" />
                     <span>Dashboard</span>
+                  </Link>
+                )}
+                {userRole === 'master' && (
+                  <Link
+                    to="/master-panel"
+                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Master Panel</span>
                   </Link>
                 )}
                 <button
@@ -128,13 +137,22 @@ const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
                 >
                   CRM
                 </Link>
-                {userRole === 'admin' && (
+                {(userRole === 'admin' || userRole === 'master') && (
                   <Link
                     to="/dashboard"
                     onClick={() => setIsOpen(false)}
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100"
                   >
                     Dashboard
+                  </Link>
+                )}
+                {userRole === 'master' && (
+                  <Link
+                    to="/master-panel"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                  >
+                    Master Panel
                   </Link>
                 )}
                 <button

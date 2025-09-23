@@ -13,6 +13,7 @@ import Blog from './pages/Blog';
 import Login from './pages/Login';
 import CRM from './pages/CRM';
 import Dashboard from './pages/Dashboard';
+import MasterPanel from './components/MasterPanel';
 
 // Composants avancés - réactivation progressive
 import NotificationSystem from './components/NotificationSystem';
@@ -454,6 +455,14 @@ function App() {
               element={
                 <ProtectedRoute user={user}>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/master-panel" 
+              element={
+                <ProtectedRoute user={user}>
+                  <MasterPanel userRole={userProfile?.roles?.name || 'client'} />
                 </ProtectedRoute>
               } 
             />
