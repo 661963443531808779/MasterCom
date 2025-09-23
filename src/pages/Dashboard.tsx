@@ -10,7 +10,7 @@ interface DashboardProps {
   userRole?: string;
 }
 
-const Dashboard: FC = () => {
+const Dashboard: FC<DashboardProps> = ({ userRole = 'client' }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dashboardData, setDashboardData] = useState({
     clients: [] as any[],
@@ -246,6 +246,16 @@ const Dashboard: FC = () => {
     { id: 'settings', label: 'Paramètres', icon: <Settings className="h-4 w-4" /> }
   ];
 
+  // Onglets spécifiques au master
+  const masterTabs = [
+    { id: 'overview', label: 'Vue d\'ensemble', icon: <BarChart3 className="h-4 w-4" /> },
+    { id: 'analytics', label: 'Analytics Avancées', icon: <TrendingUp className="h-4 w-4" /> },
+    { id: 'users', label: 'Gestion des Utilisateurs', icon: <Users className="h-4 w-4" /> },
+    { id: 'settings', label: 'Paramètres', icon: <Settings className="h-4 w-4" /> }
+  ];
+
+  const displayTabs = userRole === 'master' ? masterTabs : tabs;
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -279,7 +289,7 @@ const Dashboard: FC = () => {
 
           {/* Navigation des onglets */}
           <nav className="flex space-x-8">
-            {tabs.map((tab) => (
+            {displayTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}

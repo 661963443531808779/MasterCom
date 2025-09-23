@@ -174,15 +174,51 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             )}
           </button>
 
-          {/* Options supplémentaires */}
-          <div className="text-center">
-            <button
-              type="button"
-              className="text-sm text-blue-600 hover:text-blue-500 font-medium"
-            >
-              Mot de passe oublié ?
-            </button>
-          </div>
+                 {/* Options supplémentaires */}
+                 <div className="text-center space-y-2">
+                   <button
+                     type="button"
+                     className="text-sm text-blue-600 hover:text-blue-500 font-medium"
+                   >
+                     Mot de passe oublié ?
+                   </button>
+                   
+                   {/* Bouton temporaire pour créer le compte master */}
+                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                     <p className="text-sm text-yellow-800 mb-2">
+                       <strong>Compte Master :</strong> Le compte master@mastercom.fr n'existe pas encore.
+                     </p>
+                     <button
+                       type="button"
+                       onClick={async () => {
+                         try {
+                           const { supabase } = await import('../services/supabase');
+                           const { data, error } = await supabase.auth.signUp({
+                             email: 'master@mastercom.fr',
+                             password: 'MasterCom2024!',
+                             options: {
+                               data: {
+                                 first_name: 'Master',
+                                 last_name: 'Admin'
+                               }
+                             }
+                           });
+                           
+                           if (error) {
+                             alert('Erreur: ' + error.message);
+                           } else {
+                             alert('Compte master créé ! Vérifiez votre email pour confirmer.');
+                           }
+                         } catch (err) {
+                           alert('Erreur lors de la création: ' + err);
+                         }
+                       }}
+                       className="text-sm bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700"
+                     >
+                       Créer le compte Master
+                     </button>
+                   </div>
+                 </div>
         </form>
 
       </div>
