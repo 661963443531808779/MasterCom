@@ -34,7 +34,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
         
         // Redirection automatique après succès
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          window.location.href = '/master-panel';
         }, 1500);
       }
     } catch (error: any) {

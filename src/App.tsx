@@ -17,22 +17,21 @@ import MasterPanel from './components/MasterPanel';
 // Composants avancés - réactivation progressive
 import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
-import ThemeSelector from './components/ThemeSelector';
 
 // Import des services Supabase
-import { authService, supabase } from './services/supabase';
+import { supabase } from './services/supabase';
 
-// Hooks avancés - version production simplifiée
+// Hooks avancés - version production simplifiée (stub implementations)
 const useAnalytics = () => ({
-  trackUserAction: (action: string, details?: any) => {},
-  trackEvent: (category: string, action: string, label?: string) => {},
-  trackError: (error: Error, context?: any) => {}
+  trackUserAction: () => {},
+  trackEvent: () => {},
+  trackError: () => {}
 });
 
 const useToast = () => ({
-  success: (title: string, message: string) => {},
-  error: (title: string, message: string) => {},
-  info: (title: string, message: string) => {}
+  success: () => {},
+  error: () => {},
+  info: () => {}
 });
 
 const trackPageLoad = () => {};
@@ -93,7 +92,7 @@ function App() {
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
   // Hooks avancés avec gestion d'erreur
-  const analytics = useAnalytics();
+  useAnalytics();
   const toast = useToast();
 
 
@@ -108,7 +107,7 @@ function App() {
       preloadCriticalResources();
       
       // Notifier le démarrage
-      toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
+      toast.success();
     } catch (error) {
     }
   }, [toast]);
@@ -124,17 +123,27 @@ function App() {
         
         if (!error && session?.user) {
           if (mounted) {
-            setUser(session.user);
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              user_metadata: session.user.user_metadata
+            };
+            setUser(user);
             await loadUserProfile(session.user.id);
           }
         }
 
         // Écouter les changements d'authentification
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event: any, session: any) => {
+          async (_, session: any) => {
             if (mounted) {
               if (session?.user) {
-                setUser(session.user);
+                const user: User = {
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  user_metadata: session.user.user_metadata
+                };
+                setUser(user);
                 await loadUserProfile(session.user.id);
               } else {
                 setUser(null);
@@ -296,7 +305,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      <div className="min-h-screen bg-white">
         {/* Composants globaux avancés */}
         <NotificationSystem />
         <GlobalSearch />
@@ -307,14 +316,10 @@ function App() {
           onLogout={handleLogout}
         />
 
-        {/* Sélecteur de thème flottant */}
-        <div className="fixed bottom-4 left-4 z-40">
-          <ThemeSelector />
-        </div>
 
         {/* Affichage des erreurs Supabase */}
         {supabaseError && (
-          <div className="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
             <div className="flex">
               <div className="ml-3">
                 <p className="text-sm">

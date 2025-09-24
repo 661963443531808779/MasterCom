@@ -9,6 +9,7 @@ const isSupabaseConfigured = supabaseUrl && supabaseAnonKey;
 
 // En mode production (Vercel), on ne lance pas d'erreur pour éviter les crashes
 if (!isSupabaseConfigured) {
+  console.warn('⚠️ Supabase non configuré - fonctionnement en mode dégradé');
 }
 
 // Créer le client Supabase avec gestion d'erreur robuste

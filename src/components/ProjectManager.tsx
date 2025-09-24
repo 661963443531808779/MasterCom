@@ -1,10 +1,59 @@
-import { useState, useEffect, useMemo, FC } from 'react';
+import { useState, useMemo, FC } from 'react';
 import { 
   FolderOpen, Plus, Search, Edit, Trash2, Eye, 
   Calendar, Clock, Users, Target, CheckCircle, AlertCircle, 
   Play, BarChart3, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { projectService, clientService } from '../services/supabase';
+import { projectService } from '../services/supabase';
+import { useApiData } from '../hooks/useApiData';
+
+// Utility functions for project validation and sanitization
+const validateProjectData = (data: any) => {
+  const errors: string[] = [];
+  
+  if (!data.name || data.name.trim().length < 2) {
+    errors.push('Le nom du projet doit contenir au moins 2 caractères');
+  }
+  
+  if (!data.description || data.description.trim().length < 10) {
+    errors.push('La description doit contenir au moins 10 caractères');
+  }
+  
+  if (!data.client_id) {
+    errors.push('Un client doit être sélectionné');
+  }
+  
+  if (!data.start_date) {
+    errors.push('Une date de début est requise');
+  }
+  
+  if (!data.end_date) {
+    errors.push('Une date de fin est requise');
+  }
+  
+  if (data.start_date && data.end_date && new Date(data.start_date) >= new Date(data.end_date)) {
+    errors.push('La date de fin doit être postérieure à la date de début');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+const sanitizeProjectData = (data: any) => {
+  return {
+    name: data.name?.trim() || '',
+    description: data.description?.trim() || '',
+    client_id: data.client_id || '',
+    status: data.status || 'planning',
+    priority: data.priority || 'medium',
+    start_date: data.start_date || '',
+    end_date: data.end_date || '',
+    budget: parseFloat(data.budget) || 0,
+    commercial_id: data.commercial_id || null
+  };
+};
 
 interface Project {
   id: string;
@@ -30,16 +79,12 @@ interface Client {
   phone?: string;
   company?: string;
 }
-import { validateProjectData, sanitizeProjectData } from '../utils/security';
 
 interface ProjectManagerProps {
   userRole: string;
 }
 
 const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,14 +93,26 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+
+  // Use API hooks for data management
+  const {
+    data: projects,
+    loading
+  } = useApiData<Project>({ endpoint: 'projects' });
+
+  const {
+    data: clients
+  } = useApiData<Client>({ endpoint: 'clients' });
+
+  // Simple notification system
+  const showNotification = (type: string, title: string, message: string) => {
+    console.log(`${type.toUpperCase()}: ${title} - ${message}`);
+    // TODO: Implement proper notification system
+  };
   
   // Gestion d'erreur simplifiée
   const handleError = (error: any) => {
     console.error('Erreur:', error);
-  };
-  
-  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    console.log(`${type.toUpperCase()}: ${message}`);
   };
 
   // Form states
@@ -99,25 +156,6 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
   ];
 
   // Load data
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [projectsData, clientsData] = await Promise.all([
-        projectService.getProjects(),
-        clientService.getClients()
-      ]);
-      setProjects(projectsData);
-      setClients(clientsData);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Filtered and sorted projects
   const filteredProjects = useMemo(() => {
@@ -183,7 +221,7 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
       setShowModal(false);
       setEditingProject(null);
       resetForm();
-      loadData();
+      // Data will be refreshed automatically by the hook
     } catch (error) {
       handleError(error);
     }
@@ -227,7 +265,7 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
     try {
       await projectService.deleteProject(projectId);
       showNotification('success', 'Succès', 'Projet supprimé avec succès');
-      loadData();
+      // Data will be refreshed automatically by the hook
     } catch (error) {
       handleError(error);
     }
@@ -282,7 +320,6 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
 
   return (
     <div className="space-y-6 p-6">
-      <Notification type="info" title="Info" message="Interface de gestion des projets" show={false} />
       
       {/* Header */}
       <div className="flex items-center justify-between">
