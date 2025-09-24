@@ -1,6 +1,6 @@
 import { useState, FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, BarChart3, Shield } from 'lucide-react';
+import { Menu, X, User, Shield } from 'lucide-react';
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -63,15 +63,6 @@ const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
                   <User className="h-4 w-4" />
                   <span>CRM</span>
                 </Link>
-                {(userRole === 'admin' || userRole === 'master') && (
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100"
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                )}
                 {userRole === 'master' && (
                   <Link
                     to="/master-panel"
@@ -137,15 +128,6 @@ const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
                 >
                   CRM
                 </Link>
-                {(userRole === 'admin' || userRole === 'master') && (
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </Link>
-                )}
                 {userRole === 'master' && (
                   <Link
                     to="/master-panel"

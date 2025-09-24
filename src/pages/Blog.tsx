@@ -16,69 +16,75 @@ const Blog: FC = () => {
   const articles = [
     {
       id: 1,
-      title: 'Les 10 tendances du marketing digital en 2024',
-      excerpt: 'Découvrez les tendances qui vont marquer le marketing digital cette année et comment les intégrer dans votre stratégie.',
+      title: 'Comment optimiser votre stratégie de communication digitale en 2025',
+      excerpt: 'Découvrez les techniques avancées pour maximiser l\'impact de votre communication digitale et atteindre vos objectifs business avec des résultats mesurables.',
       category: 'marketing',
       author: 'Marie Dubois',
-      date: '15 Janvier 2024',
-      readTime: '5 min',
+      date: '20 Janvier 2025',
+      readTime: '8 min',
       image: '/api/placeholder/600/300',
-      featured: true
+      featured: true,
+      content: 'La communication digitale évolue rapidement en 2025. L\'intelligence artificielle, la personnalisation avancée et l\'omnicanalité sont devenus essentiels pour une stratégie efficace...'
     },
     {
       id: 2,
-      title: 'Comment créer une identité de marque forte',
-      excerpt: 'Les clés pour développer une identité de marque qui marque les esprits et fidélise vos clients.',
+      title: 'L\'art du branding pour les PME : Guide complet 2025',
+      excerpt: 'Créez une identité de marque puissante qui distingue votre PME de la concurrence et génère une reconnaissance durable auprès de vos clients.',
       category: 'design',
       author: 'Pierre Martin',
-      date: '12 Janvier 2024',
-      readTime: '7 min',
+      date: '18 Janvier 2025',
+      readTime: '10 min',
       image: '/api/placeholder/600/300',
-      featured: false
+      featured: false,
+      content: 'Le branding pour les PME n\'est plus un luxe mais une nécessité. Voici comment développer une identité forte avec un budget optimisé...'
     },
     {
       id: 3,
-      title: 'L\'importance du storytelling en communication',
-      excerpt: 'Pourquoi raconter une histoire est essentiel pour connecter avec votre audience et renforcer votre message.',
+      title: 'ROI Marketing : Mesurer l\'efficacité de vos campagnes',
+      excerpt: 'Apprenez à calculer et optimiser le retour sur investissement de vos actions marketing pour maximiser vos profits et prendre des décisions éclairées.',
       category: 'strategy',
       author: 'Sophie Laurent',
-      date: '10 Janvier 2024',
-      readTime: '6 min',
+      date: '15 Janvier 2025',
+      readTime: '7 min',
       image: '/api/placeholder/600/300',
-      featured: false
+      featured: false,
+      content: 'Mesurer le ROI marketing est crucial pour optimiser vos investissements. Voici les métriques clés et les outils pour y parvenir...'
     },
     {
       id: 4,
-      title: 'SEO : Les bonnes pratiques pour 2024',
-      excerpt: 'Les dernières évolutions du SEO et comment optimiser votre contenu pour les moteurs de recherche.',
+      title: 'SEO Local : Dominez votre marché géographique',
+      excerpt: 'Maîtrisez les techniques de référencement local pour attirer plus de clients dans votre zone géographique et devancer vos concurrents locaux.',
       category: 'digital',
       author: 'Thomas Bernard',
-      date: '8 Janvier 2024',
-      readTime: '8 min',
+      date: '12 Janvier 2025',
+      readTime: '9 min',
       image: '/api/placeholder/600/300',
-      featured: false
+      featured: false,
+      content: 'Le SEO local est essentiel pour les entreprises avec une présence physique. Découvrez comment optimiser votre visibilité locale...'
     },
     {
       id: 5,
-      title: 'Créer un contenu engageant sur les réseaux sociaux',
-      excerpt: 'Les stratégies qui fonctionnent pour créer du contenu qui génère de l\'engagement sur vos réseaux.',
+      title: 'Stratégie de contenu B2B : Générer des leads qualifiés',
+      excerpt: 'Développez une stratégie de contenu B2B efficace qui attire, convertit et fidélise vos prospects professionnels grâce à un contenu de valeur.',
       category: 'marketing',
       author: 'Marie Dubois',
-      date: '5 Janvier 2024',
-      readTime: '4 min',
+      date: '10 Janvier 2025',
+      readTime: '6 min',
       image: '/api/placeholder/600/300',
-      featured: false
+      featured: false,
+      content: 'La génération de leads B2B passe par une stratégie de contenu pertinente. Voici comment créer du contenu qui convertit...'
     },
     {
       id: 6,
-      title: 'L\'avenir du marketing d\'influence',
-      excerpt: 'Comment l\'influence marketing évolue et quelles sont les nouvelles opportunités à saisir.',
+      title: 'Marketing Automation : Automatisez pour mieux convertir',
+      excerpt: 'Implémentez des workflows d\'automatisation marketing intelligents pour nurturing vos prospects et augmenter vos taux de conversion.',
       category: 'strategy',
       author: 'Pierre Martin',
-      date: '3 Janvier 2024',
-      readTime: '6 min',
+      date: '8 Janvier 2025',
+      readTime: '8 min',
       image: '/api/placeholder/600/300',
-      featured: false
+      featured: false,
+      content: 'L\'automatisation marketing permet de scalabiliser vos actions tout en maintenant une personnalisation. Découvrez les bonnes pratiques...'
     }
   ];
 

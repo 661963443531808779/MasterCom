@@ -14,10 +14,42 @@ const Footer: FC = () => {
               Nous transformons vos idées en succès.
             </p>
             <div className="flex space-x-4">
-              <Facebook className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              <Twitter className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              <Linkedin className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              <Instagram className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
+              <a 
+                href="https://facebook.com/mastercom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 bg-gray-800 rounded-lg hover:bg-blue-600 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://twitter.com/mastercom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 bg-gray-800 rounded-lg hover:bg-blue-400 transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://linkedin.com/company/mastercom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 bg-gray-800 rounded-lg hover:bg-blue-700 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://instagram.com/mastercom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 bg-gray-800 rounded-lg hover:bg-pink-600 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
             </div>
           </div>
 

@@ -12,7 +12,6 @@ import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
 import CRM from './pages/CRM';
-import Dashboard from './pages/Dashboard';
 import MasterPanel from './components/MasterPanel';
 
 // Composants avancés - réactivation progressive
@@ -25,9 +24,9 @@ import { supabase } from './services/supabase';
 
 // Hooks avancés - version production simplifiée
 const useAnalytics = () => ({
-  trackUserAction: (action: string, details?: any) => console.log('📊 User action:', action, details),
-  trackEvent: (category: string, action: string, label?: string) => console.log('📊 Event:', category, action, label),
-  trackError: (error: Error, context?: any) => console.log('📊 Error:', error.message, context)
+  trackUserAction: (action: string, details?: any) => {},
+  trackEvent: (category: string, action: string, label?: string) => {},
+  trackError: (error: Error, context?: any) => {}
 });
 
 const useToast = () => ({
@@ -97,7 +96,6 @@ function App() {
   const analytics = useAnalytics();
   const toast = useToast();
 
-  console.log('🚀 App MasterCom - Démarrage avec Supabase et fonctionnalités avancées');
 
   // Initialiser les fonctionnalités avancées
   useEffect(() => {
@@ -112,7 +110,6 @@ function App() {
       // Notifier le démarrage
       toast.success('Bienvenue !', 'MasterCom est prêt à vous servir');
     } catch (error) {
-      console.warn('Erreur lors de l\'initialisation des fonctionnalités avancées:', error);
     }
   }, [toast]);
 
@@ -122,16 +119,13 @@ function App() {
 
     const initializeAuth = async () => {
       try {
-        console.log('🔍 Initialisation de l\'authentification...');
         
         // Import dynamique de Supabase avec gestion d'erreur robuste
         let supabase: any = null;
         try {
           const supabaseModule = await import('./services/supabase');
           supabase = supabaseModule.supabase;
-          console.log('✅ Supabase chargé avec succès');
         } catch (error) {
-          console.warn('⚠️ Supabase non disponible:', error);
           setSupabaseError('Supabase non configuré - Mode dégradé');
           supabase = null;
         }
@@ -170,12 +164,10 @@ function App() {
               }
             };
           } catch (authError) {
-            console.warn('⚠️ Erreur auth Supabase:', authError);
             setSupabaseError('Erreur d\'authentification Supabase');
           }
         }
       } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
         setSupabaseError('Erreur d\'initialisation');
       } finally {
         if (mounted) {
@@ -195,8 +187,10 @@ function App() {
   // Charger le profil utilisateur
   const loadUserProfile = async (userId: string) => {
     try {
-      // Vérifier si c'est le compte master (support des deux domaines)
-      const isMasterAccount = user?.email === 'master@master.com' || user?.email === 'master@mastercom.fr';
+      // Vérifier si c'est le compte master (par email ou ID spécifique)
+      const isMasterAccount = user?.email === 'master@master.com' || 
+                             user?.email === 'master@mastercom.fr' ||
+                             userId === 'a3522290-7863-49dc-bce1-f979a5f6bbea';
       
       if (isMasterAccount) {
         const masterProfile: UserProfile = {
@@ -240,15 +234,12 @@ function App() {
       };
       setUserProfile(defaultProfile);
     } catch (error) {
-      console.error('Erreur lors du chargement du profil:', error);
     }
   };
 
   // Gestion de la connexion
   const handleLogin = async (email: string, password: string) => {
     try {
-      console.log('Tentative de connexion avec:', email);
-      
       if (!supabase || !supabase.auth) {
         throw new Error('Service d\'authentification non disponible');
       }
@@ -257,8 +248,6 @@ function App() {
         email,
         password,
       });
-      
-      console.log('Réponse Supabase:', { hasData: !!data, hasError: !!error, errorMessage: error?.message });
 
       if (error) {
         const errorMessage = error?.message || 'Erreur inconnue';
@@ -289,8 +278,6 @@ function App() {
         throw new Error('Aucun utilisateur retourné par Supabase');
       }
     } catch (error: any) {
-      console.error('Erreur de connexion:', error);
-      
       // Gestion spécifique des erreurs
       if (error.message?.includes('Invalid login credentials')) {
         throw new Error('Email ou mot de passe incorrect');
@@ -313,7 +300,6 @@ function App() {
       setUser(null);
       setUserProfile(null);
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
       setUser(null);
       setUserProfile(null);
     }
@@ -370,7 +356,7 @@ function App() {
               path="/login" 
               element={
                 user ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to="/master-panel" replace />
                 ) : (
                   <Login onLogin={handleLogin} />
                 )
@@ -383,14 +369,6 @@ function App() {
               element={
                 <ProtectedRoute user={user}>
                   <CRM userRole={userProfile?.roles?.name || 'client'} />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute user={user}>
-                  <Dashboard userRole={userProfile?.roles?.name || 'client'} />
                 </ProtectedRoute>
               } 
             />
