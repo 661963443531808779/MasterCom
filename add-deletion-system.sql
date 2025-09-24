@@ -40,7 +40,7 @@ SELECT 'clients',
          'phone', (SELECT phone FROM clients WHERE email = 'client1@test.com')
        ),
        'Client ne répond plus aux emails',
-       gen_random_uuid()
+       'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
 WHERE NOT EXISTS (SELECT 1 FROM deletion_requests WHERE table_name = 'clients' AND record_id = (SELECT id FROM clients WHERE email = 'client1@test.com'));
 
 INSERT INTO deletion_requests (table_name, record_id, record_data, reason, requested_by) 
@@ -52,7 +52,7 @@ SELECT 'projects',
          'status', (SELECT status FROM projects WHERE name = 'Projet Web 1')
        ),
        'Projet annulé par le client',
-       gen_random_uuid()
+       'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
 WHERE NOT EXISTS (SELECT 1 FROM deletion_requests WHERE table_name = 'projects' AND record_id = (SELECT id FROM projects WHERE name = 'Projet Web 1'));
 
 -- Message de confirmation

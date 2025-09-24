@@ -1,7 +1,8 @@
 // Page de connexion MasterCom - Version Ultra-Simplifiée
-import { useState, FC } from 'react';
+import { useState, FC, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { authService, User } from '../services/auth';
+import { diagnosticConfig, testSupabaseConnection } from '../utils/diagnostic';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
@@ -13,6 +14,22 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [configStatus, setConfigStatus] = useState<string>('');
+
+  // Diagnostic de configuration au chargement
+  useEffect(() => {
+    const config = diagnosticConfig();
+    const hasUrl = !!config.supabaseUrl;
+    const hasKey = !!config.supabaseKey;
+    
+    if (hasUrl && hasKey) {
+      setConfigStatus('✅ Configuration OK');
+      // Test de connexion en arrière-plan
+      testSupabaseConnection();
+    } else {
+      setConfigStatus('❌ Variables d\'environnement manquantes');
+    }
+  }, []);
 
   // Connexion
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,6 +57,17 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">MasterCom</h1>
           <p className="text-gray-600">Accédez à votre studio</p>
+          {configStatus && (
+            <div className="mt-2 text-sm">
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                configStatus.includes('✅') 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {configStatus}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Formulaire de connexion */}

@@ -17,13 +17,28 @@ export const useDeletionRequest = () => {
       setLoading(true);
       setError(null);
 
+      // Vérifier s'il existe déjà une demande en cours pour cet enregistrement
+      const existingRequests = await dataService.getTableData('deletion_requests');
+      const duplicateRequest = existingRequests.find((req: any) => 
+        req.table_name === data.table_name && 
+        req.record_id === data.record_id && 
+        req.status === 'pending'
+      );
+
+      if (duplicateRequest) {
+        return { 
+          success: false, 
+          message: `Une demande de suppression est déjà en cours pour cet élément. Statut: ${duplicateRequest.status}` 
+        };
+      }
+
       // Créer une demande de suppression
       const deletionRequest = {
         table_name: data.table_name,
         record_id: data.record_id,
         record_data: data.record_data,
         reason: data.reason,
-        requested_by: 'current-user-id', // En production, utiliser l'ID de l'utilisateur connecté
+        requested_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c', // UUID du compte master
         status: 'pending'
       };
 
@@ -44,33 +59,13 @@ export const useDeletionRequest = () => {
     recordData: any,
     reason: string
   ) => {
-    // Demander confirmation à l'utilisateur
-    const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer cet élément ?\n\n` +
-      `Type: ${tableName}\n` +
-      `Données: ${JSON.stringify(recordData, null, 2)}\n\n` +
-      `Cette action nécessitera une validation du compte master.`
-    );
-
-    if (!confirmed) {
-      return { success: false, message: 'Suppression annulée' };
-    }
-
-    // Demander la raison
-    const deletionReason = reason || window.prompt(
-      'Veuillez indiquer la raison de cette suppression :'
-    );
-
-    if (!deletionReason) {
-      return { success: false, message: 'Raison de suppression requise' };
-    }
-
-    // Créer la demande de suppression
+    // Cette fonction est maintenant remplacée par le système de confirmation personnalisé
+    // Elle est gardée pour compatibilité mais ne devrait plus être utilisée directement
     return await requestDeletion({
       table_name: tableName,
       record_id: recordId,
       record_data: recordData,
-      reason: deletionReason
+      reason: reason
     });
   };
 

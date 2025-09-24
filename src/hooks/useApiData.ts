@@ -37,11 +37,58 @@ export const useApiData = <T>({ endpoint, autoFetch = true }: UseApiDataOptions)
     fetchData();
   }, [fetchData]);
 
+  const createItem = useCallback(async (newItem: Omit<T, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await dataService.insertData(endpoint, newItem);
+      await fetchData(); // Recharger les données
+      return result;
+    } catch (err: any) {
+      setError(err.message || `Erreur lors de la création`);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+
+  const updateItem = useCallback(async (id: string, updatedItem: Partial<T>) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await dataService.updateData(endpoint, id, updatedItem);
+      await fetchData(); // Recharger les données
+      return result;
+    } catch (err: any) {
+      setError(err.message || `Erreur lors de la mise à jour`);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+
+  const deleteItem = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await dataService.deleteData(endpoint, id);
+      await fetchData(); // Recharger les données
+    } catch (err: any) {
+      setError(err.message || `Erreur lors de la suppression`);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+
   return {
     data,
     loading,
     error,
-    refetch
+    refetch,
+    createItem,
+    updateItem,
+    deleteItem
   };
 };
 

@@ -1,12 +1,14 @@
 // Panel d'administration MasterCom - Version Simplifiée
 import { useState, useEffect, FC } from 'react';
 import { 
-  Shield, Users, Settings, Database, Activity, 
-  TrendingUp, CheckCircle, Clock,
+  Shield, Users, Database, Activity, 
   BarChart3, Download, RefreshCw,
-  UserPlus, AlertTriangle
+  UserPlus, AlertTriangle, Sparkles
 } from 'lucide-react';
 import DeletionValidation from './DeletionValidation';
+import CreateUserModal from './CreateUserModal';
+import ThemeManager from './ThemeManager';
+import { dataService } from '../services/auth';
 
 // Types pour la gestion des utilisateurs
 interface User {
@@ -30,10 +32,10 @@ interface Stats {
 
 interface MasterPanelProps {
   userRole: string;
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
-const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
+const MasterPanel: FC<MasterPanelProps> = ({ userRole }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -46,8 +48,9 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
     completedProjects: 0
   });
   const [users, setUsers] = useState<User[]>([]);
-  const [statsLoading, setStatsLoading] = useState(false);
-  const [usersLoading, setUsersLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -56,58 +59,89 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
 
   const loadStats = async () => {
     try {
-      setStatsLoading(true);
-      
-      // Données mock pour éviter les erreurs
+      setLoading(true);
+      setError(null);
+
+      // Charger les données réelles depuis Supabase
+      const [clients, projects, invoices, quotes, deletionRequests, users] = await Promise.all([
+        dataService.getTableData('clients'),
+        dataService.getTableData('projects'),
+        dataService.getTableData('invoices'),
+        dataService.getTableData('quotes'),
+        dataService.getTableData('deletion_requests').catch(() => []), // Table optionnelle
+        dataService.getTableData('users').catch(() => []) // Table optionnelle
+      ]);
+
+      // Calculer les statistiques
+      const totalClients = clients.length;
+      const totalInvoices = invoices.length;
+      const totalQuotes = quotes.length;
+      const completedProjects = projects.filter((p: any) => p.status === 'completed').length;
+      const pendingDeletions = deletionRequests.filter((d: any) => d.status === 'pending').length;
+      const totalUsers = users.length || 1; // Fallback sur 1 si pas de table users
+      const activeUsers = users.filter((u: any) => u.status === 'active').length || 1;
+
       setStats({
-        totalUsers: 1,
-        totalClients: 0,
-        totalInvoices: 0,
-        totalQuotes: 0,
-        totalTickets: 0,
-        activeUsers: 1,
-        pendingTickets: 0,
-        completedProjects: 0
+        totalUsers,
+        totalClients,
+        totalInvoices,
+        totalQuotes,
+        totalTickets: pendingDeletions, // Utiliser les demandes de suppression comme "tickets"
+        activeUsers,
+        pendingTickets: pendingDeletions,
+        completedProjects
       });
-    } catch (error) {
-      // Erreur silencieuse
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setStatsLoading(false);
+      setLoading(false);
     }
   };
 
   const loadUsers = async () => {
     try {
-      setUsersLoading(true);
+      // Charger les utilisateurs depuis la base de données
+      const usersData = await dataService.getTableData('users');
       
-      // Données mock pour éviter les erreurs
+      // Transformer les données pour correspondre à l'interface User
+      const transformedUsers = usersData.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        email_confirmed_at: user.created_at, // Utiliser created_at comme fallback
+        last_sign_in_at: user.updated_at // Utiliser updated_at comme fallback
+      }));
+      
+      setUsers(transformedUsers);
+    } catch (err: any) {
+      // Si la table users n'existe pas encore, utiliser l'utilisateur master par défaut
       setUsers([
         {
-          id: '4b83f2c6-ca3a-48b5-9a4e-694b725a0d44',
-          email: 'master@mastercom.fr',
+          id: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c',
+          email: 'master@mastercom.com',
           created_at: new Date().toISOString(),
           email_confirmed_at: new Date().toISOString(),
           last_sign_in_at: new Date().toISOString()
         }
       ]);
-    } catch (error) {
-      // Erreur silencieuse
-    } finally {
-      setUsersLoading(false);
     }
   };
 
-  const handleCreateUser = async () => {
-    // Fonction mock
-    alert('Fonction de création d\'utilisateur non implémentée');
+  const handleCreateUser = () => {
+    setShowCreateUserModal(true);
   };
 
-  const handleToggleStatus = async (userId: string) => {
+  const handleUserCreated = () => {
+    // Recharger la liste des utilisateurs après création
+    loadUsers();
+  };
+
+  const handleToggleStatus = async () => {
     // Fonction mock
     alert('Fonction de modification de statut non implémentée');
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async () => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       // Fonction mock
       alert('Fonction de suppression non implémentée');
@@ -132,12 +166,6 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
                 <p className="text-sm text-gray-500">Administration du système</p>
               </div>
             </div>
-            <button
-              onClick={onLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Déconnexion
-            </button>
           </div>
         </div>
       </div>
@@ -173,15 +201,41 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
                 <span>Vérification de suppression</span>
               </div>
             </button>
+            
+            <button
+              onClick={() => setActiveTab('themes')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'themes'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Sparkles className="h-4 w-4" />
+                <span>Thèmes Saisonniers</span>
+              </div>
+            </button>
           </nav>
         </div>
       </div>
 
       {/* Contenu principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <strong>Erreur:</strong> {error}
+          </div>
+        )}
+
         {activeTab === 'dashboard' && (
           <>
             {/* Statistiques */}
+            {loading ? (
+              <div className="flex items-center justify-center p-8 mb-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-2">Chargement des statistiques...</span>
+              </div>
+            ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
@@ -223,6 +277,7 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
             </div>
           </div>
         </div>
+            )}
 
         {/* Actions rapides */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
@@ -298,13 +353,13 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
-                        onClick={() => handleToggleStatus(user.id)}
+                        onClick={() => handleToggleStatus()}
                         className="text-blue-600 hover:text-blue-900 mr-3"
                       >
                         Modifier
                       </button>
                       <button
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser()}
                         className="text-red-600 hover:text-red-900"
                       >
                         Supprimer
@@ -322,7 +377,18 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
         {activeTab === 'deletion-validation' && (
           <DeletionValidation userRole={userRole} />
         )}
+
+        {activeTab === 'themes' && (
+          <ThemeManager />
+        )}
       </div>
+
+      {/* Modal de création d'utilisateur */}
+      <CreateUserModal
+        isOpen={showCreateUserModal}
+        onClose={() => setShowCreateUserModal(false)}
+        onUserCreated={handleUserCreated}
+      />
     </div>
   );
 };

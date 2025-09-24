@@ -214,7 +214,12 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
         await dataService.updateData('projects', editingProject.id, sanitizedData);
         showNotification('success', 'Succès', 'Projet mis à jour avec succès');
       } else {
-        await dataService.insertData('projects', sanitizedData);
+        // Ajouter le champ commercial_id pour la création
+        const projectData = {
+          ...sanitizedData,
+          commercial_id: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
+        };
+        await dataService.insertData('projects', projectData);
         showNotification('success', 'Succès', 'Projet créé avec succès');
       }
       

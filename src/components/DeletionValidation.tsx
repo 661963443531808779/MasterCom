@@ -56,7 +56,7 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
       // Mettre à jour le statut de la demande
       await dataService.updateData('deletion_requests', requestId, {
         status: 'approved',
-        reviewed_by: 'master-user', // En production, utiliser l'ID de l'utilisateur connecté
+        reviewed_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c', // UUID du compte master
         reviewed_at: new Date().toISOString(),
         review_notes: reviewNotes
       });
@@ -85,7 +85,7 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
       
       await dataService.updateData('deletion_requests', requestId, {
         status: 'rejected',
-        reviewed_by: 'master-user',
+        reviewed_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c', // UUID du compte master
         reviewed_at: new Date().toISOString(),
         review_notes: reviewNotes
       });

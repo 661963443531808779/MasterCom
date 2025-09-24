@@ -1,9 +1,15 @@
-import { useState, FC } from 'react';
+import React, { useState, FC } from 'react';
 import { 
   Plus, Edit, Trash2, Search, Star, User
 } from 'lucide-react';
 import { useApiData } from '../hooks/useApiData';
 import { useSecureForm, validationRules } from '../hooks/useSecureForm';
+import { useDeletionRequest } from '../hooks/useDeletionRequest';
+import { useNotification } from '../hooks/useNotification';
+import { useConfirmation } from '../hooks/useConfirmation';
+import { dataService } from '../services/auth';
+import NotificationModal from './NotificationModal';
+import ConfirmationModal from './ConfirmationModal';
 
 interface Client {
   id: string;
@@ -27,6 +33,10 @@ const ClientCRUD: FC = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [deletionRequests, setDeletionRequests] = useState<any[]>([]);
+  const { requestDeletion, loading: deletionLoading } = useDeletionRequest();
+  const { notification, showSuccess, showError, hideNotification } = useNotification();
+  const { confirmation, confirmDelete, hideConfirmation } = useConfirmation();
 
   const {
     data: clients,
@@ -34,7 +44,7 @@ const ClientCRUD: FC = () => {
     error,
     createItem,
     updateItem,
-    deleteItem
+    refetch
   } = useApiData<Client>({ endpoint: 'clients' });
 
   const {
@@ -66,13 +76,45 @@ const ClientCRUD: FC = () => {
     }
   });
 
+  // Charger les demandes de suppression pour vérifier les doublons
+  const loadDeletionRequests = async () => {
+    try {
+      const requests = await dataService.getTableData('deletion_requests');
+      setDeletionRequests(requests);
+    } catch (error) {
+      console.error('Erreur lors du chargement des demandes de suppression:', error);
+    }
+  };
+
+  // Vérifier si un client a une demande de suppression en cours
+  const hasPendingDeletionRequest = (clientId: string) => {
+    return deletionRequests.some(req => 
+      req.table_name === 'clients' && 
+      req.record_id === clientId && 
+      req.status === 'pending'
+    );
+  };
+
+  // Charger les demandes de suppression au montage du composant
+  React.useEffect(() => {
+    loadDeletionRequests();
+  }, []);
+
   const handleCreate = async (values: any) => {
     try {
-      await createItem(values);
+      // Ajouter le champ created_by avec l'UUID du master
+      const clientData = {
+        ...values,
+        created_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
+      };
+      
+      await createItem(clientData);
       setShowModal(false);
       resetForm();
-    } catch (error) {
+      showSuccess('Succès', 'Client créé avec succès !');
+    } catch (error: any) {
       console.error('Erreur lors de la création du client:', error);
+      showError('Erreur', error.message || 'Erreur lors de la création du client');
     }
   };
 
@@ -80,12 +122,17 @@ const ClientCRUD: FC = () => {
     if (!editingClient) return;
     
     try {
-      await updateItem(editingClient.id, values);
+      // Ne pas modifier le champ created_by lors de la mise à jour
+      const { created_by, ...updateData } = values;
+      
+      await updateItem(editingClient.id, updateData);
       setShowModal(false);
       setEditingClient(null);
       resetForm();
-    } catch (error) {
+      showSuccess('Succès', 'Client mis à jour avec succès !');
+    } catch (error: any) {
       console.error('Erreur lors de la mise à jour du client:', error);
+      showError('Erreur', error.message || 'Erreur lors de la mise à jour du client');
     }
   };
 
@@ -97,14 +144,44 @@ const ClientCRUD: FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-      try {
-        await deleteItem(id);
-      } catch (error) {
-        console.error('Erreur lors de la suppression du client:', error);
-      }
-    }
+  const handleDelete = async (client: Client) => {
+    confirmDelete(
+      'Confirmer la suppression',
+      `Êtes-vous sûr de vouloir supprimer le client "${client.name}" ?\n\nCette action nécessitera une validation du compte master.`,
+      async (reason) => {
+        if (!reason) {
+          showError('Erreur', 'Raison de suppression requise');
+          return;
+        }
+
+        try {
+          const result = await requestDeletion({
+            table_name: 'clients',
+            record_id: client.id,
+            record_data: {
+              name: client.name,
+              email: client.email,
+              phone: client.phone,
+              city: client.city,
+              status: client.status
+            },
+            reason: reason
+          });
+
+          if (result.success) {
+            showSuccess('Demande envoyée', result.message);
+            // Recharger les données et les demandes de suppression
+            refetch();
+            loadDeletionRequests();
+          } else {
+            showError('Erreur', result.message);
+          }
+        } catch (error: any) {
+          showError('Erreur', error.message || 'Erreur lors de la création de la demande de suppression');
+        }
+      },
+      true // requireReason
+    );
   };
 
   const filteredClients = clients.filter(client => {
@@ -232,7 +309,14 @@ const ClientCRUD: FC = () => {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{client.name}</div>
+                        <div className="text-sm font-medium text-gray-900 flex items-center">
+                          {client.name}
+                          {hasPendingDeletionRequest(client.id) && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                              Suppression en cours
+                            </span>
+                          )}
+                        </div>
                         <div className="text-sm text-gray-500">{client.email}</div>
                       </div>
                     </div>
@@ -267,8 +351,18 @@ const ClientCRUD: FC = () => {
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(client.id)}
-                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDelete(client)}
+                        className={`${
+                          hasPendingDeletionRequest(client.id) 
+                            ? 'text-orange-500 hover:text-orange-700 cursor-not-allowed' 
+                            : 'text-red-600 hover:text-red-900'
+                        }`}
+                        disabled={deletionLoading || hasPendingDeletionRequest(client.id)}
+                        title={
+                          hasPendingDeletionRequest(client.id) 
+                            ? 'Demande de suppression en cours' 
+                            : 'Supprimer le client'
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -437,6 +531,29 @@ const ClientCRUD: FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de notification */}
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={hideNotification}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        duration={notification.duration}
+      />
+
+      {/* Modal de confirmation */}
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        onClose={hideConfirmation}
+        onConfirm={confirmation.onConfirm}
+        title={confirmation.title}
+        message={confirmation.message}
+        type={confirmation.type}
+        requireReason={confirmation.requireReason}
+        confirmText={confirmation.confirmText}
+        cancelText={confirmation.cancelText}
+      />
     </div>
   );
 };

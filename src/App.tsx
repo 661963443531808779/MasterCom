@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import SeasonalDecorations from './components/SeasonalDecorations';
 
 // Import des composants
 import Navbar from './components/Navbar';
@@ -89,7 +91,7 @@ function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [, setIsAuthenticated] = useState(false);
 
   // Hooks avancés avec gestion d'erreur
   useAnalytics();
@@ -244,11 +246,13 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-white">
-        {/* Composants globaux avancés */}
-        <NotificationSystem />
-        <GlobalSearch />
+    <ThemeProvider>
+      <Router>
+        <div className="min-h-screen bg-white">
+          {/* Composants globaux avancés */}
+          <NotificationSystem />
+          <GlobalSearch />
+          <SeasonalDecorations />
         
         <Navbar
           isLoggedIn={!!user}
@@ -316,8 +320,9 @@ function App() {
         </main>
 
         <Footer />
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
