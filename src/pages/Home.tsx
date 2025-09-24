@@ -53,7 +53,7 @@ const Home: FC = () => {
             {/* Logo avec effet sparkles */}
             <div className="relative mb-8">
               <div className="inline-block relative">
-                <h1 className="text-6xl md:text-8xl font-black mb-6 animate-fade-in bg-gradient-to-r from-white via-yellow-200 to-pink-200 bg-clip-text text-transparent">
+                <h1 className="text-6xl md:text-8xl font-display mb-6 animate-fade-in bg-gradient-to-r from-white via-yellow-200 to-pink-200 bg-clip-text text-transparent">
                   Master<span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">Com</span>
                 </h1>
                 <Sparkles className="absolute -top-2 -right-2 h-8 w-8 text-yellow-400 animate-pulse" />
@@ -62,11 +62,11 @@ const Home: FC = () => {
               </div>
             </div>
             
-            <p className="text-2xl md:text-3xl mb-8 text-gray-200 max-w-4xl mx-auto font-light leading-relaxed">
-              ✨ <span className="text-yellow-300 font-semibold">Votre partenaire créatif</span> pour une communication 
-              <span className="text-pink-300 font-semibold"> d'exception</span> ✨<br/>
-              Nous transformons vos <span className="text-cyan-300 font-semibold">idées</span> en 
-              <span className="text-green-300 font-semibold"> succès mesurables</span>
+            <p className="text-2xl md:text-3xl mb-8 text-gray-200 max-w-4xl mx-auto font-body leading-relaxed">
+              ✨ <span className="text-yellow-300 font-heading">Votre partenaire créatif</span> pour une communication 
+              <span className="text-pink-300 font-heading"> d'exception</span> ✨<br/>
+              Nous transformons vos <span className="text-cyan-300 font-heading">idées</span> en 
+              <span className="text-green-300 font-heading"> succès mesurables</span>
             </p>
             
             {/* Boutons avec effets visuels */}
@@ -128,83 +128,177 @@ const Home: FC = () => {
         </div>
       </section>
 
-      {/* Services Preview */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Nos Expertises</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Une approche 360° pour répondre à tous vos besoins en communication
+      {/* Services Preview avec design époustouflant */}
+      <section className="py-24 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 relative overflow-hidden">
+        {/* Effets de fond */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-yellow-300 rounded-full opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-pink-300 rounded-full opacity-20 animate-bounce"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-orange-300 rounded-full opacity-15 animate-pulse"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+              Nos Expertises
+            </h2>
+            <p className="text-2xl text-gray-700 max-w-3xl mx-auto font-light">
+              🚀 Une approche <span className="text-purple-600 font-bold">360°</span> pour répondre à tous vos besoins en communication 🚀
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                className="group p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
-              >
-                <div className="text-blue-600 mb-4 group-hover:text-orange-500 transition-colors duration-300">
-                  {service.icon}
+            {services.map((service, index) => {
+              const colors = [
+                'from-blue-500 to-cyan-500',
+                'from-purple-500 to-pink-500', 
+                'from-green-500 to-emerald-500',
+                'from-orange-500 to-red-500'
+              ];
+              const bgColors = [
+                'bg-gradient-to-br from-blue-50 to-cyan-50',
+                'bg-gradient-to-br from-purple-50 to-pink-50',
+                'bg-gradient-to-br from-green-50 to-emerald-50', 
+                'bg-gradient-to-br from-orange-50 to-red-50'
+              ];
+              
+              return (
+                <div
+                  key={index}
+                  className={`group relative p-8 ${bgColors[index]} rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 hover:scale-105 border-2 border-transparent hover:border-white/50 backdrop-blur-sm`}
+                >
+                  {/* Effet de brillance au hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+                  
+                  <div className={`relative z-10 text-center`}>
+                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${colors[index]} rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <div className="text-white text-2xl">
+                        {service.icon}
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4 group-hover:text-gray-900 transition-colors">
+                      {service.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
+                      {service.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-16">
             <Link
               to="/services"
-              className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300"
+              className="group relative inline-flex items-center px-12 py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white font-bold text-xl rounded-2xl hover:from-purple-700 hover:via-pink-700 hover:to-red-700 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-purple-500/25"
             >
-              Voir tous nos services
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <Sparkles className="mr-3 h-6 w-6" />
+              <span className="relative">Voir tous nos services</span>
+              <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Stats Section avec design vibrant */}
+      <section className="py-24 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* Effets de fond */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-400 rounded-full opacity-10 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-cyan-400 rounded-full opacity-10 animate-bounce"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-400 rounded-full opacity-5 animate-pulse"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-yellow-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              Nos Performances
+            </h2>
+            <p className="text-xl text-gray-300">
+              Des chiffres qui parlent d'eux-mêmes ✨
+            </p>
+          </div>
+          
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">150+</div>
-              <div className="text-gray-600">Clients satisfaits</div>
+            <div className="text-center group">
+              <div className="relative">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                  150+
+                </div>
+                <div className="text-gray-300 font-medium">Clients satisfaits</div>
+                <Star className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-pulse" />
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-orange-500 mb-2">300+</div>
-              <div className="text-gray-600">Projets réalisés</div>
+            <div className="text-center group">
+              <div className="relative">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                  300+
+                </div>
+                <div className="text-gray-300 font-medium">Projets réalisés</div>
+                <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-pink-400 animate-pulse" />
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600 mb-2">15</div>
-              <div className="text-gray-600">Experts créatifs</div>
+            <div className="text-center group">
+              <div className="relative">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                  15
+                </div>
+                <div className="text-gray-300 font-medium">Experts créatifs</div>
+                <Zap className="absolute -top-2 -right-2 h-6 w-6 text-cyan-400 animate-pulse" />
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-2">98%</div>
-              <div className="text-gray-600">Taux de satisfaction</div>
+            <div className="text-center group">
+              <div className="relative">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                  98%
+                </div>
+                <div className="text-gray-300 font-medium">Taux de satisfaction</div>
+                <Heart className="absolute -top-2 -right-2 h-6 w-6 text-green-400 animate-pulse" />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-6">
+      {/* CTA Section finale époustouflante */}
+      <section className="py-24 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 text-white relative overflow-hidden">
+        {/* Effets de fond */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white rounded-full opacity-10 animate-bounce"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white rounded-full opacity-5 animate-pulse"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-5xl md:text-6xl font-black mb-8 bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent">
             Prêt à donner une nouvelle dimension à votre communication ?
           </h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Discutons de votre projet et découvrons ensemble comment nous pouvons vous aider.
+          <p className="text-2xl mb-12 text-yellow-100 font-light leading-relaxed">
+            🚀 Discutons de votre projet et découvrons ensemble comment nous pouvons vous aider à briller ! ✨
           </p>
-          <Link
-            to="/contact"
-            className="inline-flex items-center px-8 py-4 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
-          >
-            Demander un devis gratuit
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link
+              to="/contact"
+              className="group relative inline-flex items-center px-12 py-6 bg-white text-orange-600 font-black text-xl rounded-2xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-white/25"
+            >
+              <div className="absolute inset-0 bg-white rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <Zap className="mr-3 h-7 w-7" />
+              <span className="relative">Demander un devis gratuit</span>
+              <ArrowRight className="ml-3 h-7 w-7 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            
+            <Link
+              to="/portfolio"
+              className="group inline-flex items-center px-12 py-6 bg-transparent border-3 border-white text-white font-black text-xl rounded-2xl hover:bg-white hover:text-orange-600 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+            >
+              <Sparkles className="mr-3 h-7 w-7" />
+              Voir nos réalisations
+              <Star className="ml-3 h-6 w-6 group-hover:animate-spin" />
+            </Link>
+          </div>
         </div>
       </section>
     </div>
