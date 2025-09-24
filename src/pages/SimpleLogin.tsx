@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, AlertCircle, 
-  Key, CheckCircle, Camera, Video, Mic, Sparkles, UserPlus
+  Key, CheckCircle, Camera, Video, Mic, Sparkles
 } from 'lucide-react';
 import { simpleAuth, SimpleUser } from '../services/simpleAuth';
 
@@ -47,34 +47,6 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
     }
   };
 
-  // Fonction pour créer un compte master automatiquement
-  const handleCreateMaster = async () => {
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      console.log('🧪 SimpleLogin - Création compte master...');
-      const user = await simpleAuth.createMasterAccount();
-      
-      setError('');
-      alert(`✅ Compte master créé avec succès!\nEmail: ${user.email}\nMot de passe: admin123`);
-      setEmail(user.email);
-      setPassword('admin123');
-      setIsSuccess(true);
-      
-      // Appeler la fonction de callback
-      onLogin(user);
-      
-      setTimeout(() => {
-        window.location.href = '/master-panel';
-      }, 1500);
-    } catch (error: any) {
-      console.error('❌ SimpleLogin - Erreur création:', error.message);
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Fonction pour se connecter avec le mot de passe configuré
   const handleLoginWithConfiguredPassword = async () => {
@@ -315,16 +287,6 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
                     >
                       <Key className="h-4 w-4" />
                       <span>Connexion admin123</span>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleCreateMaster}
-                      disabled={isLoading}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors mx-auto"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>Créer & Connexion Master</span>
                     </button>
                     
                     <button
