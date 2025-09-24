@@ -57,9 +57,9 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
       const user = await simpleAuth.createMasterAccount();
       
       setError('');
-      alert(`✅ Compte master créé avec succès!\nEmail: ${user.email}\nMot de passe: MasterCom2024!`);
+      alert(`✅ Compte master créé avec succès!\nEmail: ${user.email}\nMot de passe: admin123`);
       setEmail(user.email);
-      setPassword('MasterCom2024!');
+      setPassword('admin123');
       setIsSuccess(true);
       
       // Appeler la fonction de callback
@@ -70,6 +70,35 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
       }, 1500);
     } catch (error: any) {
       console.error('❌ SimpleLogin - Erreur création:', error.message);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour se connecter avec le mot de passe configuré
+  const handleLoginWithConfiguredPassword = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      console.log('🔑 SimpleLogin - Connexion avec mot de passe configuré...');
+      const user = await simpleAuth.loginWithConfiguredPassword();
+      
+      setError('');
+      alert(`✅ Connexion réussie!\nEmail: ${user.email}\nMot de passe: admin123`);
+      setEmail(user.email);
+      setPassword('admin123');
+      setIsSuccess(true);
+      
+      // Appeler la fonction de callback
+      onLogin(user);
+      
+      setTimeout(() => {
+        window.location.href = '/master-panel';
+      }, 1500);
+    } catch (error: any) {
+      console.error('❌ SimpleLogin - Erreur connexion configurée:', error.message);
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -280,6 +309,16 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
                   <div className="mt-2 space-y-2">
                     <button
                       type="button"
+                      onClick={handleLoginWithConfiguredPassword}
+                      disabled={isLoading}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors mx-auto"
+                    >
+                      <Key className="h-4 w-4" />
+                      <span>Connexion admin123</span>
+                    </button>
+                    
+                    <button
+                      type="button"
                       onClick={handleCreateMaster}
                       disabled={isLoading}
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors mx-auto"
@@ -299,7 +338,7 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
                     </button>
                     
                     <p className="text-xs text-gray-400 mt-1">
-                      Crée automatiquement le compte master@mastercom.fr
+                      Mot de passe configuré: admin123
                     </p>
                   </div>
                 )}

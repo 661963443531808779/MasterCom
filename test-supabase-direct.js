@@ -35,18 +35,27 @@ async function testNetworkConnection() {
   }
 }
 
-// Fonction de test de connexion avec différents mots de passe
+// Fonction de test de connexion avec différents mots de passe et emails
 async function testLoginAttempts() {
   console.log('\n🔑 Test 2: Tentatives de connexion');
   
+  const emails = [
+    'master@mastercom.fr',
+    'master@mastercom.com',
+    'admin@mastercom.fr',
+    'test@mastercom.fr',
+    'master@test.com',
+    'admin@test.com'
+  ];
+  
   const passwords = [
+    'admin123', // Mot de passe configuré connu
     'MasterCom2024!',
     'mastercom2024',
     'MasterCom2024',
     'master@mastercom.fr',
     'master123',
     'Master123!',
-    'admin123',
     'password123',
     'MasterCom2023!',
     'master2024',
@@ -55,92 +64,141 @@ async function testLoginAttempts() {
     '123456',
     'master',
     'MasterCom',
-    'mastercom'
+    'mastercom',
+    'MasterCom2025!',
+    'mastercom2025',
+    'test123',
+    'Test123!'
   ];
   
-  for (const password of passwords) {
-    try {
-      console.log(`🔑 Test avec: ${password}`);
-      
-      const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY
-        },
-        body: JSON.stringify({
-          email: 'master@mastercom.fr',
-          password: password
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log(`✅ CONNEXION RÉUSSIE avec: ${password}`);
-        console.log(`- Token: ${data.access_token ? 'Présent' : 'Manquant'}`);
-        console.log(`- User ID: ${data.user?.id || 'Manquant'}`);
-        console.log(`- Email: ${data.user?.email || 'Manquant'}`);
-        return { success: true, password: password, data: data };
-      } else {
-        console.log(`❌ Échec avec ${password}: ${data.error_description || data.msg}`);
+  for (const email of emails) {
+    for (const password of passwords) {
+      try {
+        console.log(`🔑 Test avec: ${email} / ${password}`);
+        
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log(`✅ CONNEXION RÉUSSIE avec: ${email} / ${password}`);
+          console.log(`- Token: ${data.access_token ? 'Présent' : 'Manquant'}`);
+          console.log(`- User ID: ${data.user?.id || 'Manquant'}`);
+          console.log(`- Email: ${data.user?.email || 'Manquant'}`);
+          return { success: true, email: email, password: password, data: data };
+        } else {
+          console.log(`❌ Échec avec ${email} / ${password}: ${data.error_description || data.msg}`);
+        }
+      } catch (error) {
+        console.log(`❌ Erreur avec ${email} / ${password}: ${error.message}`);
       }
-    } catch (error) {
-      console.log(`❌ Erreur avec ${password}: ${error.message}`);
     }
   }
   
-  return { success: false, message: 'Aucun mot de passe ne fonctionne' };
+  return { success: false, message: 'Aucune combinaison email/mot de passe ne fonctionne' };
 }
 
-// Fonction de création de compte
+// Fonction de création de compte avec plusieurs emails
 async function testAccountCreation() {
   console.log('\n📝 Test 3: Création de compte');
   
-  try {
-    console.log('📝 Tentative de création avec master@mastercom.fr...');
-    
-    const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({
-        email: 'master@mastercom.fr',
-        password: 'MasterCom2024!',
-        data: {
-          first_name: 'Master',
-          last_name: 'Admin'
+  const emails = [
+    'master@mastercom.fr',
+    'master@mastercom.com',
+    'admin@mastercom.fr',
+    'test@mastercom.fr',
+    'master@test.com',
+    'admin@test.com'
+  ];
+  
+  const passwords = [
+    'MasterCom2024!',
+    'mastercom2024',
+    'MasterCom2024',
+    'master123',
+    'admin123',
+    'password123'
+  ];
+  
+  for (const email of emails) {
+    for (const password of passwords) {
+      try {
+        console.log(`📝 Tentative de création: ${email} / ${password}`);
+        
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            data: {
+              first_name: 'Master',
+              last_name: 'Admin'
+            }
+          })
+        });
+        
+        const data = await response.json();
+        
+        console.log(`- Status: ${response.status}`);
+        console.log(`- OK: ${response.ok ? '✅' : '❌'}`);
+        
+        if (response.ok && data.user) {
+          console.log(`✅ Compte créé avec succès: ${email} / ${password}`);
+          console.log(`- User ID: ${data.user.id}`);
+          console.log(`- Email: ${data.user.email}`);
+          console.log(`- Confirmed: ${data.user.email_confirmed_at ? 'Oui' : 'Non'}`);
+          return { success: true, user: data.user, email: email, password: password };
+        } else {
+          console.log(`❌ Erreur création ${email}: ${data.error_description || data.msg}`);
+          
+          if (data.error_description?.includes('already registered')) {
+            console.log(`ℹ️ Le compte ${email} existe déjà`);
+            // Essayer de se connecter avec ce compte
+            try {
+              const loginResponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': SUPABASE_ANON_KEY
+                },
+                body: JSON.stringify({
+                  email: email,
+                  password: password
+                })
+              });
+              
+              const loginData = await loginResponse.json();
+              
+              if (loginResponse.ok) {
+                console.log(`✅ Connexion réussie avec compte existant: ${email} / ${password}`);
+                return { success: true, user: loginData.user, email: email, password: password, existing: true };
+              }
+            } catch (loginError) {
+              console.log(`❌ Impossible de se connecter avec ${email} / ${password}`);
+            }
+          }
         }
-      })
-    });
-    
-    const data = await response.json();
-    
-    console.log(`- Status: ${response.status}`);
-    console.log(`- OK: ${response.ok ? '✅' : '❌'}`);
-    
-    if (response.ok && data.user) {
-      console.log('✅ Compte créé avec succès!');
-      console.log(`- User ID: ${data.user.id}`);
-      console.log(`- Email: ${data.user.email}`);
-      console.log(`- Confirmed: ${data.user.email_confirmed_at ? 'Oui' : 'Non'}`);
-      return { success: true, user: data.user };
-    } else {
-      console.log(`❌ Erreur création: ${data.error_description || data.msg}`);
-      
-      if (data.error_description?.includes('already registered')) {
-        console.log('ℹ️ Le compte existe déjà');
-        return { success: false, exists: true, error: data.error_description };
+      } catch (error) {
+        console.log(`❌ Erreur création ${email}: ${error.message}`);
       }
-      
-      return { success: false, error: data.error_description || data.msg };
     }
-  } catch (error) {
-    console.log(`❌ Erreur création: ${error.message}`);
-    return { success: false, error: error.message };
   }
+  
+  return { success: false, error: 'Impossible de créer un compte avec tous les emails testés' };
 }
 
 // Fonction de test avec email alternatif

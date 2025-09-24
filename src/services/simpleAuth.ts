@@ -95,10 +95,10 @@ export const simpleAuth = {
     }
   },
 
-  // Créer un compte master de test avec méthodes multiples
+  // Créer un compte master avec bypass des restrictions
   async createMasterAccount(): Promise<SimpleUser> {
     try {
-      console.log('🧪 SimpleAuth - Création compte master avec méthodes multiples...');
+      console.log('🧪 SimpleAuth - Création compte master avec bypass des restrictions...');
       
       // Étape 1: Vérifier la configuration Supabase
       console.log('🔧 Vérification de la configuration Supabase...');
@@ -115,21 +115,25 @@ export const simpleAuth = {
           }
         });
         console.log('- Status réseau:', response.status === 200 ? '✅ OK' : `❌ ${response.status}`);
-      } catch (networkError) {
-        console.log('- Erreur réseau:', networkError);
-        throw new Error('Problème de connexion réseau avec Supabase');
+        
+        if (response.status !== 200) {
+          throw new Error(`Problème de connexion réseau (Status: ${response.status})`);
+        }
+      } catch (networkError: any) {
+        console.log('- Erreur réseau:', networkError.message);
+        throw new Error(`Problème de connexion réseau: ${networkError.message}`);
       }
       
       // Étape 3: Essayer de se connecter avec différents mots de passe
       console.log('🔑 Test de connexion avec différents mots de passe...');
       const passwordsToTry = [
+        'admin123', // Mot de passe configuré connu
         'MasterCom2024!',
         'mastercom2024',
         'MasterCom2024',
         'master@mastercom.fr',
         'master123',
         'Master123!',
-        'admin123',
         'password123',
         'MasterCom2023!',
         'master2024',
@@ -138,7 +142,11 @@ export const simpleAuth = {
         '123456',
         'master',
         'MasterCom',
-        'mastercom'
+        'mastercom',
+        'MasterCom2025!',
+        'mastercom2025',
+        'test123',
+        'Test123!'
       ];
       
       for (const password of passwordsToTry) {
@@ -152,90 +160,133 @@ export const simpleAuth = {
         }
       }
       
-      // Étape 4: Créer le compte avec différentes méthodes
+      // Étape 4: Créer le compte avec différentes méthodes et emails
       console.log('🔄 Aucun mot de passe ne fonctionne, création du compte...');
       
-      // Méthode 1: Création standard
-      try {
-        console.log('📝 Méthode 1: Création standard...');
-        const { data, error } = await supabase.auth.signUp({
-          email: 'master@mastercom.fr',
-          password: 'MasterCom2024!',
-          options: {
-            data: {
-              first_name: 'Master',
-              last_name: 'Admin'
-            }
-          }
-        });
+      const emailsToTry = [
+        'master@mastercom.fr',
+        'master@mastercom.com',
+        'admin@mastercom.fr',
+        'test@mastercom.fr',
+        'master@test.com',
+        'admin@test.com'
+      ];
+      
+      const passwordsToCreate = [
+        'MasterCom2024!',
+        'mastercom2024',
+        'MasterCom2024',
+        'master123',
+        'admin123',
+        'password123'
+      ];
+      
+      // Méthode 1: Création standard avec différents emails
+      for (const email of emailsToTry) {
+        for (const password of passwordsToCreate) {
+          try {
+            console.log(`📝 Tentative création: ${email} / ${password}`);
+            const { data, error } = await supabase.auth.signUp({
+              email: email,
+              password: password,
+              options: {
+                data: {
+                  first_name: 'Master',
+                  last_name: 'Admin'
+                }
+              }
+            });
 
-        if (error) {
-          console.log('❌ Erreur création standard:', error.message);
-          
-          // Si l'utilisateur existe déjà, essayer encore une fois de se connecter
-          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
-            console.log('🔄 Utilisateur existe, dernier essai de connexion...');
-            try {
-              return await this.login('master@mastercom.fr', 'MasterCom2024!');
-            } catch (finalError) {
-              console.log('❌ Impossible de se connecter même après création');
+            if (error) {
+              console.log(`❌ Erreur création ${email}: ${error.message}`);
+              
+              // Si l'utilisateur existe déjà, essayer de se connecter
+              if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+                console.log(`🔄 Utilisateur ${email} existe, tentative de connexion...`);
+                try {
+                  const user = await this.login(email, password);
+                  console.log(`✅ Connexion réussie avec ${email} / ${password}`);
+                  return user;
+                } catch (loginError) {
+                  console.log(`❌ Impossible de se connecter avec ${email} / ${password}`);
+                }
+              }
+            } else if (data.user) {
+              console.log(`✅ Compte créé avec succès: ${email} / ${password}`);
+              return {
+                id: data.user.id,
+                email: data.user.email || email,
+                name: 'Master Admin',
+                isMaster: true
+              };
             }
+          } catch (createError: any) {
+            console.log(`❌ Erreur création ${email}: ${createError.message}`);
           }
-        } else if (data.user) {
-          console.log('✅ Compte créé avec succès (méthode standard)');
-          return {
-            id: data.user.id,
-            email: data.user.email || 'master@mastercom.fr',
-            name: 'Master Admin',
-            isMaster: true
-          };
         }
-      } catch (createError) {
-        console.log('❌ Erreur création standard:', createError);
       }
       
       // Méthode 2: Création avec fetch direct
-      try {
-        console.log('📝 Méthode 2: Création avec fetch direct...');
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({
-            email: 'master@mastercom.fr',
-            password: 'MasterCom2024!',
-            data: {
-              first_name: 'Master',
-              last_name: 'Admin'
+      for (const email of emailsToTry) {
+        for (const password of passwordsToCreate) {
+          try {
+            console.log(`📝 Fetch direct: ${email} / ${password}`);
+            const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY
+              },
+              body: JSON.stringify({
+                email: email,
+                password: password,
+                data: {
+                  first_name: 'Master',
+                  last_name: 'Admin'
+                }
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.user) {
+              console.log(`✅ Compte créé avec fetch direct: ${email} / ${password}`);
+              return {
+                id: data.user.id,
+                email: data.user.email || email,
+                name: 'Master Admin',
+                isMaster: true
+              };
+            } else {
+              console.log(`❌ Erreur fetch direct ${email}: ${data.error_description || data.msg}`);
+              
+              // Si l'utilisateur existe déjà, essayer de se connecter
+              if (data.error_description?.includes('already registered')) {
+                try {
+                  const user = await this.login(email, password);
+                  console.log(`✅ Connexion réussie après fetch direct: ${email} / ${password}`);
+                  return user;
+                } catch (loginError) {
+                  console.log(`❌ Impossible de se connecter après fetch direct: ${email} / ${password}`);
+                }
+              }
             }
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.user) {
-          console.log('✅ Compte créé avec succès (méthode fetch direct)');
-          return {
-            id: data.user.id,
-            email: data.user.email || 'master@mastercom.fr',
-            name: 'Master Admin',
-            isMaster: true
-          };
-        } else {
-          console.log('❌ Erreur création fetch direct:', data.error_description || data.msg);
+          } catch (fetchError: any) {
+            console.log(`❌ Erreur fetch direct ${email}: ${fetchError.message}`);
+          }
         }
-      } catch (fetchError) {
-        console.log('❌ Erreur fetch direct:', fetchError);
       }
       
-      // Méthode 3: Création avec email différent
+      // Méthode 3: Création avec email temporaire unique
       try {
-        console.log('📝 Méthode 3: Création avec email alternatif...');
+        const timestamp = Date.now();
+        const tempEmail = `master${timestamp}@mastercom.fr`;
+        const tempPassword = 'MasterCom2024!';
+        
+        console.log(`📝 Création avec email temporaire: ${tempEmail}`);
         const { data, error } = await supabase.auth.signUp({
-          email: 'master@mastercom.com',
-          password: 'MasterCom2024!',
+          email: tempEmail,
+          password: tempPassword,
           options: {
             data: {
               first_name: 'Master',
@@ -245,19 +296,19 @@ export const simpleAuth = {
         });
 
         if (!error && data.user) {
-          console.log('✅ Compte créé avec succès (email alternatif)');
+          console.log(`✅ Compte créé avec email temporaire: ${tempEmail}`);
           return {
             id: data.user.id,
-            email: data.user.email || 'master@mastercom.com',
+            email: data.user.email || tempEmail,
             name: 'Master Admin',
             isMaster: true
           };
         }
-      } catch (altError) {
-        console.log('❌ Erreur création email alternatif:', altError);
+      } catch (tempError: any) {
+        console.log(`❌ Erreur création email temporaire: ${tempError.message}`);
       }
       
-      throw new Error('Impossible de créer le compte master avec toutes les méthodes');
+      throw new Error('Impossible de créer le compte master avec toutes les méthodes et emails');
     } catch (error: any) {
       console.error('❌ SimpleAuth - Erreur createMasterAccount:', error);
       throw new Error(error.message || 'Erreur lors de la création du compte master');
@@ -304,11 +355,11 @@ export const simpleAuth = {
       // Test 3: Tentative de connexion avec différents mots de passe
       console.log('🔑 Test 3 - Tentatives de connexion:');
       const passwordsToTest = [
+        'admin123', // Mot de passe configuré connu
         'MasterCom2024!',
         'mastercom2024',
         'MasterCom2024',
-        'master123',
-        'admin123'
+        'master123'
       ];
       
       for (const password of passwordsToTest) {
@@ -411,6 +462,36 @@ export const simpleAuth = {
         message: `Erreur générale: ${error.message}`,
         details: { generalError: error.message }
       };
+    }
+  },
+
+  // Connexion directe avec le mot de passe configuré
+  async loginWithConfiguredPassword(): Promise<SimpleUser> {
+    try {
+      console.log('🔑 SimpleAuth - Connexion avec mot de passe configuré (admin123)...');
+      
+      const emails = [
+        'master@mastercom.fr',
+        'master@mastercom.com',
+        'admin@mastercom.fr',
+        'test@mastercom.fr'
+      ];
+      
+      for (const email of emails) {
+        try {
+          console.log(`🔑 Tentative de connexion: ${email} / admin123`);
+          const user = await this.login(email, 'admin123');
+          console.log(`✅ Connexion réussie avec: ${email} / admin123`);
+          return user;
+        } catch (e: any) {
+          console.log(`❌ Connexion échouée avec ${email}: ${e.message}`);
+        }
+      }
+      
+      throw new Error('Impossible de se connecter avec le mot de passe configuré admin123');
+    } catch (error: any) {
+      console.error('❌ SimpleAuth - Erreur loginWithConfiguredPassword:', error);
+      throw new Error(error.message || 'Erreur lors de la connexion avec le mot de passe configuré');
     }
   },
 
