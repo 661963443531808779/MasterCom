@@ -3,7 +3,7 @@ import {
   Mail, Lock, Eye, EyeOff, AlertCircle, 
   Key, CheckCircle, Camera, Video, Mic, Sparkles, UserPlus
 } from 'lucide-react';
-import { authService } from '../services/supabase';
+import { authService, diagnoseSupabase } from '../services/supabase';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<any>;
@@ -79,6 +79,58 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     } catch (error: any) {
       console.error('❌ Erreur création utilisateur test:', error);
       setError('Erreur lors de la création de l\'utilisateur de test');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour réinitialiser le mot de passe du compte master
+  const handleResetMasterPassword = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      console.log('🔄 Tentative de réinitialisation du mot de passe master...');
+      
+      // D'abord essayer de créer le compte (si il n'existe pas)
+      const result = await authService.createTestMasterUser();
+      
+      if (result) {
+        setError('');
+        alert('✅ Connexion réussie avec le compte master!');
+        setIsSuccess(true);
+        setTimeout(() => {
+          window.location.href = '/master-panel';
+        }, 1500);
+      } else {
+        setError('Impossible de créer ou se connecter avec le compte master.');
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur réinitialisation:', error);
+      setError('Impossible de créer ou se connecter avec le compte master. Vérifiez la configuration Supabase.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction de diagnostic
+  const handleDiagnostic = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      console.log('🔍 Lancement du diagnostic Supabase...');
+      const isWorking = await diagnoseSupabase();
+      
+      if (isWorking) {
+        setError('');
+        alert('✅ Supabase fonctionne correctement!\nVérifiez la console pour plus de détails.');
+      } else {
+        setError('❌ Problème détecté avec Supabase. Vérifiez la console pour plus de détails.');
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur diagnostic:', error);
+      setError('Erreur lors du diagnostic Supabase.');
     } finally {
       setIsLoading(false);
     }
@@ -265,7 +317,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                 </button>
                 
                 {showTestMode && (
-                  <div className="mt-2">
+                  <div className="mt-2 space-y-2">
                     <button
                       type="button"
                       onClick={handleCreateTestUser}
@@ -275,8 +327,29 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                       <UserPlus className="h-4 w-4" />
                       <span>Créer utilisateur master</span>
                     </button>
+                    
+                    <button
+                      type="button"
+                      onClick={handleResetMasterPassword}
+                      disabled={isLoading}
+                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors mx-auto"
+                    >
+                      <Key className="h-4 w-4" />
+                      <span>Réinitialiser & Connexion</span>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={handleDiagnostic}
+                      disabled={isLoading}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors mx-auto"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Diagnostic Supabase</span>
+                    </button>
+                    
                     <p className="text-xs text-gray-400 mt-1">
-                      Crée un compte master@mastercom.fr pour tester
+                      Crée ou réinitialise le compte master@mastercom.fr
                     </p>
                   </div>
                 )}

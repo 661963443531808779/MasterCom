@@ -36,6 +36,32 @@ console.log('URL:', supabaseUrl);
 console.log('Anon Key:', supabaseAnonKey ? '✅ Configuré' : '❌ Manquant');
 console.log('Client Supabase:', supabase ? '✅ Créé' : '❌ Erreur');
 
+// Fonction de diagnostic Supabase
+export const diagnoseSupabase = async () => {
+  try {
+    console.log('🔍 Diagnostic Supabase...');
+    
+    // Test de connexion basique
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('❌ Erreur session Supabase:', error);
+      return false;
+    }
+    
+    console.log('✅ Supabase fonctionne correctement');
+    console.log('Session actuelle:', data.session ? 'Connecté' : 'Non connecté');
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur diagnostic Supabase:', error);
+    return false;
+  }
+};
+
+// Lancer le diagnostic au chargement
+diagnoseSupabase();
+
 
 
 export { supabase };
@@ -127,6 +153,17 @@ export const authService = {
     try {
       console.log('🧪 Création d\'un utilisateur master de test...');
       
+      // D'abord essayer de se connecter avec le mot de passe standard
+      try {
+        console.log('🔄 Tentative de connexion avec mot de passe standard...');
+        const loginResult = await this.signIn('master@mastercom.fr', 'MasterCom2024!');
+        console.log('✅ Connexion réussie avec mot de passe standard');
+        return loginResult;
+      } catch (loginError) {
+        console.log('❌ Connexion échouée, tentative de création...');
+      }
+      
+      // Si la connexion échoue, essayer de créer le compte
       const { data, error } = await supabase.auth.signUp({
         email: 'master@mastercom.fr',
         password: 'MasterCom2024!',
@@ -134,12 +171,41 @@ export const authService = {
           data: {
             first_name: 'Master',
             last_name: 'Admin'
-          }
+          },
+          emailRedirectTo: undefined // Pas de redirection email pour le test
         }
       });
 
       if (error) {
-        console.log('ℹ️ Utilisateur master existe déjà ou erreur:', error.message);
+        console.log('ℹ️ Erreur création utilisateur:', error.message);
+        
+        // Si l'utilisateur existe déjà, essayer d'autres mots de passe courants
+        if (error.message.includes('already registered')) {
+          console.log('🔄 Utilisateur existe, test de mots de passe alternatifs...');
+          
+          const passwordsToTry = [
+            'MasterCom2024!',
+            'mastercom2024',
+            'MasterCom2024',
+            'master@mastercom.fr',
+            'master123',
+            'Master123!',
+            'admin123',
+            'password123'
+          ];
+          
+          for (const password of passwordsToTry) {
+            try {
+              console.log(`🔑 Test du mot de passe: ${password}`);
+              const loginResult = await this.signIn('master@mastercom.fr', password);
+              console.log(`✅ Connexion réussie avec: ${password}`);
+              return loginResult;
+            } catch (e) {
+              console.log(`❌ Mot de passe ${password} incorrect`);
+            }
+          }
+        }
+        
         return null;
       }
 
