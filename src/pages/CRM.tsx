@@ -10,7 +10,6 @@ import {
 import ClientCRUD from '../components/ClientCRUD';
 import InvoiceCRUD from '../components/InvoiceCRUD';
 import QuoteCRUD from '../components/QuoteCRUD';
-import SupportTicketCRUD from '../components/SupportTicketCRUD';
 import ProjectManager from '../components/ProjectManager';
 
 interface CRMProps {
@@ -26,7 +25,6 @@ const CRM: FC<CRMProps> = ({ userRole }) => {
     { id: 'clients', label: 'Clients', icon: <Users className="h-4 w-4" /> },
     { id: 'invoices', label: 'Factures', icon: <FileText className="h-4 w-4" /> },
     { id: 'quotes', label: 'Devis', icon: <Quote className="h-4 w-4" /> },
-    { id: 'tickets', label: 'Support', icon: <MessageSquare className="h-4 w-4" /> },
     { id: 'projects', label: 'Projets', icon: <Folder className="h-4 w-4" /> }
   ];
 
@@ -39,8 +37,6 @@ const CRM: FC<CRMProps> = ({ userRole }) => {
           return <InvoiceCRUD />;
         case 'quotes':
           return <QuoteCRUD />;
-        case 'tickets':
-          return <SupportTicketCRUD />;
         case 'projects':
           return <ProjectManager userRole={userRole} />;
         default:

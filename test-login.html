@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Connexion MasterCom</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; border-radius: 5px; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Test Connexion MasterCom</h1>
+        
+        <div class="test-section info">
+            <h3>📋 Instructions</h3>
+            <p>1. Entrez vos identifiants ci-dessous</p>
+            <p>2. Cliquez sur "Tester la Connexion"</p>
+            <p>3. Le résultat s'affichera en dessous</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 Test de Connexion</h3>
+            <div>
+                <label>Email:</label><br>
+                <input type="email" id="email" placeholder="votre@email.com" value="master@master.com">
+            </div>
+            <div>
+                <label>Mot de passe:</label><br>
+                <input type="password" id="password" placeholder="votre mot de passe" value="admin123">
+            </div>
+            <button onclick="testLogin()">🔑 Tester la Connexion</button>
+            <button onclick="testAllCredentials()">🔄 Tester Toutes les Combinaisons</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gpnjamtnogyfvykgdiwd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = '<div class="result info">🔄 Test en cours...</div>';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.user) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h4>✅ CONNEXION RÉUSSIE!</h4>
+                            <p><strong>Email:</strong> ${data.user.email}</p>
+                            <p><strong>UID:</strong> ${data.user.id}</p>
+                            <p><strong>Email confirmé:</strong> ${data.user.email_confirmed_at ? 'Oui' : 'Non'}</p>
+                            <p><strong>Créé le:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
+                            <p><strong>Dernière connexion:</strong> ${data.user.last_sign_in_at ? new Date(data.user.last_sign_in_at).toLocaleString() : 'Jamais'}</p>
+                            <p><strong>Token:</strong> ${data.access_token ? 'Présent' : 'Manquant'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h4>❌ CONNEXION ÉCHOUÉE</h4>
+                            <p><strong>Erreur:</strong> ${data.error_description || data.msg || 'Erreur inconnue'}</p>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h4>❌ ERREUR DE CONNEXION</h4>
+                        <p><strong>Erreur:</strong> ${error.message}</p>
+                        <p>Vérifiez votre connexion internet.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAllCredentials() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result info">🔄 Test de toutes les combinaisons en cours...</div>';
+            
+            const credentials = [
+                { email: 'master@master.com', password: 'admin123' },
+                { email: 'master@mastercom.fr', password: 'admin123' },
+                { email: 'master@mastercom.com', password: 'admin123' },
+                { email: 'admin@mastercom.fr', password: 'admin123' },
+                { email: 'admin@mastercom.com', password: 'admin123' },
+                { email: 'test@mastercom.fr', password: 'admin123' },
+                { email: 'user@mastercom.fr', password: 'admin123' },
+                { email: 'contact@mastercom.fr', password: 'admin123' },
+                { email: 'info@mastercom.fr', password: 'admin123' },
+                { email: 'master@master.com', password: 'MasterCom2024!' },
+                { email: 'master@master.com', password: 'mastercom2024' },
+                { email: 'master@master.com', password: 'MasterCom2024' },
+                { email: 'master@master.com', password: 'master123' },
+                { email: 'master@master.com', password: 'password123' },
+                { email: 'master@master.com', password: 'admin' },
+                { email: 'master@master.com', password: 'password' },
+                { email: 'master@master.com', password: '123456' },
+                { email: 'master@master.com', password: 'master' }
+            ];
+            
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+            const successes = [];
+            
+            for (let i = 0; i < credentials.length; i++) {
+                const { email, password } = credentials[i];
+                
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.user) {
+                        successes.push({ email, password, user: data.user });
+                        successCount++;
+                    } else {
+                        errors.push({ email, password, error: data.error_description || data.msg });
+                        errorCount++;
+                    }
+                } catch (error) {
+                    errors.push({ email, password, error: error.message });
+                    errorCount++;
+                }
+                
+                // Mise à jour du statut
+                resultDiv.innerHTML = `
+                    <div class="result info">
+                        <h4>🔄 Test en cours...</h4>
+                        <p>Progression: ${i + 1}/${credentials.length}</p>
+                        <p>Succès: ${successCount} | Échecs: ${errorCount}</p>
+                    </div>
+                `;
+                
+                // Petite pause pour éviter de surcharger l'API
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // Affichage des résultats finaux
+            let resultHTML = `
+                <div class="result ${successCount > 0 ? 'success' : 'error'}">
+                    <h4>📊 RÉSULTATS FINAUX</h4>
+                    <p><strong>Connexions réussies:</strong> ${successCount}</p>
+                    <p><strong>Connexions échouées:</strong> ${errorCount}</p>
+                </div>
+            `;
+            
+            if (successCount > 0) {
+                resultHTML += '<div class="result success"><h4>✅ CONNEXIONS RÉUSSIES:</h4>';
+                successes.forEach(success => {
+                    resultHTML += `
+                        <p><strong>${success.email}</strong> / <strong>${success.password}</strong></p>
+                        <p style="margin-left: 20px;">UID: ${success.user.id}</p>
+                    `;
+                });
+                resultHTML += '</div>';
+            }
+            
+            if (errorCount > 0) {
+                resultHTML += '<div class="result error"><h4>❌ ERREURS COMMUNES:</h4>';
+                const errorTypes = {};
+                errors.forEach(err => {
+                    errorTypes[err.error] = (errorTypes[err.error] || 0) + 1;
+                });
+                Object.entries(errorTypes).forEach(([error, count]) => {
+                    resultHTML += `<p><strong>${error}:</strong> ${count} fois</p>`;
+                });
+                resultHTML += '</div>';
+            }
+            
+            resultDiv.innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
