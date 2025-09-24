@@ -181,7 +181,6 @@ function App() {
   // Charger le profil utilisateur
   const loadUserProfile = async (userId: string, userEmail?: string, userMetadata?: any) => {
     try {
-      console.log('👤 Chargement du profil pour:', userId, userEmail);
       
       // Vérifier si c'est le compte master (par email ou ID spécifique)
       const isMasterAccount = userEmail === 'master@master.com' || 
@@ -189,7 +188,6 @@ function App() {
                              userId === 'a3522290-7863-49dc-bce1-f979a5f6bbea';
       
       if (isMasterAccount) {
-        console.log('🔑 Compte Master détecté');
         const masterProfile: UserProfile = {
           id: userId,
           email: userEmail || '',
@@ -212,7 +210,6 @@ function App() {
       }
       
       // Pour les autres utilisateurs, créer un profil par défaut
-      console.log('👤 Création du profil par défaut');
       const defaultProfile: UserProfile = {
         id: userId,
         email: userEmail || '',
@@ -239,8 +236,6 @@ function App() {
   // Gestion de la connexion
   const handleLogin = async (authUser: AuthUser) => {
     try {
-      console.log('🔐 Connexion dans App.tsx:', authUser.email);
-      
       // Convertir AuthUser en User pour compatibilité
       const user: User = {
         id: authUser.id,
@@ -273,10 +268,8 @@ function App() {
       };
       
       setUserProfile(userProfile);
-      console.log('✅ Profil utilisateur chargé');
       return user;
     } catch (error: any) {
-      console.error('❌ Erreur dans handleLogin:', error);
       throw error;
     }
   };

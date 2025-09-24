@@ -1,4 +1,4 @@
-// Service d'authentification MasterCom - Version Ultra-Simplifiée
+// Service d'authentification MasterCom - Version Production
 import { createClient } from '@supabase/supabase-js';
 
 // Configuration Supabase
@@ -24,20 +24,17 @@ export interface User {
   isMaster: boolean;
 }
 
-// Service d'authentification ultra-simplifié
+// Service d'authentification production
 export const authService = {
-  // Connexion directe avec Supabase
+  // Connexion
   async login(email: string, password: string): Promise<User> {
     try {
-      console.log('🔐 Connexion:', email);
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password: password,
       });
 
       if (error) {
-        console.error('❌ Erreur connexion:', error.message);
         throw new Error(this.getErrorMessage(error.message));
       }
       
@@ -49,13 +46,11 @@ export const authService = {
         id: data.user.id,
         email: data.user.email || email,
         name: data.user.user_metadata?.first_name || 'Utilisateur',
-        isMaster: true // Tous les utilisateurs connectés sont considérés comme master
+        isMaster: true
       };
 
-      console.log('✅ Connexion réussie:', user.email);
       return user;
     } catch (error: any) {
-      console.error('❌ Erreur connexion:', error);
       throw new Error(error.message || 'Erreur de connexion');
     }
   },
@@ -64,9 +59,7 @@ export const authService = {
   async logout(): Promise<void> {
     try {
       await supabase.auth.signOut();
-      console.log('✅ Déconnexion réussie');
     } catch (error) {
-      console.error('❌ Erreur déconnexion:', error);
       throw error;
     }
   },
@@ -87,7 +80,6 @@ export const authService = {
         isMaster: true
       };
     } catch (error) {
-      console.error('❌ Erreur getCurrentUser:', error);
       return null;
     }
   },
@@ -95,7 +87,7 @@ export const authService = {
   // Messages d'erreur en français
   getErrorMessage(errorMessage: string): string {
     if (errorMessage.includes('Invalid login credentials')) {
-      return 'Email ou mot de passe incorrect. Vérifiez vos identifiants dans Supabase Dashboard.';
+      return 'Email ou mot de passe incorrect';
     }
     if (errorMessage.includes('Email not confirmed')) {
       return 'Veuillez confirmer votre email avant de vous connecter';

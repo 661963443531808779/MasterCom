@@ -118,11 +118,8 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
           {/* Instructions */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-2">
-                Utilisez les identifiants de votre compte Supabase
-              </p>
-              <p className="text-xs text-gray-500">
-                UID: 4b83f2c6-ca3a-48b5-9a4e-694b725a0d44
+              <p className="text-sm text-gray-600">
+                Entrez vos identifiants pour accéder au studio
               </p>
             </div>
           </div>
