@@ -15,13 +15,13 @@ const ThemeManager: FC = () => {
 
   const themes = [
     {
-      id: 'none' as SeasonalTheme,
-      name: 'Aucun thème',
-      description: 'Interface standard sans décorations',
-      icon: Palette,
-      color: 'text-gray-600',
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200'
+      id: 'halloween' as SeasonalTheme,
+      name: 'Halloween',
+      description: 'Citrouilles, fantômes, chauves-souris et ambiance mystérieuse',
+      icon: Ghost,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200'
     },
     {
       id: 'christmas' as SeasonalTheme,
@@ -42,15 +42,6 @@ const ThemeManager: FC = () => {
       borderColor: 'border-pink-200'
     },
     {
-      id: 'halloween' as SeasonalTheme,
-      name: 'Halloween',
-      description: 'Citrouilles, fantômes, chauves-souris et ambiance mystérieuse',
-      icon: Ghost,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200'
-    },
-    {
       id: 'summer' as SeasonalTheme,
       name: 'Été',
       description: 'Soleil, palmiers, glaces et ambiance tropicale',
@@ -58,6 +49,15 @@ const ThemeManager: FC = () => {
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
       borderColor: 'border-yellow-200'
+    },
+    {
+      id: 'none' as SeasonalTheme,
+      name: 'Aucun thème',
+      description: 'Interface standard sans décorations',
+      icon: Palette,
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200'
     }
   ];
 

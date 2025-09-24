@@ -495,6 +495,87 @@ $$;
 CREATE VIEW project_overview AS
 SELECT * FROM get_project_overview();
 
--- 17. Message de confirmation
-SELECT 'Schéma MasterCom créé avec succès !' as message,
-       'Base de données prête pour la production' as status;
+-- 17. Créer la table des demandes de suppression
+CREATE TABLE IF NOT EXISTS deletion_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  table_name VARCHAR(255) NOT NULL,
+  record_id UUID NOT NULL,
+  record_data JSONB NOT NULL,
+  reason TEXT,
+  requested_by UUID NOT NULL,
+  requested_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  reviewed_by UUID,
+  reviewed_at TIMESTAMP WITH TIME ZONE,
+  review_notes TEXT
+);
+
+-- Activer RLS sur la table des demandes de suppression
+ALTER TABLE deletion_requests ENABLE ROW LEVEL SECURITY;
+
+-- Politique RLS pour les demandes de suppression
+CREATE POLICY "Enable all operations for authenticated users" ON deletion_requests
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- Index unique pour empêcher les doublons de demandes en attente
+CREATE UNIQUE INDEX IF NOT EXISTS deletion_requests_unique_pending 
+ON deletion_requests (table_name, record_id) 
+WHERE status = 'pending';
+
+-- 18. Créer la table des préférences de thèmes
+CREATE TABLE IF NOT EXISTS theme_preferences (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL,
+  theme_name VARCHAR(50) NOT NULL CHECK (theme_name IN ('none', 'christmas', 'easter', 'halloween', 'summer')),
+  is_active BOOLEAN DEFAULT true,
+  activated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  deactivated_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Activer RLS sur la table des préférences de thèmes
+ALTER TABLE theme_preferences ENABLE ROW LEVEL SECURITY;
+
+-- Politique RLS pour les préférences de thèmes
+CREATE POLICY "Enable all operations for authenticated users" ON theme_preferences
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- Index pour les préférences de thèmes
+CREATE INDEX IF NOT EXISTS idx_theme_preferences_user_id ON theme_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_theme_preferences_active ON theme_preferences(is_active) WHERE is_active = true;
+
+-- 19. Insérer le compte master avec les bonnes permissions
+INSERT INTO users (id, email, first_name, last_name, role, status, created_by) 
+VALUES (
+  'aa72e089-7ae9-4fe6-bae1-04cce09df80c',
+  'master@mastercom.fr',
+  'Master',
+  'Admin',
+  'master',
+  'active',
+  'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
+) ON CONFLICT (email) DO UPDATE SET
+  role = 'master',
+  status = 'active',
+  updated_at = NOW();
+
+-- Insérer aussi master@mastercom.com pour compatibilité
+INSERT INTO users (email, first_name, last_name, role, status, created_by) 
+VALUES (
+  'master@mastercom.com',
+  'Master',
+  'Admin',
+  'master',
+  'active',
+  'aa72e089-7ae9-4fe6-bae1-04cce09df80c'
+) ON CONFLICT (email) DO NOTHING;
+
+-- 20. Message de confirmation final
+SELECT '🎉 Schéma MasterCom complet créé avec succès !' as message;
+SELECT '✅ Toutes les tables créées' as tables;
+SELECT '✅ Politiques RLS activées' as security;
+SELECT '✅ Index de performance créés' as performance;
+SELECT '✅ Compte master configuré' as master_account;
+SELECT '✅ Système de suppression avec validation' as deletion_system;
+SELECT '✅ Système de thèmes saisonniers' as themes_system;

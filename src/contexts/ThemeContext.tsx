@@ -63,26 +63,24 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           colors: {
             primary: 'text-red-600',
             secondary: 'text-green-600',
-            accent: 'text-gold-500'
+            accent: 'text-yellow-500'
           },
           decorations: [
-            // Sapins flottants
-            <div key="tree-1" className="fixed top-10 left-10 w-8 h-8 opacity-20 animate-bounce">
-              <div className="text-green-500 text-2xl">🎄</div>
+            // Sapin principal en haut à gauche
+            <div key="tree-1" className="text-green-500 text-3xl opacity-60 animate-bounce">
+              🎄
             </div>,
-            <div key="tree-2" className="fixed top-20 right-20 w-6 h-6 opacity-30 animate-pulse">
-              <div className="text-green-600 text-xl">🎄</div>
+            // Cadeau en haut à droite
+            <div key="gift-1" className="text-red-500 text-2xl opacity-50 animate-pulse">
+              🎁
             </div>,
-            // Flocons de neige
-            <div key="snow-1" className="fixed top-16 left-1/4 w-4 h-4 opacity-40 animate-ping">
-              <div className="text-white text-lg">❄️</div>
+            // Flocon en bas à gauche
+            <div key="snow-1" className="text-white text-2xl opacity-40 animate-ping">
+              ❄️
             </div>,
-            <div key="snow-2" className="fixed top-32 right-1/3 w-3 h-3 opacity-50 animate-bounce">
-              <div className="text-white text-sm">❄️</div>
-            </div>,
-            // Cadeaux
-            <div key="gift-1" className="fixed bottom-20 left-16 w-6 h-6 opacity-25 animate-pulse">
-              <div className="text-red-500 text-xl">🎁</div>
+            // Étoile en bas à droite
+            <div key="star-1" className="text-yellow-400 text-2xl opacity-60 animate-pulse">
+              ⭐
             </div>
           ],
           animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
@@ -97,20 +95,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             accent: 'text-purple-500'
           },
           decorations: [
-            // Œufs de Pâques
-            <div key="egg-1" className="fixed top-12 left-12 w-6 h-6 opacity-30 animate-bounce">
-              <div className="text-pink-500 text-xl">🥚</div>
+            // Œuf coloré en haut à gauche
+            <div key="egg-1" className="text-pink-500 text-3xl opacity-60 animate-bounce">
+              🥚
             </div>,
-            <div key="egg-2" className="fixed top-24 right-16 w-5 h-5 opacity-40 animate-pulse">
-              <div className="text-yellow-500 text-lg">🥚</div>
+            // Lapin en haut à droite
+            <div key="bunny-1" className="text-gray-400 text-2xl opacity-50 animate-pulse">
+              🐰
             </div>,
-            // Lapins
-            <div key="bunny-1" className="fixed bottom-16 left-20 w-8 h-8 opacity-25 animate-bounce">
-              <div className="text-gray-400 text-2xl">🐰</div>
+            // Fleur en bas à gauche
+            <div key="flower-1" className="text-pink-400 text-2xl opacity-40 animate-ping">
+              🌸
             </div>,
-            // Fleurs
-            <div key="flower-1" className="fixed top-40 left-1/3 w-4 h-4 opacity-35 animate-ping">
-              <div className="text-pink-400 text-lg">🌸</div>
+            // Panier en bas à droite
+            <div key="basket-1" className="text-yellow-500 text-2xl opacity-60 animate-pulse">
+              🧺
             </div>
           ],
           animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
@@ -125,17 +124,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             accent: 'text-black'
           },
           decorations: [
-            // Citrouilles
-            <div key="pumpkin-1" className="fixed top-10 left-16 w-8 h-8 opacity-30 animate-bounce">
-              <div className="text-orange-500 text-2xl">🎃</div>
+            // Citrouille en haut à gauche
+            <div key="pumpkin-1" className="text-orange-500 text-3xl opacity-60 animate-bounce">
+              🎃
             </div>,
-            // Fantômes
-            <div key="ghost-1" className="fixed top-20 right-12 w-6 h-6 opacity-25 animate-pulse">
-              <div className="text-white text-xl">👻</div>
+            // Fantôme en haut à droite
+            <div key="ghost-1" className="text-white text-2xl opacity-50 animate-pulse">
+              👻
             </div>,
-            // Chauves-souris
-            <div key="bat-1" className="fixed bottom-20 left-12 w-5 h-5 opacity-40 animate-ping">
-              <div className="text-purple-600 text-lg">🦇</div>
+            // Chauve-souris en bas à gauche
+            <div key="bat-1" className="text-purple-600 text-2xl opacity-40 animate-ping">
+              🦇
+            </div>,
+            // Crâne en bas à droite
+            <div key="skull-1" className="text-gray-600 text-2xl opacity-60 animate-pulse">
+              💀
             </div>
           ],
           animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
@@ -150,17 +153,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             accent: 'text-orange-500'
           },
           decorations: [
-            // Soleil
-            <div key="sun-1" className="fixed top-8 right-8 w-8 h-8 opacity-30 animate-spin">
-              <div className="text-yellow-500 text-2xl">☀️</div>
+            // Soleil en haut à gauche
+            <div key="sun-1" className="text-yellow-500 text-3xl opacity-60 animate-spin">
+              ☀️
             </div>,
-            // Palmiers
-            <div key="palm-1" className="fixed bottom-16 left-16 w-6 h-6 opacity-25 animate-pulse">
-              <div className="text-green-500 text-xl">🌴</div>
+            // Palmier en haut à droite
+            <div key="palm-1" className="text-green-500 text-2xl opacity-50 animate-pulse">
+              🌴
             </div>,
-            // Glaces
-            <div key="ice-1" className="fixed top-24 left-20 w-4 h-4 opacity-40 animate-bounce">
-              <div className="text-pink-400 text-lg">🍦</div>
+            // Glace en bas à gauche
+            <div key="ice-1" className="text-pink-400 text-2xl opacity-40 animate-bounce">
+              🍦
+            </div>,
+            // Parasol en bas à droite
+            <div key="umbrella-1" className="text-blue-500 text-2xl opacity-60 animate-pulse">
+              🏖️
             </div>
           ],
           animations: ['animate-spin', 'animate-pulse', 'animate-bounce']
