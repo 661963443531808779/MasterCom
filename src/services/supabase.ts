@@ -20,7 +20,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     storageKey: 'mastercom-auth-token',
-    flowType: 'pkce'
+    flowType: 'pkce',
+    debug: true // Activer le debug pour voir les détails
   },
   realtime: {
     params: {
@@ -28,6 +29,12 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
   }
 });
+
+// Debug: Afficher la configuration Supabase
+console.log('🔧 Configuration Supabase:');
+console.log('URL:', supabaseUrl);
+console.log('Anon Key:', supabaseAnonKey ? '✅ Configuré' : '❌ Manquant');
+console.log('Client Supabase:', supabase ? '✅ Créé' : '❌ Erreur');
 
 
 
@@ -95,16 +102,52 @@ export interface Client {
 export const authService = {
   async signIn(email: string, password: string) {
     try {
+      console.log('🔐 AuthService - Tentative de connexion:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ AuthService - Erreur Supabase:', error);
+        throw error;
+      }
+      
+      console.log('✅ AuthService - Connexion réussie:', data.user?.email);
       return data;
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('❌ AuthService - Erreur de connexion:', error);
       throw error;
+    }
+  },
+
+  // Fonction de test pour créer un utilisateur master si nécessaire
+  async createTestMasterUser() {
+    try {
+      console.log('🧪 Création d\'un utilisateur master de test...');
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: 'master@mastercom.fr',
+        password: 'MasterCom2024!',
+        options: {
+          data: {
+            first_name: 'Master',
+            last_name: 'Admin'
+          }
+        }
+      });
+
+      if (error) {
+        console.log('ℹ️ Utilisateur master existe déjà ou erreur:', error.message);
+        return null;
+      }
+
+      console.log('✅ Utilisateur master créé:', data.user?.email);
+      return data;
+    } catch (error) {
+      console.error('❌ Erreur création utilisateur master:', error);
+      return null;
     }
   },
 

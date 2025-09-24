@@ -1,8 +1,9 @@
 import { useState, FC } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, AlertCircle, 
-  Key, CheckCircle, Camera, Video, Mic, Sparkles
+  Key, CheckCircle, Camera, Video, Mic, Sparkles, UserPlus
 } from 'lucide-react';
+import { authService } from '../services/supabase';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<any>;
@@ -15,6 +16,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showTestMode, setShowTestMode] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +54,31 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
       } else {
         setError('Une erreur inattendue s\'est produite. Veuillez réessayer.');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour créer un utilisateur master de test
+  const handleCreateTestUser = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      console.log('🧪 Création d\'un utilisateur master de test...');
+      const result = await authService.createTestMasterUser();
+      
+      if (result) {
+        setError('');
+        alert('✅ Utilisateur master créé avec succès!\nEmail: master@mastercom.fr\nMot de passe: MasterCom2024!');
+        setEmail('master@mastercom.fr');
+        setPassword('MasterCom2024!');
+      } else {
+        setError('L\'utilisateur master existe déjà ou erreur lors de la création');
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur création utilisateur test:', error);
+      setError('Erreur lors de la création de l\'utilisateur de test');
     } finally {
       setIsLoading(false);
     }
@@ -219,13 +246,41 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             </button>
 
             {/* Options supplémentaires */}
-            <div className="text-center">
+            <div className="text-center space-y-3">
               <button
                 type="button"
                 className="text-sm text-gray-300 hover:text-purple-400 font-medium transition-colors"
               >
                 Mot de passe oublié ?
               </button>
+              
+              {/* Bouton de test pour créer un utilisateur master */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTestMode(!showTestMode)}
+                  className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Mode test
+                </button>
+                
+                {showTestMode && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleCreateTestUser}
+                      disabled={isLoading}
+                      className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 text-white text-sm rounded-lg hover:bg-yellow-700 disabled:opacity-50 transition-colors mx-auto"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span>Créer utilisateur master</span>
+                    </button>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Crée un compte master@mastercom.fr pour tester
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </form>
         </div>

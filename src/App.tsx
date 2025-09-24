@@ -178,17 +178,20 @@ function App() {
   }, []);
 
   // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (userId: string, userEmail?: string, userMetadata?: any) => {
     try {
+      console.log('👤 Chargement du profil pour:', userId, userEmail);
+      
       // Vérifier si c'est le compte master (par email ou ID spécifique)
-      const isMasterAccount = user?.email === 'master@master.com' || 
-                             user?.email === 'master@mastercom.fr' ||
+      const isMasterAccount = userEmail === 'master@master.com' || 
+                             userEmail === 'master@mastercom.fr' ||
                              userId === 'a3522290-7863-49dc-bce1-f979a5f6bbea';
       
       if (isMasterAccount) {
+        console.log('🔑 Compte Master détecté');
         const masterProfile: UserProfile = {
           id: userId,
-          email: user?.email || '',
+          email: userEmail || '',
           first_name: 'Master',
           last_name: 'Admin',
           role_id: 'master',
@@ -208,11 +211,12 @@ function App() {
       }
       
       // Pour les autres utilisateurs, créer un profil par défaut
+      console.log('👤 Création du profil par défaut');
       const defaultProfile: UserProfile = {
         id: userId,
-        email: user?.email || '',
-        first_name: user?.user_metadata?.first_name || 'Utilisateur',
-        last_name: user?.user_metadata?.last_name || '',
+        email: userEmail || '',
+        first_name: userMetadata?.first_name || 'Utilisateur',
+        last_name: userMetadata?.last_name || '',
         role_id: 'client',
         is_active: true,
         created_at: new Date().toISOString(),
@@ -227,12 +231,15 @@ function App() {
       };
       setUserProfile(defaultProfile);
     } catch (error) {
+      console.error('❌ Erreur lors du chargement du profil:', error);
     }
   };
 
   // Gestion de la connexion
   const handleLogin = async (email: string, password: string) => {
     try {
+      console.log('🔐 Tentative de connexion dans App.tsx:', email);
+      
       if (!supabase || !supabase.auth) {
         throw new Error('Service d\'authentification non disponible');
       }
@@ -243,10 +250,16 @@ function App() {
       });
 
       if (error) {
+        console.error('❌ Erreur Supabase détaillée:', {
+          message: error.message,
+          status: error.status,
+          code: error.code
+        });
+        
         const errorMessage = error?.message || 'Erreur inconnue';
         
         if (errorMessage.includes('Invalid login credentials')) {
-          throw new Error('Email ou mot de passe incorrect');
+          throw new Error('Email ou mot de passe incorrect. Vérifiez vos identifiants ou utilisez le mode test pour créer un compte.');
         } else if (errorMessage.includes('Email not confirmed')) {
           throw new Error('Veuillez confirmer votre email avant de vous connecter');
         } else if (errorMessage.includes('Too many requests')) {
@@ -259,30 +272,24 @@ function App() {
       }
 
       if (data.user && data.user.email) {
+        console.log('✅ Utilisateur trouvé:', data.user.email);
         const user: User = {
           id: data.user.id,
           email: data.user.email,
           user_metadata: data.user.user_metadata
         };
         setUser(user);
-        await loadUserProfile(data.user.id);
+        await loadUserProfile(data.user.id, data.user.email, data.user.user_metadata);
+        console.log('✅ Profil utilisateur chargé');
         return user;
       } else {
+        console.error('❌ Aucun utilisateur retourné');
         throw new Error('Aucun utilisateur retourné par Supabase');
       }
     } catch (error: any) {
-      // Gestion spécifique des erreurs
-      if (error.message?.includes('Invalid login credentials')) {
-        throw new Error('Email ou mot de passe incorrect');
-      } else if (error.message?.includes('Email not confirmed')) {
-        throw new Error('Veuillez confirmer votre email avant de vous connecter');
-      } else if (error.message?.includes('Too many requests')) {
-        throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
-      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
-        throw new Error('Problème de connexion réseau. Vérifiez votre connexion internet.');
-      } else {
-        throw new Error(`Erreur de connexion: ${error.message || 'Une erreur inattendue s\'est produite'}`);
-      }
+      console.error('❌ Erreur dans handleLogin:', error);
+      // Relancer l'erreur telle quelle pour que le composant Login puisse la gérer
+      throw error;
     }
   };
 
