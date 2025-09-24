@@ -125,12 +125,13 @@ export const authService = {
   async checkIfUserIsMaster(userId: string, email: string): Promise<boolean> {
     try {
       // Liste des emails master autorisés
-      const masterEmails = [
-        'master@mastercom.com',
-        'master@mastercom.fr',
-        'admin@mastercom.com',
-        'admin@mastercom.fr'
-      ];
+        const masterEmails = [
+          'master@master.com',
+          'master@mastercom.com',
+          'master@mastercom.fr',
+          'admin@mastercom.com',
+          'admin@mastercom.fr'
+        ];
 
       // Vérifier par email
       if (masterEmails.includes(email.toLowerCase())) {
