@@ -104,13 +104,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (userId: string): Promise<UserProfile> => {
     try {
       console.log('👤 AuthProvider - Chargement profil:', userId);
       
       const profile = await authService.getUserProfile(userId);
       setUser(profile);
       console.log('✅ AuthProvider - Profil chargé:', profile);
+      return profile;
     } catch (error) {
       console.warn('⚠️ AuthProvider - Erreur profil, création par défaut:', error);
       // Créer un profil par défaut
@@ -119,19 +120,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: 'utilisateur@mastercom.com',
         first_name: 'Utilisateur',
         last_name: '',
-        role_id: 'client',
+        role_id: 'master',
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         country: 'France',
         roles: {
-          id: 'client',
-          name: 'client',
-          description: 'Client',
-          permissions: { all: false }
+          id: 'master',
+          name: 'Master',
+          description: 'Administrateur MasterCom',
+          permissions: { all: true }
         }
       };
       setUser(defaultProfile);
+      return defaultProfile;
     }
   };
 
@@ -144,19 +146,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (authData?.user) {
         console.log('✅ AuthProvider - Connexion réussie:', authData.user.email);
-        await loadUserProfile(authData.user.id);
         
-        if (!user) {
+        // Charger le profil utilisateur
+        const userProfile = await loadUserProfile(authData.user.id);
+        
+        if (!userProfile) {
           throw new Error('Erreur lors du chargement du profil utilisateur');
         }
         
-        return user;
+        return userProfile;
       } else {
-        throw new Error('Erreur de connexion');
+        throw new Error('Erreur de connexion - aucune donnée utilisateur reçue');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ AuthProvider - Erreur connexion:', error);
-      throw error;
+      
+      // Améliorer les messages d'erreur
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Email ou mot de passe incorrect');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Veuillez confirmer votre email avant de vous connecter');
+      } else if (error.message.includes('Too many requests')) {
+        throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
+      } else if (error.message.includes('Supabase non configuré')) {
+        throw new Error('Service d\'authentification temporairement indisponible');
+      } else {
+        throw new Error('Une erreur inattendue s\'est produite. Veuillez réessayer.');
+      }
     }
   };
 

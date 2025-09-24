@@ -97,17 +97,38 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
       
       if (result) {
         setError('');
-        alert('✅ Connexion réussie avec le compte master!');
+        alert('✅ Connexion réussie avec le compte master!\nEmail: master@mastercom.fr\nMot de passe: MasterCom2024!');
         setIsSuccess(true);
         setTimeout(() => {
           window.location.href = '/master-panel';
         }, 1500);
       } else {
-        setError('Impossible de créer ou se connecter avec le compte master.');
+        setError('Impossible de créer ou se connecter avec le compte master. Essayez de réinitialiser le mot de passe.');
       }
     } catch (error: any) {
       console.error('❌ Erreur réinitialisation:', error);
       setError('Impossible de créer ou se connecter avec le compte master. Vérifiez la configuration Supabase.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour réinitialiser le mot de passe via email
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Veuillez entrer votre adresse email');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      await authService.resetPassword(email);
+      alert('Un email de réinitialisation a été envoyé à votre adresse email.');
+    } catch (error: any) {
+      console.error('❌ Erreur réinitialisation mot de passe:', error);
+      setError('Erreur lors de l\'envoi de l\'email de réinitialisation');
     } finally {
       setIsLoading(false);
     }
@@ -301,7 +322,9 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
             <div className="text-center space-y-3">
               <button
                 type="button"
-                className="text-sm text-gray-300 hover:text-purple-400 font-medium transition-colors"
+                onClick={handleResetPassword}
+                disabled={isLoading}
+                className="text-sm text-gray-300 hover:text-purple-400 font-medium transition-colors disabled:opacity-50"
               >
                 Mot de passe oublié ?
               </button>
