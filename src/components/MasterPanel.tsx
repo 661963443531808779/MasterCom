@@ -4,8 +4,9 @@ import {
   Shield, Users, Settings, Database, Activity, 
   TrendingUp, CheckCircle, Clock,
   BarChart3, Download, RefreshCw,
-  UserPlus
+  UserPlus, AlertTriangle
 } from 'lucide-react';
+import DeletionValidation from './DeletionValidation';
 
 // Types pour la gestion des utilisateurs
 interface User {
@@ -33,6 +34,7 @@ interface MasterPanelProps {
 }
 
 const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalClients: 0,
@@ -140,9 +142,46 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
         </div>
       </div>
 
+      {/* Navigation par onglets */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'dashboard'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="h-4 w-4" />
+                <span>Tableau de bord</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('deletion-validation')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'deletion-validation'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-4 w-4" />
+                <span>Vérification de suppression</span>
+              </div>
+            </button>
+          </nav>
+        </div>
+      </div>
+
       {/* Contenu principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistiques */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
@@ -277,6 +316,12 @@ const MasterPanel: FC<MasterPanelProps> = ({ userRole, onLogout }) => {
             </table>
           </div>
         </div>
+          </>
+        )}
+
+        {activeTab === 'deletion-validation' && (
+          <DeletionValidation userRole={userRole} />
+        )}
       </div>
     </div>
   );
