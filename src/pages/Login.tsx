@@ -1,7 +1,7 @@
 import { useState, FC } from 'react';
 import { 
-  Mail, Lock, Eye, EyeOff, Shield, AlertCircle, 
-  Key, CheckCircle
+  Mail, Lock, Eye, EyeOff, AlertCircle, 
+  Key, CheckCircle, Camera, Video, Mic, Sparkles
 } from 'lucide-react';
 
 interface LoginProps {
@@ -58,132 +58,177 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Effets de fond animés */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Particules flottantes */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400 rounded-full animate-pulse opacity-60"></div>
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-blue-400 rounded-full animate-bounce opacity-40"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-pink-400 rounded-full animate-pulse opacity-50"></div>
+        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce opacity-60"></div>
+        
+        {/* Grille de fond */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        
+        {/* Effets de lumière */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+      </div>
+
+      <div className="relative z-10 max-w-md w-full space-y-8">
+        {/* Header avec effets visuels */}
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center">
-            <Shield className="h-6 w-6 text-white" />
+          <div className="relative mx-auto h-16 w-16 mb-6">
+            {/* Cercle principal avec gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-full animate-spin-slow"></div>
+            <div className="absolute inset-1 bg-slate-900 rounded-full flex items-center justify-center">
+              <div className="relative">
+                <Camera className="h-8 w-8 text-white" />
+                <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-yellow-400 animate-pulse" />
+              </div>
+            </div>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Connexion MasterCom
+          
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+            MasterCom
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Accédez à votre espace de gestion
+          <p className="mt-2 text-sm text-gray-300">
+            Agence de Communication Créative
           </p>
+          
+          {/* Indicateurs d'activité */}
+          <div className="flex justify-center space-x-4 mt-4">
+            <div className="flex items-center space-x-2 text-xs text-gray-400">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>En ligne</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-400">
+              <Video className="h-3 w-3" />
+              <span>Studio actif</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-400">
+              <Mic className="h-3 w-3" />
+              <span>Enregistrement</span>
+            </div>
+          </div>
         </div>
 
-        {/* Formulaire */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Adresse email
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+        {/* Formulaire avec design glassmorphism */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-5">
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
+                  Adresse email
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+                    placeholder="votre@email.com"
+                  />
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="votre@email.com"
-                />
+              </div>
+
+              {/* Mot de passe */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+                  Mot de passe
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-12 pr-12 py-4 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-purple-400 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Mot de passe */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Mot de passe
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
+            {/* Message d'erreur */}
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 flex items-center space-x-3 backdrop-blur-sm">
+                <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-200">{error}</p>
               </div>
-            </div>
-          </div>
-
-          {/* Message d'erreur */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
-              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
-
-          {/* Message de succès */}
-          {isSuccess && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-              <p className="text-sm text-green-700">Connexion réussie ! Redirection en cours...</p>
-            </div>
-          )}
-
-          {/* Bouton de connexion */}
-          <button
-            type="submit"
-            disabled={isLoading || isSuccess}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Connexion en cours...
-              </>
-            ) : isSuccess ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Connexion réussie
-              </>
-            ) : (
-              <>
-                <Key className="h-4 w-4 mr-2" />
-                Se connecter
-              </>
             )}
-          </button>
 
-                 {/* Options supplémentaires */}
-                 <div className="text-center">
-                   <button
-                     type="button"
-                     className="text-sm text-blue-600 hover:text-blue-500 font-medium"
-                   >
-                     Mot de passe oublié ?
-                   </button>
-                 </div>
-        </form>
+            {/* Message de succès */}
+            {isSuccess && (
+              <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4 flex items-center space-x-3 backdrop-blur-sm">
+                <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <p className="text-sm text-green-200">Connexion réussie ! Redirection en cours...</p>
+              </div>
+            )}
+
+            {/* Bouton de connexion avec effet gradient */}
+            <button
+              type="submit"
+              disabled={isLoading || isSuccess}
+              className="group relative w-full flex justify-center py-4 px-6 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div className="relative flex items-center">
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    Connexion en cours...
+                  </>
+                ) : isSuccess ? (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-3" />
+                    Connexion réussie
+                  </>
+                ) : (
+                  <>
+                    <Key className="h-5 w-5 mr-3" />
+                    Accéder au Studio
+                  </>
+                )}
+              </div>
+            </button>
+
+            {/* Options supplémentaires */}
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-sm text-gray-300 hover:text-purple-400 font-medium transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+          </form>
+        </div>
 
       </div>
     </div>
