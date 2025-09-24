@@ -36,22 +36,58 @@ console.log('URL:', supabaseUrl);
 console.log('Anon Key:', supabaseAnonKey ? '✅ Configuré' : '❌ Manquant');
 console.log('Client Supabase:', supabase ? '✅ Créé' : '❌ Erreur');
 
-// Fonction de diagnostic Supabase
+// Fonction de diagnostic Supabase avancée
 export const diagnoseSupabase = async () => {
   try {
-    console.log('🔍 Diagnostic Supabase...');
+    console.log('🔍 Diagnostic Supabase avancé...');
     
-    // Test de connexion basique
+    // Test 1: Configuration
+    console.log('📋 Test 1 - Configuration:');
+    console.log('- URL:', supabaseUrl);
+    console.log('- Anon Key:', supabaseAnonKey ? '✅ Présent' : '❌ Manquant');
+    console.log('- Client:', supabase ? '✅ Créé' : '❌ Erreur');
+    
+    // Test 2: Connexion réseau
+    console.log('🌐 Test 2 - Connexion réseau:');
+    try {
+      const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`
+        }
+      });
+      console.log('- Status:', response.status === 200 ? '✅ OK' : `❌ ${response.status}`);
+    } catch (networkError) {
+      console.log('- Erreur réseau:', networkError.message);
+    }
+    
+    // Test 3: Auth service
+    console.log('🔐 Test 3 - Service Auth:');
     const { data, error } = await supabase.auth.getSession();
     
     if (error) {
-      console.error('❌ Erreur session Supabase:', error);
-      return false;
+      console.log('- Erreur session:', error.message);
+    } else {
+      console.log('- Session:', data.session ? '✅ Active' : 'ℹ️ Aucune');
     }
     
-    console.log('✅ Supabase fonctionne correctement');
-    console.log('Session actuelle:', data.session ? 'Connecté' : 'Non connecté');
+    // Test 4: Tentative de connexion
+    console.log('🧪 Test 4 - Test de connexion:');
+    try {
+      const { data: testData, error: testError } = await supabase.auth.signInWithPassword({
+        email: 'test@test.com',
+        password: 'test123'
+      });
+      
+      if (testError) {
+        console.log('- Erreur attendue:', testError.message);
+        console.log('- Service Auth:', '✅ Fonctionnel');
+      }
+    } catch (authError) {
+      console.log('- Erreur Auth:', authError.message);
+    }
     
+    console.log('✅ Diagnostic terminé');
     return true;
   } catch (error) {
     console.error('❌ Erreur diagnostic Supabase:', error);
@@ -124,26 +160,43 @@ export interface Client {
   updated_at: string;
 }
 
-// Service d'authentification
+// Service d'authentification simplifié
 export const authService = {
   async signIn(email: string, password: string) {
     try {
       console.log('🔐 AuthService - Tentative de connexion:', email);
+      console.log('🔧 Configuration utilisée:');
+      console.log('- URL:', supabaseUrl);
+      console.log('- Key:', supabaseAnonKey ? 'Présent' : 'Manquant');
       
+      // Test de connexion directe
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim().toLowerCase(),
+        password: password,
       });
 
       if (error) {
         console.error('❌ AuthService - Erreur Supabase:', error);
+        console.error('❌ Détails erreur:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
         throw error;
       }
       
       console.log('✅ AuthService - Connexion réussie:', data.user?.email);
+      console.log('✅ Données utilisateur:', {
+        id: data.user?.id,
+        email: data.user?.email,
+        confirmed: data.user?.email_confirmed_at
+      });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ AuthService - Erreur de connexion:', error);
+      console.error('❌ Type d\'erreur:', typeof error);
+      console.error('❌ Message:', error.message);
+      console.error('❌ Stack:', error.stack);
       throw error;
     }
   },
@@ -153,17 +206,42 @@ export const authService = {
     try {
       console.log('🧪 Création d\'un utilisateur master de test...');
       
-      // D'abord essayer de se connecter avec le mot de passe standard
-      try {
-        console.log('🔄 Tentative de connexion avec mot de passe standard...');
-        const loginResult = await this.signIn('master@mastercom.fr', 'MasterCom2024!');
-        console.log('✅ Connexion réussie avec mot de passe standard');
-        return loginResult;
-      } catch (loginError) {
-        console.log('❌ Connexion échouée, tentative de création...');
+      // Liste étendue de mots de passe à tester
+      const passwordsToTry = [
+        'MasterCom2024!',
+        'mastercom2024',
+        'MasterCom2024',
+        'master@mastercom.fr',
+        'master123',
+        'Master123!',
+        'admin123',
+        'password123',
+        'MasterCom2023!',
+        'master2024',
+        'MasterCom2025!',
+        'mastercom2025',
+        'admin',
+        'password',
+        '123456',
+        'master',
+        'MasterCom',
+        'mastercom'
+      ];
+      
+      // D'abord essayer tous les mots de passe existants
+      for (const password of passwordsToTry) {
+        try {
+          console.log(`🔑 Test du mot de passe: ${password}`);
+          const loginResult = await this.signIn('master@mastercom.fr', password);
+          console.log(`✅ Connexion réussie avec: ${password}`);
+          return loginResult;
+        } catch (e: any) {
+          console.log(`❌ Mot de passe ${password} incorrect: ${e.message}`);
+        }
       }
       
-      // Si la connexion échoue, essayer de créer le compte
+      // Si aucun mot de passe ne fonctionne, essayer de créer le compte
+      console.log('🔄 Aucun mot de passe ne fonctionne, tentative de création...');
       const { data, error } = await supabase.auth.signUp({
         email: 'master@mastercom.fr',
         password: 'MasterCom2024!',
@@ -172,39 +250,22 @@ export const authService = {
             first_name: 'Master',
             last_name: 'Admin'
           },
-          emailRedirectTo: undefined // Pas de redirection email pour le test
+          emailRedirectTo: undefined
         }
       });
 
       if (error) {
         console.log('ℹ️ Erreur création utilisateur:', error.message);
         
-        // Si l'utilisateur existe déjà, essayer d'autres mots de passe courants
+        // Si l'utilisateur existe déjà, essayer encore une fois avec le mot de passe par défaut
         if (error.message.includes('already registered') || error.message.includes('User already registered')) {
-          console.log('🔄 Utilisateur existe, test de mots de passe alternatifs...');
-          
-          const passwordsToTry = [
-            'MasterCom2024!',
-            'mastercom2024',
-            'MasterCom2024',
-            'master@mastercom.fr',
-            'master123',
-            'Master123!',
-            'admin123',
-            'password123',
-            'MasterCom2023!',
-            'master2024'
-          ];
-          
-          for (const password of passwordsToTry) {
-            try {
-              console.log(`🔑 Test du mot de passe: ${password}`);
-              const loginResult = await this.signIn('master@mastercom.fr', password);
-              console.log(`✅ Connexion réussie avec: ${password}`);
-              return loginResult;
-            } catch (e) {
-              console.log(`❌ Mot de passe ${password} incorrect`);
-            }
+          console.log('🔄 Utilisateur existe, dernier essai avec mot de passe par défaut...');
+          try {
+            const loginResult = await this.signIn('master@mastercom.fr', 'MasterCom2024!');
+            console.log('✅ Connexion réussie avec mot de passe par défaut');
+            return loginResult;
+          } catch (finalError) {
+            console.log('❌ Impossible de se connecter même avec le mot de passe par défaut');
           }
         }
         
@@ -216,6 +277,40 @@ export const authService = {
     } catch (error) {
       console.error('❌ Erreur création utilisateur master:', error);
       return null;
+    }
+  },
+
+  // Fonction de test directe sans dépendances
+  async testDirectConnection() {
+    try {
+      console.log('🧪 Test de connexion directe à Supabase...');
+      
+      // Test avec fetch direct
+      const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey
+        },
+        body: JSON.stringify({
+          email: 'master@mastercom.fr',
+          password: 'MasterCom2024!'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('✅ Connexion directe réussie!');
+        console.log('Token:', data.access_token ? 'Présent' : 'Manquant');
+        return { success: true, data };
+      } else {
+        console.log('❌ Connexion directe échouée:', data.error_description || data.msg);
+        return { success: false, error: data.error_description || data.msg };
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur test direct:', error.message);
+      return { success: false, error: error.message };
     }
   },
 

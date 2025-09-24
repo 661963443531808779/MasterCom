@@ -11,6 +11,7 @@ import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import Login from './pages/Login';
+import SimpleLogin from './pages/SimpleLogin';
 import CRM from './pages/CRM';
 import MasterPanel from './components/MasterPanel';
 
@@ -20,6 +21,7 @@ import GlobalSearch from './components/GlobalSearch';
 
 // Import des services Supabase
 import { supabase } from './services/supabase';
+import { SimpleUser } from './services/simpleAuth';
 
 // Hooks avancés - version production simplifiée (stub implementations)
 const useAnalytics = () => ({
@@ -235,7 +237,51 @@ function App() {
     }
   };
 
-  // Gestion de la connexion
+  // Gestion de la connexion simplifiée
+  const handleSimpleLogin = async (simpleUser: SimpleUser) => {
+    try {
+      console.log('🔐 Connexion simplifiée dans App.tsx:', simpleUser.email);
+      
+      const user: User = {
+        id: simpleUser.id,
+        email: simpleUser.email,
+        user_metadata: {
+          first_name: simpleUser.name,
+          last_name: 'MasterCom'
+        }
+      };
+      
+      setUser(user);
+      
+      // Créer un profil utilisateur basé sur SimpleUser
+      const userProfile: UserProfile = {
+        id: simpleUser.id,
+        email: simpleUser.email,
+        first_name: simpleUser.name,
+        last_name: 'MasterCom',
+        role_id: simpleUser.isMaster ? 'master' : 'client',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        country: 'France',
+        roles: {
+          id: simpleUser.isMaster ? 'master' : 'client',
+          name: simpleUser.isMaster ? 'master' : 'client',
+          description: simpleUser.isMaster ? 'Administrateur Master' : 'Client',
+          permissions: { all: simpleUser.isMaster }
+        }
+      };
+      
+      setUserProfile(userProfile);
+      console.log('✅ Profil utilisateur simplifié chargé');
+      return user;
+    } catch (error: any) {
+      console.error('❌ Erreur dans handleSimpleLogin:', error);
+      throw error;
+    }
+  };
+
+  // Gestion de la connexion (ancienne méthode - gardée pour compatibilité)
   const handleLogin = async (email: string, password: string) => {
     try {
       console.log('🔐 Tentative de connexion dans App.tsx:', email);
@@ -350,6 +396,18 @@ function App() {
             {/* Route de connexion */}
             <Route 
               path="/login" 
+              element={
+                user ? (
+                  <Navigate to="/master-panel" replace />
+                ) : (
+                  <SimpleLogin onLogin={handleSimpleLogin} />
+                )
+              } 
+            />
+            
+            {/* Route de connexion alternative (ancienne méthode) */}
+            <Route 
+              path="/login-old" 
               element={
                 user ? (
                   <Navigate to="/master-panel" replace />

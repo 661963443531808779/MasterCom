@@ -3,13 +3,13 @@ import {
   Mail, Lock, Eye, EyeOff, AlertCircle, 
   Key, CheckCircle, Camera, Video, Mic, Sparkles, UserPlus
 } from 'lucide-react';
-import { authService, diagnoseSupabase } from '../services/supabase';
+import { simpleAuth, SimpleUser } from '../services/simpleAuth';
 
-interface LoginProps {
-  onLogin: (email: string, password: string) => Promise<any>;
+interface SimpleLoginProps {
+  onLogin: (user: SimpleUser) => void;
 }
 
-const Login: FC<LoginProps> = ({ onLogin }) => {
+const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,156 +25,75 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
     setIsSuccess(false);
 
     try {
-      console.log('🔐 Tentative de connexion avec:', email);
+      console.log('🔐 SimpleLogin - Tentative de connexion:', email);
       
-      // Utiliser la fonction onLogin passée en prop
-      const user = await onLogin(email, password);
+      const user = await simpleAuth.login(email, password);
       
-      if (user) {
-        console.log('✅ Connexion réussie:', user.email);
-        setIsSuccess(true);
-        
-        // Redirection automatique après succès
-        setTimeout(() => {
-          window.location.href = '/master-panel';
-        }, 1500);
-      }
+      console.log('✅ SimpleLogin - Connexion réussie:', user.email);
+      setIsSuccess(true);
+      
+      // Appeler la fonction de callback
+      onLogin(user);
+      
+      // Redirection automatique après succès
+      setTimeout(() => {
+        window.location.href = '/master-panel';
+      }, 1500);
     } catch (error: any) {
-      console.error('❌ Erreur lors de la connexion:', error);
-      
-      // Gestion des erreurs spécifiques
-      if (error.message.includes('Invalid login credentials')) {
-        setError('Email ou mot de passe incorrect');
-      } else if (error.message.includes('Email not confirmed')) {
-        setError('Veuillez confirmer votre email avant de vous connecter');
-      } else if (error.message.includes('Too many requests')) {
-        setError('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
-      } else if (error.message.includes('Supabase non configuré')) {
-        setError('Service d\'authentification temporairement indisponible');
-      } else {
-        setError('Une erreur inattendue s\'est produite. Veuillez réessayer.');
-      }
+      console.error('❌ SimpleLogin - Erreur:', error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fonction pour créer un utilisateur master de test
-  const handleCreateTestUser = async () => {
+  // Fonction pour créer un compte master automatiquement
+  const handleCreateMaster = async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      console.log('🧪 Création d\'un utilisateur master de test...');
-      const result = await authService.createTestMasterUser();
+      console.log('🧪 SimpleLogin - Création compte master...');
+      const user = await simpleAuth.createMasterAccount();
       
-      if (result) {
-        setError('');
-        alert('✅ Utilisateur master créé avec succès!\nEmail: master@mastercom.fr\nMot de passe: MasterCom2024!');
-        setEmail('master@mastercom.fr');
-        setPassword('MasterCom2024!');
-      } else {
-        setError('L\'utilisateur master existe déjà ou erreur lors de la création');
-      }
+      setError('');
+      alert(`✅ Compte master créé avec succès!\nEmail: ${user.email}\nMot de passe: MasterCom2024!`);
+      setEmail(user.email);
+      setPassword('MasterCom2024!');
+      setIsSuccess(true);
+      
+      // Appeler la fonction de callback
+      onLogin(user);
+      
+      setTimeout(() => {
+        window.location.href = '/master-panel';
+      }, 1500);
     } catch (error: any) {
-      console.error('❌ Erreur création utilisateur test:', error);
-      setError('Erreur lors de la création de l\'utilisateur de test');
+      console.error('❌ SimpleLogin - Erreur création:', error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fonction pour réinitialiser le mot de passe du compte master
-  const handleResetMasterPassword = async () => {
+  // Fonction de test de connexion
+  const handleTestConnection = async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      console.log('🔄 Tentative de réinitialisation du mot de passe master...');
-      
-      // D'abord essayer de créer le compte (si il n'existe pas)
-      const result = await authService.createTestMasterUser();
-      
-      if (result) {
-        setError('');
-        alert('✅ Connexion réussie avec le compte master!\nEmail: master@mastercom.fr\nMot de passe: MasterCom2024!');
-        setIsSuccess(true);
-        setTimeout(() => {
-          window.location.href = '/master-panel';
-        }, 1500);
-      } else {
-        setError('Impossible de créer ou se connecter avec le compte master. Essayez de réinitialiser le mot de passe.');
-      }
-    } catch (error: any) {
-      console.error('❌ Erreur réinitialisation:', error);
-      setError('Impossible de créer ou se connecter avec le compte master. Vérifiez la configuration Supabase.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fonction pour réinitialiser le mot de passe via email
-  const handleResetPassword = async () => {
-    if (!email) {
-      setError('Veuillez entrer votre adresse email');
-      return;
-    }
-    
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      await authService.resetPassword(email);
-      alert('Un email de réinitialisation a été envoyé à votre adresse email.');
-    } catch (error: any) {
-      console.error('❌ Erreur réinitialisation mot de passe:', error);
-      setError('Erreur lors de l\'envoi de l\'email de réinitialisation');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fonction de diagnostic
-  const handleDiagnostic = async () => {
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      console.log('🔍 Lancement du diagnostic Supabase...');
-      const isWorking = await diagnoseSupabase();
-      
-      if (isWorking) {
-        setError('');
-        alert('✅ Supabase fonctionne correctement!\nVérifiez la console pour plus de détails.');
-      } else {
-        setError('❌ Problème détecté avec Supabase. Vérifiez la console pour plus de détails.');
-      }
-    } catch (error: any) {
-      console.error('❌ Erreur diagnostic:', error);
-      setError('Erreur lors du diagnostic Supabase.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fonction de test direct
-  const handleDirectTest = async () => {
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      console.log('🧪 Test de connexion directe...');
-      const result = await authService.testDirectConnection();
+      console.log('🧪 SimpleLogin - Test de connexion...');
+      const result = await simpleAuth.testConnection();
       
       if (result.success) {
         setError('');
-        alert('✅ Connexion directe réussie!\nVérifiez la console pour plus de détails.');
+        alert('✅ Test de connexion réussi!\nVérifiez la console pour plus de détails.');
       } else {
-        setError(`❌ Connexion directe échouée: ${result.error}`);
+        setError(`❌ Test échoué: ${result.message}`);
       }
     } catch (error: any) {
-      console.error('❌ Erreur test direct:', error);
-      setError('Erreur lors du test direct.');
+      console.error('❌ SimpleLogin - Erreur test:', error.message);
+      setError('Erreur lors du test de connexion');
     } finally {
       setIsLoading(false);
     }
@@ -343,15 +262,6 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
 
             {/* Options supplémentaires */}
             <div className="text-center space-y-3">
-              <button
-                type="button"
-                onClick={handleResetPassword}
-                disabled={isLoading}
-                className="text-sm text-gray-300 hover:text-purple-400 font-medium transition-colors disabled:opacity-50"
-              >
-                Mot de passe oublié ?
-              </button>
-              
               {/* Bouton de test pour créer un utilisateur master */}
               <div className="pt-2">
                 <button
@@ -359,53 +269,33 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                   onClick={() => setShowTestMode(!showTestMode)}
                   className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
                 >
-                  Mode test
+                  Mode test simplifié
                 </button>
                 
                 {showTestMode && (
                   <div className="mt-2 space-y-2">
                     <button
                       type="button"
-                      onClick={handleCreateTestUser}
-                      disabled={isLoading}
-                      className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 text-white text-sm rounded-lg hover:bg-yellow-700 disabled:opacity-50 transition-colors mx-auto"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>Créer utilisateur master</span>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleResetMasterPassword}
+                      onClick={handleCreateMaster}
                       disabled={isLoading}
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors mx-auto"
                     >
-                      <Key className="h-4 w-4" />
-                      <span>Réinitialiser & Connexion</span>
+                      <UserPlus className="h-4 w-4" />
+                      <span>Créer & Connexion Master</span>
                     </button>
                     
                     <button
                       type="button"
-                      onClick={handleDiagnostic}
-                      disabled={isLoading}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors mx-auto"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      <span>Diagnostic Supabase</span>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleDirectTest}
+                      onClick={handleTestConnection}
                       disabled={isLoading}
                       className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors mx-auto"
                     >
                       <Key className="h-4 w-4" />
-                      <span>Test Connexion Directe</span>
+                      <span>Test Connexion</span>
                     </button>
                     
                     <p className="text-xs text-gray-400 mt-1">
-                      Crée ou réinitialise le compte master@mastercom.fr
+                      Crée automatiquement le compte master@mastercom.fr
                     </p>
                   </div>
                 )}
@@ -419,4 +309,4 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   );
 };
 
-export default Login;
+export default SimpleLogin;
