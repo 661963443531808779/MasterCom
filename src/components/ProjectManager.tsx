@@ -4,7 +4,7 @@ import {
   Calendar, Clock, Users, Target, CheckCircle, AlertCircle, 
   Play, BarChart3, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { projectService } from '../services/supabase';
+import { dataService } from '../services/supabase';
 import { useApiData } from '../hooks/useApiData';
 
 // Utility functions for project validation and sanitization
@@ -211,10 +211,10 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
       const sanitizedData = sanitizeProjectData(formData);
       
       if (editingProject) {
-        await projectService.updateProject(editingProject.id, sanitizedData);
+        await dataService.updateData('projects', editingProject.id, sanitizedData);
         showNotification('success', 'Succès', 'Projet mis à jour avec succès');
       } else {
-        await projectService.createProject(sanitizedData);
+        await dataService.insertData('projects', sanitizedData);
         showNotification('success', 'Succès', 'Projet créé avec succès');
       }
       
@@ -263,7 +263,7 @@ const ProjectManager: FC<ProjectManagerProps> = ({ userRole }) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
     
     try {
-      await projectService.deleteProject(projectId);
+      await dataService.deleteData('projects', projectId);
       showNotification('success', 'Succès', 'Projet supprimé avec succès');
       // Data will be refreshed automatically by the hook
     } catch (error) {
