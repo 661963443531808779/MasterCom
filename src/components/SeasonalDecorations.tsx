@@ -39,29 +39,68 @@ const SeasonalDecorations: FC = () => {
   );
 
   const HalloweenPumpkin = () => (
-    <svg width="80" height="80" viewBox="0 0 80 80" className="absolute top-20 right-4 z-20 opacity-80 animate-bounce">
+    <svg width="90" height="100" viewBox="0 0 90 100" className="absolute top-20 right-4 z-20 opacity-85 animate-pulse">
       <defs>
         <linearGradient id="pumpkinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#f97316" />
-          <stop offset="100%" stopColor="#ea580c" />
+          <stop offset="30%" stopColor="#ea580c" />
+          <stop offset="70%" stopColor="#dc2626" />
+          <stop offset="100%" stopColor="#b91c1c" />
         </linearGradient>
-        <radialGradient id="pumpkinGlow" cx="50%" cy="30%" r="40%">
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+        <radialGradient id="pumpkinGlow" cx="50%" cy="30%" r="50%">
+          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.4" />
+          <stop offset="50%" stopColor="#f97316" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="stemGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#16a34a" />
+          <stop offset="100%" stopColor="#15803d" />
+        </linearGradient>
+        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
+        </filter>
       </defs>
-      {/* Corps de la citrouille */}
-      <ellipse cx="40" cy="50" rx="25" ry="30" fill="url(#pumpkinGradient)" />
-      <ellipse cx="40" cy="50" rx="25" ry="30" fill="url(#pumpkinGlow)" />
-      {/* Tige */}
-      <rect x="38" y="20" width="4" height="15" fill="#16a34a" rx="2" />
-      {/* Visage */}
-      <polygon points="30,45 25,50 30,55" fill="#1f2937" />
-      <polygon points="50,45 55,50 50,55" fill="#1f2937" />
-      <path d="M 30 60 Q 40 65 50 60" stroke="#1f2937" strokeWidth="2" fill="none" />
-      {/* Dentition */}
-      <rect x="35" y="58" width="2" height="4" fill="#1f2937" />
-      <rect x="43" y="58" width="2" height="4" fill="#1f2937" />
+      
+      {/* Ombre de la citrouille */}
+      <ellipse cx="42" cy="75" rx="28" ry="8" fill="#000000" opacity="0.2" />
+      
+      {/* Corps principal de la citrouille */}
+      <ellipse cx="40" cy="55" rx="28" ry="35" fill="url(#pumpkinGradient)" filter="url(#shadow)" />
+      
+      {/* Effet de lueur */}
+      <ellipse cx="40" cy="55" rx="28" ry="35" fill="url(#pumpkinGlow)" />
+      
+      {/* Côtes de la citrouille */}
+      <path d="M 20 25 Q 40 20 60 25" stroke="#dc2626" strokeWidth="2" fill="none" opacity="0.6" />
+      <path d="M 18 35 Q 40 30 62 35" stroke="#dc2626" strokeWidth="2" fill="none" opacity="0.6" />
+      <path d="M 16 45 Q 40 40 64 45" stroke="#dc2626" strokeWidth="2" fill="none" opacity="0.6" />
+      <path d="M 14 55 Q 40 50 66 55" stroke="#dc2626" strokeWidth="2" fill="none" opacity="0.6" />
+      <path d="M 12 65 Q 40 60 68 65" stroke="#dc2626" strokeWidth="2" fill="none" opacity="0.6" />
+      
+      {/* Tige avec gradient */}
+      <rect x="37" y="15" width="6" height="20" fill="url(#stemGradient)" rx="3" />
+      <rect x="36" y="12" width="8" height="6" fill="url(#stemGradient)" rx="2" />
+      
+      {/* Visage - Yeux plus expressifs */}
+      <polygon points="28,40 22,45 28,50 32,45" fill="#1f2937" />
+      <polygon points="52,40 58,45 52,50 48,45" fill="#1f2937" />
+      
+      {/* Reflets dans les yeux */}
+      <circle cx="30" cy="43" r="2" fill="#ffffff" opacity="0.8" />
+      <circle cx="50" cy="43" r="2" fill="#ffffff" opacity="0.8" />
+      
+      {/* Bouche souriante */}
+      <path d="M 30 65 Q 40 75 50 65" stroke="#1f2937" strokeWidth="3" fill="none" strokeLinecap="round" />
+      
+      {/* Dentition améliorée */}
+      <rect x="32" y="63" width="3" height="6" fill="#1f2937" rx="1" />
+      <rect x="37" y="63" width="3" height="6" fill="#1f2937" rx="1" />
+      <rect x="42" y="63" width="3" height="6" fill="#1f2937" rx="1" />
+      <rect x="47" y="63" width="3" height="6" fill="#1f2937" rx="1" />
+      
+      {/* Petites décorations */}
+      <circle cx="25" cy="30" r="2" fill="#fbbf24" opacity="0.7" />
+      <circle cx="55" cy="30" r="2" fill="#fbbf24" opacity="0.7" />
     </svg>
   );
 
