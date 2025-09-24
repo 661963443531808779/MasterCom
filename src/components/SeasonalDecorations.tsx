@@ -91,7 +91,7 @@ const SeasonalDecorations: FC = () => {
   );
 
   const SummerSun = () => (
-    <svg width="100" height="100" viewBox="0 0 100 100" className="absolute top-4 right-4 z-20 opacity-80 animate-spin">
+    <svg width="100" height="100" viewBox="0 0 100 100" className="absolute top-20 right-4 z-20 opacity-80 animate-spin">
       <defs>
         <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#fbbf24" />
