@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { 
   Palette, 
-  ChristmasTree, 
+  TreePine, 
   Egg, 
   Ghost, 
   Sun,
@@ -27,7 +27,7 @@ const ThemeManager: FC = () => {
       id: 'christmas' as SeasonalTheme,
       name: 'Noël',
       description: 'Sapins, flocons de neige, cadeaux et décorations festives',
-      icon: ChristmasTree,
+      icon: TreePine,
       color: 'text-red-600',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200'

@@ -42,11 +42,14 @@ export const authService = {
         throw new Error('Aucune donnée utilisateur reçue');
       }
 
+      // Vérifier si l'utilisateur est vraiment un master
+      const isMaster = await this.checkIfUserIsMaster(data.user.id, data.user.email || email);
+      
       const user: User = {
         id: data.user.id,
         email: data.user.email || email,
         name: data.user.user_metadata?.first_name || 'Utilisateur',
-        isMaster: true
+        isMaster: isMaster
       };
 
       return user;
@@ -73,14 +76,56 @@ export const authService = {
         return null;
       }
 
+      // Vérifier si l'utilisateur est vraiment un master
+      const isMaster = await this.checkIfUserIsMaster(user.id, user.email || '');
+
       return {
         id: user.id,
         email: user.email || '',
         name: user.user_metadata?.first_name || 'Utilisateur',
-        isMaster: true
+        isMaster: isMaster
       };
     } catch (error) {
       return null;
+    }
+  },
+
+  // Vérifier si un utilisateur est un master
+  async checkIfUserIsMaster(userId: string, email: string): Promise<boolean> {
+    try {
+      // Liste des emails master autorisés
+      const masterEmails = [
+        'master@mastercom.com',
+        'master@mastercom.fr',
+        'admin@mastercom.com',
+        'admin@mastercom.fr'
+      ];
+
+      // Vérifier par email
+      if (masterEmails.includes(email.toLowerCase())) {
+        return true;
+      }
+
+      // Vérifier dans la table users si elle existe
+      try {
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
+
+        if (!error && userData && userData.role === 'master') {
+          return true;
+        }
+      } catch (dbError) {
+        // Si la table users n'existe pas encore, continuer avec la vérification par email
+        console.log('Table users non disponible, utilisation de la vérification par email');
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Erreur lors de la vérification du statut master:', error);
+      return false;
     }
   },
 
