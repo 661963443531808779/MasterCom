@@ -10,8 +10,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
-import Login from './pages/Login';
-import SimpleLogin from './pages/SimpleLogin';
+import LoginPage from './pages/LoginPage';
 import CRM from './pages/CRM';
 import MasterPanel from './components/MasterPanel';
 
@@ -21,7 +20,7 @@ import GlobalSearch from './components/GlobalSearch';
 
 // Import des services Supabase
 import { supabase } from './services/supabase';
-import { SimpleUser } from './services/simpleAuth';
+import { User as AuthUser } from './services/auth';
 
 // Hooks avancés - version production simplifiée (stub implementations)
 const useAnalytics = () => ({
@@ -237,107 +236,51 @@ function App() {
     }
   };
 
-  // Gestion de la connexion simplifiée
-  const handleSimpleLogin = async (simpleUser: SimpleUser) => {
+  // Gestion de la connexion
+  const handleLogin = async (authUser: AuthUser) => {
     try {
-      console.log('🔐 Connexion simplifiée dans App.tsx:', simpleUser.email);
+      console.log('🔐 Connexion dans App.tsx:', authUser.email);
       
+      // Convertir AuthUser en User pour compatibilité
       const user: User = {
-        id: simpleUser.id,
-        email: simpleUser.email,
+        id: authUser.id,
+        email: authUser.email,
         user_metadata: {
-          first_name: simpleUser.name,
+          first_name: authUser.name,
           last_name: 'MasterCom'
         }
       };
       
       setUser(user);
       
-      // Créer un profil utilisateur basé sur SimpleUser
+      // Créer un profil utilisateur basé sur AuthUser
       const userProfile: UserProfile = {
-        id: simpleUser.id,
-        email: simpleUser.email,
-        first_name: simpleUser.name,
+        id: authUser.id,
+        email: authUser.email,
+        first_name: authUser.name,
         last_name: 'MasterCom',
-        role_id: simpleUser.isMaster ? 'master' : 'client',
+        role_id: authUser.isMaster ? 'master' : 'client',
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         country: 'France',
         roles: {
-          id: simpleUser.isMaster ? 'master' : 'client',
-          name: simpleUser.isMaster ? 'master' : 'client',
-          description: simpleUser.isMaster ? 'Administrateur Master' : 'Client',
-          permissions: { all: simpleUser.isMaster }
+          id: authUser.isMaster ? 'master' : 'client',
+          name: authUser.isMaster ? 'master' : 'client',
+          description: authUser.isMaster ? 'Administrateur Master' : 'Client',
+          permissions: { all: authUser.isMaster }
         }
       };
       
       setUserProfile(userProfile);
-      console.log('✅ Profil utilisateur simplifié chargé');
+      console.log('✅ Profil utilisateur chargé');
       return user;
     } catch (error: any) {
-      console.error('❌ Erreur dans handleSimpleLogin:', error);
-      throw error;
-    }
-  };
-
-  // Gestion de la connexion (ancienne méthode - gardée pour compatibilité)
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      console.log('🔐 Tentative de connexion dans App.tsx:', email);
-      
-      if (!supabase || !supabase.auth) {
-        throw new Error('Service d\'authentification non disponible');
-      }
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('❌ Erreur Supabase détaillée:', {
-          message: error.message,
-          status: error.status,
-          code: error.code
-        });
-        
-        const errorMessage = error?.message || 'Erreur inconnue';
-        
-        if (errorMessage.includes('Invalid login credentials')) {
-          throw new Error('Email ou mot de passe incorrect. Vérifiez vos identifiants ou utilisez le mode test pour créer un compte.');
-        } else if (errorMessage.includes('Email not confirmed')) {
-          throw new Error('Veuillez confirmer votre email avant de vous connecter');
-        } else if (errorMessage.includes('Too many requests')) {
-          throw new Error('Trop de tentatives de connexion. Veuillez patienter quelques minutes');
-        } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
-          throw new Error('Problème de connexion réseau. Vérifiez votre connexion internet.');
-        } else {
-          throw new Error(`Erreur de connexion: ${errorMessage}`);
-        }
-      }
-
-      if (data.user && data.user.email) {
-        console.log('✅ Utilisateur trouvé:', data.user.email);
-        const user: User = {
-          id: data.user.id,
-          email: data.user.email,
-          user_metadata: data.user.user_metadata
-        };
-        setUser(user);
-        await loadUserProfile(data.user.id, data.user.email, data.user.user_metadata);
-        console.log('✅ Profil utilisateur chargé');
-        return user;
-      } else {
-        console.error('❌ Aucun utilisateur retourné');
-        throw new Error('Aucun utilisateur retourné par Supabase');
-      }
-    } catch (error: any) {
       console.error('❌ Erreur dans handleLogin:', error);
-      // Relancer l'erreur telle quelle pour que le composant Login puisse la gérer
       throw error;
     }
   };
+
 
   // Gestion de la déconnexion
   const handleLogout = async () => {
@@ -400,7 +343,7 @@ function App() {
                 user ? (
                   <Navigate to="/master-panel" replace />
                 ) : (
-                  <SimpleLogin onLogin={handleSimpleLogin} />
+                  <LoginPage onLogin={handleLogin} />
                 )
               } 
             />
@@ -412,7 +355,7 @@ function App() {
                 user ? (
                   <Navigate to="/master-panel" replace />
                 ) : (
-                  <Login onLogin={handleLogin} />
+                  <LoginPage onLogin={handleLogin} />
                 )
               } 
             />
