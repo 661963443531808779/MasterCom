@@ -220,18 +220,18 @@ class AnalyticsManager {
       // Dans un vrai projet, vous enverriez à votre API
       console.log('📡 Sending to analytics endpoint:', { type, data });
       
-      // Simulation d'envoi
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type,
-          data,
-          timestamp: Date.now(),
-        }),
-      });
+      // Simulation d'envoi - désactivé pour éviter les erreurs 404
+      // await fetch('/api/analytics', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     type,
+      //     data,
+      //     timestamp: Date.now(),
+      //   }),
+      // });
     } catch (error) {
       console.warn('Failed to send analytics data:', error);
     }
@@ -323,9 +323,9 @@ export const trackPageLoad = () => {
   window.addEventListener('load', () => {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     
-    analytics.trackPerformance('page_load_time', navigation.loadEventEnd - navigation.navigationStart);
-    analytics.trackPerformance('dom_content_loaded', navigation.domContentLoadedEventEnd - navigation.navigationStart);
-    analytics.trackPerformance('first_paint', navigation.domContentLoadedEventEnd - navigation.navigationStart);
+    analytics.trackPerformance('page_load_time', navigation.loadEventEnd - navigation.fetchStart);
+    analytics.trackPerformance('dom_content_loaded', navigation.domContentLoadedEventEnd - navigation.fetchStart);
+    analytics.trackPerformance('first_paint', navigation.domContentLoadedEventEnd - navigation.fetchStart);
   });
 };
 

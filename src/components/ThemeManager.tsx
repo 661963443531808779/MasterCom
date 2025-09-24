@@ -11,7 +11,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useTheme, SeasonalTheme } from '../contexts/ThemeContext';
-import { dataService } from '../services/auth';
+// import { dataService } from '../services/auth';
 
 const ThemeManager: FC = () => {
   const { currentTheme, setTheme, isThemeActive } = useTheme();

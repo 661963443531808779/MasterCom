@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const SeasonalDecorations: FC = () => {
@@ -120,7 +120,8 @@ const SeasonalDecorations: FC = () => {
       <ProfessionalThemeElements />
 
       {/* Styles CSS globaux pour les thèmes - Version minimaliste */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         /* Thème Halloween - Subtle */
         .theme-halloween {
           background: linear-gradient(135deg, #fefbf3 0%, #fef7f0 100%);
@@ -190,7 +191,7 @@ const SeasonalDecorations: FC = () => {
           position: relative;
           z-index: 10;
         }
-      `}</style>
+      `}} />
     </>
   );
 };

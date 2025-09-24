@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Search, X, Clock, FileText, Users, Folder, DollarSign, MessageSquare, ExternalLink } from 'lucide-react';
 
 // Types pour la recherche
@@ -18,16 +18,56 @@ interface SearchSuggestion {
 }
 
 // Hook de recherche - version production
-const useGlobalSearch = () => ({
-  query: '',
-  results: [] as SearchResult[],
-  isSearching: false,
-  suggestions: [] as SearchSuggestion[],
-  isOpen: false,
-  setIsOpen: (open: boolean) => {},
-  searchInstant: (query: string) => {},
-  clearSearch: () => {}
-});
+const useGlobalSearch = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const searchInstant = useCallback((searchQuery: string) => {
+    setQuery(searchQuery);
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setSuggestions([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    // Simulation de recherche
+    setTimeout(() => {
+      const mockResults: SearchResult[] = [
+        {
+          id: '1',
+          type: 'page',
+          title: 'Accueil',
+          description: 'Page d\'accueil de MasterCom',
+          url: '/',
+          metadata: { status: 'active' }
+        }
+      ];
+      setResults(mockResults);
+      setIsSearching(false);
+    }, 200);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setQuery('');
+    setResults([]);
+    setSuggestions([]);
+  }, []);
+
+  return {
+    query,
+    results,
+    isSearching,
+    suggestions,
+    isOpen,
+    setIsOpen,
+    searchInstant,
+    clearSearch
+  };
+};
 
 const GlobalSearch: React.FC = () => {
   const { 

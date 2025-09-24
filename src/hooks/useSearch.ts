@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 export interface SearchResult {
   id: string;
@@ -26,41 +26,38 @@ export interface SearchState {
   suggestions: string[];
 }
 
-// Données de recherche simulées (dans un vrai projet, cela viendrait d'une API)
-const searchData: SearchResult[] = [
-  // Pages
-  { id: 'home', title: 'Accueil', description: 'Page d\'accueil de MasterCom', type: 'page', url: '/', score: 1 },
-  { id: 'about', title: 'À propos', description: 'Présentation de l\'équipe et des valeurs', type: 'page', url: '/about', score: 1 },
-  { id: 'services', title: 'Services', description: 'Nos services de communication', type: 'page', url: '/services', score: 1 },
-  { id: 'portfolio', title: 'Portfolio', description: 'Nos réalisations et projets', type: 'page', url: '/portfolio', score: 1 },
-  { id: 'blog', title: 'Blog', description: 'Articles et actualités', type: 'page', url: '/blog', score: 1 },
-  { id: 'contact', title: 'Contact', description: 'Formulaire de contact', type: 'page', url: '/contact', score: 1 },
-  
-  // CRM
-  { id: 'crm', title: 'CRM', description: 'Gestion de la relation client', type: 'component', url: '/crm', score: 1 },
-  { id: 'dashboard', title: 'Dashboard', description: 'Tableau de bord de gestion', type: 'component', url: '/dashboard', score: 1 },
-  
-  // Clients simulés
-  { id: 'client-1', title: 'TechCorp', description: 'Entreprise technologique - Client actif', type: 'client', metadata: { status: 'active', industry: 'technology' }, score: 1 },
-  { id: 'client-2', title: 'FashionBrand', description: 'Marque de mode - Projet en cours', type: 'client', metadata: { status: 'active', industry: 'fashion' }, score: 1 },
-  { id: 'client-3', title: 'StartupInnovante', description: 'Startup fintech - Nouveau client', type: 'client', metadata: { status: 'prospect', industry: 'fintech' }, score: 1 },
-  
-  // Projets simulés
-  { id: 'project-1', title: 'Rebranding TechCorp', description: 'Refonte complète de l\'identité visuelle', type: 'project', metadata: { status: 'active', client: 'TechCorp' }, score: 1 },
-  { id: 'project-2', title: 'Campagne Social Media', description: 'Stratégie réseaux sociaux FashionBrand', type: 'project', metadata: { status: 'completed', client: 'FashionBrand' }, score: 1 },
-  
-  // Factures simulées
-  { id: 'invoice-1', title: 'Facture #INV-001', description: 'Facture TechCorp - Rebranding', type: 'invoice', metadata: { amount: 15000, status: 'paid' }, score: 1 },
-  { id: 'invoice-2', title: 'Facture #INV-002', description: 'Facture FashionBrand - Social Media', type: 'invoice', metadata: { amount: 8500, status: 'pending' }, score: 1 },
-];
+// Hook de recherche sans données mockées - version production
+const useSearchData = () => {
+  const [searchData, setSearchData] = useState<SearchResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
 
-const searchSuggestions = [
-  'clients', 'projets', 'factures', 'devis', 'support', 'dashboard', 'crm',
-  'branding', 'social media', 'marketing', 'communication', 'créativité',
-  'TechCorp', 'FashionBrand', 'StartupInnovante'
-];
+  // Charger les données depuis l'API
+  const loadSearchData = useCallback(async () => {
+    try {
+      // Dans un vrai projet, vous feriez des appels API ici
+      // const clients = await dataService.getTableData('clients');
+      // const projects = await dataService.getTableData('projects');
+      // etc.
+      
+      // Pour l'instant, retourner des données vides
+      setSearchData([]);
+      setSearchSuggestions(['clients', 'projets', 'factures', 'devis', 'support', 'dashboard', 'crm']);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données de recherche:', error);
+      setSearchData([]);
+      setSearchSuggestions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSearchData();
+  }, [loadSearchData]);
+
+  return { searchData, searchSuggestions };
+};
 
 export const useSearch = () => {
+  const { searchData, searchSuggestions } = useSearchData();
   const [searchState, setSearchState] = useState<SearchState>({
     query: '',
     results: [],

@@ -1,11 +1,10 @@
 import { useState, FC } from 'react';
 import { 
   Users, FileText, Folder,
-  Plus, Download, MessageSquare,
-  BarChart3, Quote, Settings,
+  Plus, Download,
+  Quote,
   Search, Filter,
-  Calendar,
-  TrendingUp, DollarSign, AlertCircle
+  AlertCircle
 } from 'lucide-react';
 import ClientCRUD from '../components/ClientCRUD';
 import InvoiceCRUD from '../components/InvoiceCRUD';
@@ -13,7 +12,7 @@ import QuoteCRUD from '../components/QuoteCRUD';
 import ProjectManager from '../components/ProjectManager';
 
 interface CRMProps {
-  userRole: string;
+  userRole?: string;
 }
 
 const CRM: FC<CRMProps> = ({ userRole }) => {
@@ -38,7 +37,7 @@ const CRM: FC<CRMProps> = ({ userRole }) => {
         case 'quotes':
           return <QuoteCRUD />;
         case 'projects':
-          return <ProjectManager userRole={userRole} />;
+          return <ProjectManager userRole={userRole || 'commercial'} />;
         default:
           return <ClientCRUD />;
       }

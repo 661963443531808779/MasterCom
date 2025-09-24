@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Bell, BellOff } from 'lucide-react';
 
 // Types pour les notifications
@@ -17,20 +17,61 @@ interface Notification {
 }
 
 // Hooks de notifications - version production
-const useNotifications = () => ({ 
-  notifications: [] as Notification[], 
-  removeNotification: (id: string) => {}, 
-  clearAll: () => {} 
-});
+const useNotifications = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-const useSystemNotifications = () => ({ 
-  requestPermission: () => Promise.resolve(false), 
-  showSystemNotification: () => {} 
-});
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
 
-const useRealtimeNotifications = () => ({ 
-  isConnected: false 
-});
+  const clearAll = useCallback(() => {
+    setNotifications([]);
+  }, []);
+
+  return { 
+    notifications, 
+    removeNotification, 
+    clearAll 
+  };
+};
+
+const useSystemNotifications = () => {
+  const requestPermission = useCallback(async (): Promise<boolean> => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+    return false;
+  }, []);
+
+  const showSystemNotification = useCallback((title: string, options?: NotificationOptions) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, options);
+    }
+  }, []);
+
+  return { 
+    requestPermission, 
+    showSystemNotification 
+  };
+};
+
+const useRealtimeNotifications = () => {
+  const [isConnected, setIsConnected] = useState(true);
+  
+  useEffect(() => {
+    // Simulation de connexion
+    const interval = setInterval(() => {
+      setIsConnected(Math.random() > 0.1); // 90% de chance d'être connecté
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return { 
+    isConnected 
+  };
+};
 
 const NotificationSystem: React.FC = () => {
   const { notifications, removeNotification, clearAll } = useNotifications();
