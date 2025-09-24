@@ -1,18 +1,18 @@
-// Service d'authentification MasterCom - Version Production
+// Service d'authentification MasterCom - Version Unifiée
 import { createClient } from '@supabase/supabase-js';
 
 // Configuration Supabase
 const SUPABASE_URL = 'https://gpnjamtnogyfvykgdiwd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
 
-// Client Supabase
+// Client Supabase UNIQUE pour éviter les conflits
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: false,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'mastercom-auth'
+    storageKey: 'mastercom-auth-unique'
   }
 });
 
@@ -24,7 +24,7 @@ export interface User {
   isMaster: boolean;
 }
 
-// Service d'authentification production
+// Service d'authentification unifié
 export const authService = {
   // Connexion
   async login(email: string, password: string): Promise<User> {
@@ -87,7 +87,7 @@ export const authService = {
   // Messages d'erreur en français
   getErrorMessage(errorMessage: string): string {
     if (errorMessage.includes('Invalid login credentials')) {
-      return 'Email ou mot de passe incorrect';
+      return 'Email ou mot de passe incorrect. Vérifiez vos identifiants dans Supabase Dashboard.';
     }
     if (errorMessage.includes('Email not confirmed')) {
       return 'Veuillez confirmer votre email avant de vous connecter';
@@ -103,5 +103,78 @@ export const authService = {
   }
 };
 
-// Export du client Supabase
+// Service de données unifié
+export const dataService = {
+  // Récupérer les données de la table
+  async getTableData(tableName: string) {
+    try {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*');
+
+      if (error) {
+        throw new Error(`Erreur lors de la récupération des données: ${error.message}`);
+      }
+
+      return data;
+    } catch (error: any) {
+      throw new Error(error.message || 'Erreur lors de la récupération des données');
+    }
+  },
+
+  // Insérer des données dans la table
+  async insertData(tableName: string, data: any) {
+    try {
+      const { data: result, error } = await supabase
+        .from(tableName)
+        .insert(data);
+
+      if (error) {
+        throw new Error(`Erreur lors de l'insertion: ${error.message}`);
+      }
+
+      return result;
+    } catch (error: any) {
+      throw new Error(error.message || 'Erreur lors de l\'insertion des données');
+    }
+  },
+
+  // Mettre à jour des données
+  async updateData(tableName: string, id: string, data: any) {
+    try {
+      const { data: result, error } = await supabase
+        .from(tableName)
+        .update(data)
+        .eq('id', id);
+
+      if (error) {
+        throw new Error(`Erreur lors de la mise à jour: ${error.message}`);
+      }
+
+      return result;
+    } catch (error: any) {
+      throw new Error(error.message || 'Erreur lors de la mise à jour des données');
+    }
+  },
+
+  // Supprimer des données
+  async deleteData(tableName: string, id: string) {
+    try {
+      const { data: result, error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw new Error(`Erreur lors de la suppression: ${error.message}`);
+      }
+
+      return result;
+    } catch (error: any) {
+      throw new Error(error.message || 'Erreur lors de la suppression des données');
+    }
+  }
+};
+
+// Export du client Supabase unique
 export { supabase };

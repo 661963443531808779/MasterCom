@@ -1,6 +1,6 @@
 // Hook pour récupérer les données via l'API Supabase
 import { useState, useEffect, useCallback } from 'react';
-import { dataService } from '../services/supabase';
+import { dataService } from '../services/auth';
 
 interface UseApiDataOptions {
   endpoint: string;

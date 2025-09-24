@@ -4,7 +4,7 @@ import {
   Calendar, Clock, Users, Target, CheckCircle, AlertCircle, 
   Play, BarChart3, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { dataService } from '../services/supabase';
+import { dataService } from '../services/auth';
 import { useApiData } from '../hooks/useApiData';
 
 // Utility functions for project validation and sanitization
