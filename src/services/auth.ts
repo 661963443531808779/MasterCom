@@ -1,4 +1,4 @@
-// Service d'authentification MasterCom - Version Simplifiée
+// Service d'authentification MasterCom - Version Ultra-Simplifiée
 import { createClient } from '@supabase/supabase-js';
 
 // Configuration Supabase
@@ -24,9 +24,9 @@ export interface User {
   isMaster: boolean;
 }
 
-// Service d'authentification simplifié
+// Service d'authentification ultra-simplifié
 export const authService = {
-  // Connexion
+  // Connexion directe avec Supabase
   async login(email: string, password: string): Promise<User> {
     try {
       console.log('🔐 Connexion:', email);
@@ -49,7 +49,7 @@ export const authService = {
         id: data.user.id,
         email: data.user.email || email,
         name: data.user.user_metadata?.first_name || 'Utilisateur',
-        isMaster: email.toLowerCase().includes('master')
+        isMaster: true // Tous les utilisateurs connectés sont considérés comme master
       };
 
       console.log('✅ Connexion réussie:', user.email);
@@ -84,7 +84,7 @@ export const authService = {
         id: user.id,
         email: user.email || '',
         name: user.user_metadata?.first_name || 'Utilisateur',
-        isMaster: user.email?.toLowerCase().includes('master') || false
+        isMaster: true
       };
     } catch (error) {
       console.error('❌ Erreur getCurrentUser:', error);
@@ -92,84 +92,10 @@ export const authService = {
     }
   },
 
-  // Connexion avec le mot de passe configuré
-  async loginWithAdmin123(): Promise<User> {
-    const emails = [
-      'master@mastercom.fr',
-      'master@mastercom.com',
-      'admin@mastercom.fr'
-    ];
-    
-    for (const email of emails) {
-      try {
-        console.log(`🔑 Tentative: ${email} / admin123`);
-        return await this.login(email, 'admin123');
-      } catch (error) {
-        console.log(`❌ Échec avec ${email}`);
-      }
-    }
-    
-    throw new Error('Impossible de se connecter avec admin123');
-  },
-
-  // Test de connexion
-  async testConnection(): Promise<{ success: boolean; message: string }> {
-    try {
-      console.log('🧪 Test de connexion...');
-      
-      // Test réseau
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      });
-      
-      if (response.status !== 200) {
-        return { 
-          success: false, 
-          message: `Problème de connexion réseau (Status: ${response.status})`
-        };
-      }
-      
-      // Test connexion
-      const loginResponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY
-        },
-        body: JSON.stringify({
-          email: 'master@mastercom.fr',
-          password: 'admin123'
-        })
-      });
-      
-      const data = await loginResponse.json();
-      
-      if (loginResponse.ok) {
-        return { 
-          success: true, 
-          message: 'Connexion réussie avec master@mastercom.fr / admin123'
-        };
-      } else {
-        return { 
-          success: false, 
-          message: `Connexion échouée: ${data.error_description || data.msg}`
-        };
-      }
-    } catch (error: any) {
-      return { 
-        success: false, 
-        message: `Erreur: ${error.message}`
-      };
-    }
-  },
-
   // Messages d'erreur en français
   getErrorMessage(errorMessage: string): string {
     if (errorMessage.includes('Invalid login credentials')) {
-      return 'Email ou mot de passe incorrect';
+      return 'Email ou mot de passe incorrect. Vérifiez vos identifiants dans Supabase Dashboard.';
     }
     if (errorMessage.includes('Email not confirmed')) {
       return 'Veuillez confirmer votre email avant de vous connecter';

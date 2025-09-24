@@ -1,6 +1,6 @@
-// Page de connexion MasterCom - Version Simplifiée
+// Page de connexion MasterCom - Version Ultra-Simplifiée
 import { useState, FC } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { authService, User } from '../services/auth';
 
 interface LoginPageProps {
@@ -13,9 +13,8 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showTestMode, setShowTestMode] = useState(false);
 
-  // Connexion normale
+  // Connexion
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -24,43 +23,6 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
     try {
       const user = await authService.login(email, password);
       onLogin(user);
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Connexion avec admin123
-  const handleAdminLogin = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const user = await authService.loginWithAdmin123();
-      setEmail(user.email);
-      setPassword('admin123');
-      onLogin(user);
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Test de connexion
-  const handleTestConnection = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const result = await authService.testConnection();
-      if (result.success) {
-        setError('');
-        alert(`✅ ${result.message}`);
-      } else {
-        setError(result.message);
-      }
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -153,43 +115,16 @@ const LoginPage: FC<LoginPageProps> = ({ onLogin }) => {
             </button>
           </form>
 
-          {/* Mode test */}
+          {/* Instructions */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => setShowTestMode(!showTestMode)}
-              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              {showTestMode ? 'Masquer' : 'Mode test'}
-            </button>
-            
-            {showTestMode && (
-              <div className="mt-3 space-y-2">
-                <button
-                  type="button"
-                  onClick={handleAdminLogin}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 disabled:opacity-50 transition-colors"
-                >
-                  <Key className="h-4 w-4" />
-                  <span>Connexion admin123</span>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={handleTestConnection}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 disabled:opacity-50 transition-colors"
-                >
-                  <Key className="h-4 w-4" />
-                  <span>Test Connexion</span>
-                </button>
-                
-                <p className="text-xs text-gray-400 text-center">
-                  Mot de passe configuré: admin123
-                </p>
-              </div>
-            )}
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-2">
+                Utilisez les identifiants de votre compte Supabase
+              </p>
+              <p className="text-xs text-gray-500">
+                UID: 4b83f2c6-ca3a-48b5-9a4e-694b725a0d44
+              </p>
+            </div>
           </div>
         </div>
 
