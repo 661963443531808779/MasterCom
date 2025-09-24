@@ -10,7 +10,7 @@ const SeasonalDecorations: FC = () => {
 
   // Composants SVG stylés pour chaque thème
   const ChristmasTree = () => (
-    <svg width="80" height="100" viewBox="0 0 80 100" className="absolute top-4 left-4 z-20 opacity-80 animate-pulse">
+    <svg width="80" height="100" viewBox="0 0 80 100" className="absolute top-20 left-4 z-20 opacity-80 animate-pulse">
       <defs>
         <linearGradient id="treeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#22c55e" />
@@ -39,7 +39,7 @@ const SeasonalDecorations: FC = () => {
   );
 
   const HalloweenPumpkin = () => (
-    <svg width="80" height="80" viewBox="0 0 80 80" className="absolute top-4 right-4 z-20 opacity-80 animate-bounce">
+    <svg width="80" height="80" viewBox="0 0 80 80" className="absolute top-20 right-4 z-20 opacity-80 animate-bounce">
       <defs>
         <linearGradient id="pumpkinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#f97316" />
@@ -66,7 +66,7 @@ const SeasonalDecorations: FC = () => {
   );
 
   const EasterEgg = () => (
-    <svg width="70" height="90" viewBox="0 0 70 90" className="absolute top-4 left-4 z-20 opacity-80 animate-pulse">
+    <svg width="70" height="90" viewBox="0 0 70 90" className="absolute top-20 left-4 z-20 opacity-80 animate-pulse">
       <defs>
         <linearGradient id="eggGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ec4899" />
