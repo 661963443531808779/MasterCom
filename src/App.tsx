@@ -209,6 +209,12 @@ function App() {
       
       setUserProfile(userProfile);
       setIsAuthenticated(true);
+      
+      // Redirection vers le master panel
+      setTimeout(() => {
+        window.location.href = '/master-panel';
+      }, 1000);
+      
       return user;
     } catch (error: any) {
       throw error;
@@ -299,7 +305,7 @@ function App() {
               path="/master-panel" 
               element={
                 <ProtectedRoute user={user}>
-                  <MasterPanel userRole={userProfile?.roles?.name || 'client'} />
+                  <MasterPanel userRole={userProfile?.roles?.name || 'client'} onLogout={handleLogout} />
                 </ProtectedRoute>
               } 
             />
