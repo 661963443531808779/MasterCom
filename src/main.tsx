@@ -4,14 +4,12 @@ import App from './App.tsx'; // Application complète MasterCom
 import './index.css';
 
 // Gestion d'erreur globale pour le rendu
-window.addEventListener('error', (event) => {
-  console.error('❌ Erreur globale dans main.tsx:', event.error);
+window.addEventListener('error', () => {
 });
 
 // Vérifier que l'élément root existe
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  console.error('❌ Root element not found');
   document.body.innerHTML = `
     <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: system-ui;">
       <div style="text-align: center; padding: 20px;">
@@ -32,9 +30,7 @@ if (!rootElement) {
         <App />
       </StrictMode>
     );
-    console.log('✅ Application rendue avec succès');
   } catch (error) {
-    console.error('❌ Erreur lors du rendu:', error);
     rootElement.innerHTML = `
       <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: system-ui;">
         <div style="text-align: center; padding: 20px;">

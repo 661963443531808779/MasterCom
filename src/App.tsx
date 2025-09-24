@@ -161,7 +161,6 @@ function App() {
           }
         };
       } catch (error) {
-        console.error('Erreur d\'authentification:', error);
         setSupabaseError('Erreur d\'authentification');
       } finally {
         if (mounted) {
@@ -229,7 +228,6 @@ function App() {
       };
       setUserProfile(defaultProfile);
     } catch (error) {
-      console.error('❌ Erreur lors du chargement du profil:', error);
     }
   };
 
