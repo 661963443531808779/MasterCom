@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { dataService } from '../services/auth';
 
 export type SeasonalTheme = 'none' | 'christmas' | 'easter' | 'halloween' | 'summer';
 
@@ -6,18 +7,18 @@ interface ThemeContextType {
   currentTheme: SeasonalTheme;
   setTheme: (theme: SeasonalTheme) => void;
   isThemeActive: (theme: SeasonalTheme) => boolean;
-  getThemeDecorations: () => ThemeDecorations;
+  getThemeStyles: () => ThemeStyles;
 }
 
-interface ThemeDecorations {
+interface ThemeStyles {
   background: string;
+  overlay: string;
   colors: {
     primary: string;
     secondary: string;
     accent: string;
   };
-  decorations: ReactNode[];
-  animations: string[];
+  effects: string[];
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -37,152 +38,126 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState<SeasonalTheme>('none');
 
-  // Charger le thème depuis le localStorage au montage
+  // Charger le thème global depuis la base de données
   useEffect(() => {
-    const savedTheme = localStorage.getItem('seasonal-theme') as SeasonalTheme;
-    if (savedTheme && ['none', 'christmas', 'easter', 'halloween', 'summer'].includes(savedTheme)) {
-      setCurrentTheme(savedTheme);
-    }
+    loadGlobalTheme();
   }, []);
 
-  // Sauvegarder le thème dans le localStorage
-  const setTheme = (theme: SeasonalTheme) => {
+  const loadGlobalTheme = async () => {
+    try {
+      // Charger le thème global depuis la base de données
+      const themeData = await dataService.getTableData('theme_preferences');
+      const activeTheme = themeData.find((t: any) => t.is_active && t.theme_name !== 'none');
+      
+      if (activeTheme) {
+        setCurrentTheme(activeTheme.theme_name as SeasonalTheme);
+        // Appliquer le thème au body
+        applyThemeToBody(activeTheme.theme_name as SeasonalTheme);
+      }
+    } catch (error) {
+      console.log('Thème global non disponible, utilisation du thème local');
+      // Fallback vers le localStorage
+      const savedTheme = localStorage.getItem('seasonal-theme') as SeasonalTheme;
+      if (savedTheme && ['none', 'christmas', 'easter', 'halloween', 'summer'].includes(savedTheme)) {
+        setCurrentTheme(savedTheme);
+        applyThemeToBody(savedTheme);
+      }
+    }
+  };
+
+  // Appliquer le thème au body pour tous les visiteurs
+  const applyThemeToBody = (theme: SeasonalTheme) => {
+    // Supprimer toutes les classes de thème existantes
+    document.body.classList.remove('theme-christmas', 'theme-easter', 'theme-halloween', 'theme-summer');
+    
+    if (theme !== 'none') {
+      document.body.classList.add(`theme-${theme}`);
+    }
+  };
+
+  // Sauvegarder le thème globalement
+  const setTheme = async (theme: SeasonalTheme) => {
     setCurrentTheme(theme);
-    localStorage.setItem('seasonal-theme', theme);
+    applyThemeToBody(theme);
+    
+    try {
+      // Sauvegarder dans la base de données pour tous les utilisateurs
+      await dataService.insertData('theme_preferences', {
+        user_id: 'global-theme',
+        theme_name: theme,
+        is_active: true,
+        activated_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.log('Sauvegarde globale échouée, utilisation du localStorage');
+      localStorage.setItem('seasonal-theme', theme);
+    }
   };
 
   const isThemeActive = (theme: SeasonalTheme) => {
     return currentTheme === theme;
   };
 
-  const getThemeDecorations = (): ThemeDecorations => {
+  const getThemeStyles = (): ThemeStyles => {
     switch (currentTheme) {
       case 'christmas':
         return {
           background: 'bg-gradient-to-br from-red-50 to-green-50',
+          overlay: 'before:content-[""] before:absolute before:inset-0 before:bg-gradient-to-br before:from-red-100/20 before:to-green-100/20 before:pointer-events-none',
           colors: {
             primary: 'text-red-600',
             secondary: 'text-green-600',
             accent: 'text-yellow-500'
           },
-          decorations: [
-            // Sapin principal en haut à gauche
-            <div key="tree-1" className="text-green-500 text-3xl opacity-60 animate-bounce">
-              🎄
-            </div>,
-            // Cadeau en haut à droite
-            <div key="gift-1" className="text-red-500 text-2xl opacity-50 animate-pulse">
-              🎁
-            </div>,
-            // Flocon en bas à gauche
-            <div key="snow-1" className="text-white text-2xl opacity-40 animate-ping">
-              ❄️
-            </div>,
-            // Étoile en bas à droite
-            <div key="star-1" className="text-yellow-400 text-2xl opacity-60 animate-pulse">
-              ⭐
-            </div>
-          ],
-          animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
+          effects: ['snow-effect', 'sparkle-effect']
         };
 
       case 'easter':
         return {
           background: 'bg-gradient-to-br from-pink-50 to-yellow-50',
+          overlay: 'before:content-[""] before:absolute before:inset-0 before:bg-gradient-to-br before:from-pink-100/20 before:to-yellow-100/20 before:pointer-events-none',
           colors: {
             primary: 'text-pink-600',
             secondary: 'text-yellow-600',
             accent: 'text-purple-500'
           },
-          decorations: [
-            // Œuf coloré en haut à gauche
-            <div key="egg-1" className="text-pink-500 text-3xl opacity-60 animate-bounce">
-              🥚
-            </div>,
-            // Lapin en haut à droite
-            <div key="bunny-1" className="text-gray-400 text-2xl opacity-50 animate-pulse">
-              🐰
-            </div>,
-            // Fleur en bas à gauche
-            <div key="flower-1" className="text-pink-400 text-2xl opacity-40 animate-ping">
-              🌸
-            </div>,
-            // Panier en bas à droite
-            <div key="basket-1" className="text-yellow-500 text-2xl opacity-60 animate-pulse">
-              🧺
-            </div>
-          ],
-          animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
+          effects: ['flower-effect', 'bounce-effect']
         };
 
       case 'halloween':
         return {
           background: 'bg-gradient-to-br from-orange-50 to-purple-50',
+          overlay: 'before:content-[""] before:absolute before:inset-0 before:bg-gradient-to-br before:from-orange-100/20 before:to-purple-100/20 before:pointer-events-none',
           colors: {
             primary: 'text-orange-600',
             secondary: 'text-purple-600',
             accent: 'text-black'
           },
-          decorations: [
-            // Citrouille en haut à gauche
-            <div key="pumpkin-1" className="text-orange-500 text-3xl opacity-60 animate-bounce">
-              🎃
-            </div>,
-            // Fantôme en haut à droite
-            <div key="ghost-1" className="text-white text-2xl opacity-50 animate-pulse">
-              👻
-            </div>,
-            // Chauve-souris en bas à gauche
-            <div key="bat-1" className="text-purple-600 text-2xl opacity-40 animate-ping">
-              🦇
-            </div>,
-            // Crâne en bas à droite
-            <div key="skull-1" className="text-gray-600 text-2xl opacity-60 animate-pulse">
-              💀
-            </div>
-          ],
-          animations: ['animate-bounce', 'animate-pulse', 'animate-ping']
+          effects: ['spooky-effect', 'glow-effect']
         };
 
       case 'summer':
         return {
           background: 'bg-gradient-to-br from-blue-50 to-yellow-50',
+          overlay: 'before:content-[""] before:absolute before:inset-0 before:bg-gradient-to-br before:from-blue-100/20 before:to-yellow-100/20 before:pointer-events-none',
           colors: {
             primary: 'text-blue-600',
             secondary: 'text-yellow-600',
             accent: 'text-orange-500'
           },
-          decorations: [
-            // Soleil en haut à gauche
-            <div key="sun-1" className="text-yellow-500 text-3xl opacity-60 animate-spin">
-              ☀️
-            </div>,
-            // Palmier en haut à droite
-            <div key="palm-1" className="text-green-500 text-2xl opacity-50 animate-pulse">
-              🌴
-            </div>,
-            // Glace en bas à gauche
-            <div key="ice-1" className="text-pink-400 text-2xl opacity-40 animate-bounce">
-              🍦
-            </div>,
-            // Parasol en bas à droite
-            <div key="umbrella-1" className="text-blue-500 text-2xl opacity-60 animate-pulse">
-              🏖️
-            </div>
-          ],
-          animations: ['animate-spin', 'animate-pulse', 'animate-bounce']
+          effects: ['sunshine-effect', 'wave-effect']
         };
 
       default:
         return {
           background: '',
+          overlay: '',
           colors: {
             primary: '',
             secondary: '',
             accent: ''
           },
-          decorations: [],
-          animations: []
+          effects: []
         };
     }
   };
@@ -191,7 +166,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     currentTheme,
     setTheme,
     isThemeActive,
-    getThemeDecorations
+    getThemeStyles
   };
 
   return (

@@ -2,116 +2,161 @@ import React, { FC } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const SeasonalDecorations: FC = () => {
-  const { getThemeDecorations } = useTheme();
-  const decorations = getThemeDecorations();
+  const { currentTheme, getThemeStyles } = useTheme();
+  const themeStyles = getThemeStyles();
 
-  if (decorations.decorations.length === 0) {
+  if (currentTheme === 'none') {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
-      {/* Décorations principales positionnées de manière stylée */}
-      <div className="absolute top-4 left-4 z-20">
-        {decorations.decorations.slice(0, 2)}
-      </div>
-      
-      <div className="absolute top-4 right-4 z-20">
-        {decorations.decorations.slice(2, 4)}
-      </div>
+    <>
+      {/* Styles CSS globaux pour les thèmes */}
+      <style jsx global>{`
+        /* Thème Halloween */
+        .theme-halloween {
+          background: linear-gradient(135deg, #fef3c7 0%, #f3e8ff 100%);
+          position: relative;
+        }
+        
+        .theme-halloween::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 20% 20%, rgba(251, 146, 60, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: 1;
+        }
 
-      <div className="absolute bottom-4 left-4 z-20">
-        {decorations.decorations.slice(4, 6)}
-      </div>
+        /* Thème Noël */
+        .theme-christmas {
+          background: linear-gradient(135deg, #fef2f2 0%, #f0fdf4 100%);
+          position: relative;
+        }
+        
+        .theme-christmas::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 30% 30%, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: 1;
+        }
 
-      <div className="absolute bottom-4 right-4 z-20">
-        {decorations.decorations.slice(6, 8)}
-      </div>
+        /* Thème Pâques */
+        .theme-easter {
+          background: linear-gradient(135deg, #fdf2f8 0%, #fefce8 100%);
+          position: relative;
+        }
+        
+        .theme-easter::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 25% 25%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(234, 179, 8, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: 1;
+        }
 
-      {/* Effets de particules stylés */}
-      {decorations.animations.includes('animate-bounce') && (
-        <div className="absolute inset-0">
-          {/* Flocons de neige pour Noël */}
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={`snowflake-${i}`}
-              className="absolute text-white opacity-40 animate-bounce"
-              style={{
-                left: `${10 + (i * 7)}%`,
-                top: `${5 + (i * 8)}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${3 + (i % 3)}s`,
-                fontSize: `${12 + (i % 3) * 4}px`
-              }}
-            >
-              ❄️
-            </div>
-          ))}
-        </div>
-      )}
+        /* Thème Été */
+        .theme-summer {
+          background: linear-gradient(135deg, #eff6ff 0%, #fefce8 100%);
+          position: relative;
+        }
+        
+        .theme-summer::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 60% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: 1;
+        }
 
-      {/* Effets de particules pour Pâques */}
-      {decorations.animations.includes('animate-pulse') && (
-        <div className="absolute inset-0">
-          {/* Pétales de fleurs pour Pâques */}
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={`petal-${i}`}
-              className="absolute text-pink-300 opacity-30 animate-pulse"
-              style={{
-                left: `${15 + (i * 10)}%`,
-                top: `${10 + (i * 10)}%`,
-                animationDelay: `${i * 0.8}s`,
-                animationDuration: `${4 + (i % 2)}s`,
-                fontSize: `${14 + (i % 2) * 6}px`
-              }}
-            >
-              🌸
-            </div>
-          ))}
-        </div>
-      )}
+        /* Effets de particules subtils */
+        .theme-halloween::after {
+          content: '🎃 👻 🦇 💀';
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          font-size: 24px;
+          opacity: 0.3;
+          animation: float 6s ease-in-out infinite;
+          z-index: 2;
+          pointer-events: none;
+        }
 
-      {/* Effets pour Halloween */}
-      {decorations.animations.includes('animate-ping') && (
-        <div className="absolute inset-0">
-          {/* Effets fantomatiques pour Halloween */}
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={`ghost-effect-${i}`}
-              className="absolute text-orange-400 opacity-25 animate-ping"
-              style={{
-                left: `${20 + (i * 12)}%`,
-                top: `${15 + (i * 12)}%`,
-                animationDelay: `${i * 1.2}s`,
-                animationDuration: `${2 + (i % 2)}s`,
-                fontSize: `${16 + (i % 2) * 4}px`
-              }}
-            >
-              👻
-            </div>
-          ))}
-        </div>
-      )}
+        .theme-christmas::after {
+          content: '🎄 🎁 ❄️ ⭐';
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          font-size: 24px;
+          opacity: 0.3;
+          animation: float 8s ease-in-out infinite;
+          z-index: 2;
+          pointer-events: none;
+        }
 
-      {/* Effets pour l'été */}
-      {decorations.animations.includes('animate-spin') && (
-        <div className="absolute inset-0">
-          {/* Soleil qui tourne pour l'été */}
-          <div
-            className="absolute text-yellow-400 opacity-30 animate-spin"
-            style={{
-              left: '85%',
-              top: '10%',
-              animationDuration: '8s',
-              fontSize: '24px'
-            }}
-          >
-            ☀️
-          </div>
-        </div>
-      )}
-    </div>
+        .theme-easter::after {
+          content: '🥚 🐰 🌸 🧺';
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          font-size: 24px;
+          opacity: 0.3;
+          animation: float 7s ease-in-out infinite;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        .theme-summer::after {
+          content: '☀️ 🌴 🍦 🏖️';
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          font-size: 24px;
+          opacity: 0.3;
+          animation: float 5s ease-in-out infinite;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+
+        /* Assurer que le contenu reste au-dessus des effets */
+        .theme-halloween > *,
+        .theme-christmas > *,
+        .theme-easter > *,
+        .theme-summer > * {
+          position: relative;
+          z-index: 10;
+        }
+      `}</style>
+    </>
   );
 };
 

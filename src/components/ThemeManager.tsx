@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { 
   Palette, 
   TreePine, 
@@ -6,12 +6,39 @@ import {
   Ghost, 
   Sun,
   Check,
-  Sparkles
+  Sparkles,
+  Globe,
+  Zap
 } from 'lucide-react';
 import { useTheme, SeasonalTheme } from '../contexts/ThemeContext';
+import { dataService } from '../services/auth';
 
 const ThemeManager: FC = () => {
   const { currentTheme, setTheme, isThemeActive } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleThemeChange = async (themeId: SeasonalTheme) => {
+    setIsLoading(true);
+    setMessage(null);
+    
+    try {
+      await setTheme(themeId);
+      setMessage({ 
+        type: 'success', 
+        text: `Thème ${themes.find(t => t.id === themeId)?.name} activé pour tous les visiteurs !` 
+      });
+    } catch (error: any) {
+      setMessage({ 
+        type: 'error', 
+        text: `Erreur lors de l'activation du thème: ${error.message}` 
+      });
+    } finally {
+      setIsLoading(false);
+      // Effacer le message après 3 secondes
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
 
   const themes = [
     {
@@ -70,9 +97,23 @@ const ThemeManager: FC = () => {
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900">Gestion des Thèmes Saisonniers</h2>
-          <p className="text-sm text-gray-600">Activez des décorations spéciales selon les saisons</p>
+          <p className="text-sm text-gray-600">Activez des décorations spéciales pour TOUS les visiteurs</p>
         </div>
       </div>
+
+      {/* Message de statut */}
+      {message && (
+        <div className={`p-4 rounded-lg border ${
+          message.type === 'success' 
+            ? 'bg-green-50 border-green-200 text-green-800' 
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          <div className="flex items-center space-x-2">
+            <Globe className="h-5 w-5" />
+            <span className="font-medium">{message.text}</span>
+          </div>
+        </div>
+      )}
 
       {/* Thème actuel */}
       <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -103,12 +144,12 @@ const ThemeManager: FC = () => {
           return (
             <div
               key={theme.id}
-              onClick={() => setTheme(theme.id)}
+              onClick={() => !isLoading && handleThemeChange(theme.id)}
               className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
                 isActive 
                   ? `${theme.borderColor} ${theme.bgColor} ring-2 ring-blue-500 ring-opacity-50` 
                   : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+              } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {/* Indicateur de sélection */}
               {isActive && (
@@ -137,13 +178,33 @@ const ThemeManager: FC = () => {
               {/* Bouton de sélection */}
               <div className="mt-4">
                 <button
-                  className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
+                  disabled={isLoading}
+                  className={`w-full py-2 px-4 rounded-md font-medium transition-colors flex items-center justify-center space-x-2 ${
                     isActive
                       ? 'bg-blue-500 text-white'
                       : `${theme.color} border border-current hover:bg-opacity-10`
-                  }`}
+                  } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {isActive ? 'Thème Actif' : 'Activer ce Thème'}
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      <span>Activation...</span>
+                    </>
+                  ) : (
+                    <>
+                      {isActive ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          <span>Thème Actif</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4" />
+                          <span>Activer pour Tous</span>
+                        </>
+                      )}
+                    </>
+                  )}
                 </button>
               </div>
             </div>
