@@ -19,8 +19,7 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 
 // Import des services Supabase
-import { supabase } from './services/supabase';
-import { User as AuthUser } from './services/auth';
+import { authService, User as AuthUser } from './services/auth';
 
 // Hooks avancés - version production simplifiée (stub implementations)
 const useAnalytics = () => ({
@@ -90,7 +89,7 @@ function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [supabaseError, setSupabaseError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Hooks avancés avec gestion d'erreur
   useAnalytics();
@@ -119,49 +118,45 @@ function App() {
 
     const initializeAuth = async () => {
       try {
-        // Vérifier la session actuelle
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Vérifier la session actuelle avec authService
+        const currentUser = await authService.getCurrentUser();
         
-        if (!error && session?.user) {
+        if (currentUser) {
           if (mounted) {
             const user: User = {
-              id: session.user.id,
-              email: session.user.email || '',
-              user_metadata: session.user.user_metadata
+              id: currentUser.id,
+              email: currentUser.email,
+              user_metadata: {
+                first_name: currentUser.name,
+                last_name: 'MasterCom'
+              }
             };
             setUser(user);
-            await loadUserProfile(session.user.id);
+            setIsAuthenticated(true);
+            
+            // Créer le profil utilisateur
+            const userProfile: UserProfile = {
+              id: currentUser.id,
+              email: currentUser.email,
+              first_name: currentUser.name,
+              last_name: 'MasterCom',
+              role_id: 'master',
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              country: 'France',
+              roles: {
+                id: 'master',
+                name: 'master',
+                description: 'Administrateur Master',
+                permissions: { all: true }
+              }
+            };
+            setUserProfile(userProfile);
           }
         }
-
-        // Écouter les changements d'authentification
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (_, session: any) => {
-            if (mounted) {
-              if (session?.user) {
-                const user: User = {
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  user_metadata: session.user.user_metadata
-                };
-                setUser(user);
-                await loadUserProfile(session.user.id);
-              } else {
-                setUser(null);
-                setUserProfile(null);
-              }
-            }
-          }
-        );
-
-        // Nettoyer la subscription au démontage
-        return () => {
-          if (subscription?.unsubscribe) {
-            subscription.unsubscribe();
-          }
-        };
       } catch (error) {
-        setSupabaseError('Erreur d\'authentification');
+        // Erreur silencieuse
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -177,59 +172,6 @@ function App() {
     };
   }, []);
 
-  // Charger le profil utilisateur
-  const loadUserProfile = async (userId: string, userEmail?: string, userMetadata?: any) => {
-    try {
-      
-      // Vérifier si c'est le compte master (par email ou ID spécifique)
-      const isMasterAccount = userEmail === 'master@master.com' || 
-                             userEmail === 'master@mastercom.fr' ||
-                             userId === 'a3522290-7863-49dc-bce1-f979a5f6bbea';
-      
-      if (isMasterAccount) {
-        const masterProfile: UserProfile = {
-          id: userId,
-          email: userEmail || '',
-          first_name: 'Master',
-          last_name: 'Admin',
-          role_id: 'master',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          country: 'France',
-          roles: {
-            id: 'master',
-            name: 'master',
-            description: 'Administrateur Master',
-            permissions: { all: true }
-          }
-        };
-        setUserProfile(masterProfile);
-        return;
-      }
-      
-      // Pour les autres utilisateurs, créer un profil par défaut
-      const defaultProfile: UserProfile = {
-        id: userId,
-        email: userEmail || '',
-        first_name: userMetadata?.first_name || 'Utilisateur',
-        last_name: userMetadata?.last_name || '',
-        role_id: 'client',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        country: 'France',
-        roles: {
-          id: 'client',
-          name: 'client',
-          description: 'Client',
-          permissions: { all: false }
-        }
-      };
-      setUserProfile(defaultProfile);
-    } catch (error) {
-    }
-  };
 
   // Gestion de la connexion
   const handleLogin = async (authUser: AuthUser) => {
@@ -252,20 +194,21 @@ function App() {
         email: authUser.email,
         first_name: authUser.name,
         last_name: 'MasterCom',
-        role_id: authUser.isMaster ? 'master' : 'client',
+        role_id: 'master',
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         country: 'France',
         roles: {
-          id: authUser.isMaster ? 'master' : 'client',
-          name: authUser.isMaster ? 'master' : 'client',
-          description: authUser.isMaster ? 'Administrateur Master' : 'Client',
-          permissions: { all: authUser.isMaster }
+          id: 'master',
+          name: 'master',
+          description: 'Administrateur Master',
+          permissions: { all: true }
         }
       };
       
       setUserProfile(userProfile);
+      setIsAuthenticated(true);
       return user;
     } catch (error: any) {
       throw error;
@@ -276,12 +219,16 @@ function App() {
   // Gestion de la déconnexion
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await authService.logout();
       setUser(null);
       setUserProfile(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('mastercom_user');
     } catch (error) {
       setUser(null);
       setUserProfile(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('mastercom_user');
     }
   };
 
@@ -304,18 +251,6 @@ function App() {
         />
 
 
-        {/* Affichage des erreurs Supabase */}
-        {supabaseError && (
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm">
-                  <strong>Mode dégradé :</strong> {supabaseError}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         <main className="min-h-screen">
           <Routes>
