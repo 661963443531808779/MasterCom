@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login Vercel - MasterCom</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        #logs { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Login Vercel - MasterCom</h1>
+    
+    <div class="test-section info">
+        <h3>📋 Instructions</h3>
+        <p>1. Ouvrez la console (F12) pour voir les logs détaillés</p>
+        <p>2. Cliquez sur "Tester la Configuration"</p>
+        <p>3. Essayez de vous connecter avec master@mastercom.fr / admin123</p>
+        <p>4. Vérifiez les logs dans la console</p>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Test Configuration</h3>
+        <button onclick="testConfiguration()">Tester la Configuration</button>
+        <div id="config-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔐 Test Login</h3>
+        <input type="email" id="email" placeholder="Email" value="master@mastercom.fr">
+        <input type="password" id="password" placeholder="Mot de passe" value="admin123">
+        <br>
+        <button onclick="testLogin()">Tester la Connexion</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📝 Logs</h3>
+        <div id="logs"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://gpnjamtnogyfvykgdiwd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        window.testConfiguration = async function() {
+            const resultDiv = document.getElementById('config-result');
+            resultDiv.innerHTML = '<p>🔄 Test en cours...</p>';
+            
+            try {
+                log('🔧 Test de configuration Supabase...');
+                log(`URL: ${SUPABASE_URL}`);
+                log(`Key: ${SUPABASE_ANON_KEY.substring(0, 20)}...`);
+                
+                // Test de connexion simple
+                const { data, error } = await supabase.from('users').select('count').limit(1);
+                
+                if (error) {
+                    log(`❌ Erreur de connexion: ${error.message}`);
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+                } else {
+                    log('✅ Connexion Supabase réussie');
+                    resultDiv.innerHTML = '<div class="success">✅ Configuration OK - Connexion Supabase réussie</div>';
+                }
+            } catch (err) {
+                log(`💥 Erreur: ${err.message}`);
+                resultDiv.innerHTML = `<div class="error">💥 Erreur: ${err.message}</div>`;
+            }
+        };
+
+        window.testLogin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('login-result');
+            
+            resultDiv.innerHTML = '<p>🔄 Tentative de connexion...</p>';
+            
+            try {
+                log(`🔐 Tentative de connexion: ${email}`);
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email.trim().toLowerCase(),
+                    password: password,
+                });
+
+                log(`📡 Réponse Supabase: ${JSON.stringify({
+                    hasData: !!data,
+                    hasUser: !!data?.user,
+                    hasError: !!error,
+                    errorMessage: error?.message
+                })}`);
+
+                if (error) {
+                    log(`❌ Erreur de connexion: ${error.message}`);
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+                } else if (data.user) {
+                    log(`✅ Connexion réussie: ${data.user.email}`);
+                    resultDiv.innerHTML = `<div class="success">✅ Connexion réussie!<br>Email: ${data.user.email}<br>ID: ${data.user.id}</div>`;
+                } else {
+                    log('❌ Aucun utilisateur reçu');
+                    resultDiv.innerHTML = '<div class="error">❌ Aucun utilisateur reçu</div>';
+                }
+            } catch (err) {
+                log(`💥 Erreur: ${err.message}`);
+                resultDiv.innerHTML = `<div class="error">💥 Erreur: ${err.message}</div>`;
+            }
+        };
+
+        // Test automatique au chargement
+        log('🚀 Page de test chargée');
+        log('Cliquez sur "Tester la Configuration" pour commencer');
+    </script>
+</body>
+</html>

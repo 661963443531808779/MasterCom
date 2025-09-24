@@ -5,6 +5,19 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://gpnjamtnogyfvykgdiwd.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
 
+// Debug pour Vercel
+if (typeof window !== 'undefined') {
+  console.log('🔧 Configuration Supabase:', {
+    url: SUPABASE_URL,
+    hasKey: !!SUPABASE_ANON_KEY,
+    keyLength: SUPABASE_ANON_KEY?.length,
+    env: {
+      hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+      hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+    }
+  });
+}
+
 // Client Supabase UNIQUE pour éviter les conflits
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -29,18 +42,34 @@ export const authService = {
   // Connexion
   async login(email: string, password: string): Promise<User> {
     try {
+      console.log('🔐 Tentative de connexion:', { email: email.trim().toLowerCase() });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password: password,
       });
 
+      console.log('📡 Réponse Supabase:', { 
+        hasData: !!data, 
+        hasUser: !!data?.user, 
+        hasError: !!error,
+        errorMessage: error?.message 
+      });
+
       if (error) {
+        console.error('❌ Erreur Supabase:', error);
         throw new Error(this.getErrorMessage(error.message));
       }
       
       if (!data.user) {
+        console.error('❌ Aucun utilisateur reçu');
         throw new Error('Aucune donnée utilisateur reçue');
       }
+
+      console.log('✅ Utilisateur connecté:', { 
+        id: data.user.id, 
+        email: data.user.email 
+      });
 
       // Vérifier si l'utilisateur est vraiment un master
       const isMaster = await this.checkIfUserIsMaster(data.user.id, data.user.email || email);
@@ -51,9 +80,11 @@ export const authService = {
         name: data.user.user_metadata?.first_name || 'Utilisateur',
         isMaster: isMaster
       };
-
+      
+      console.log('🎯 Utilisateur final:', user);
       return user;
     } catch (error: any) {
+      console.error('💥 Erreur de connexion:', error);
       throw new Error(error.message || 'Erreur de connexion');
     }
   },
