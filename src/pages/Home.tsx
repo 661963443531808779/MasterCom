@@ -28,24 +28,24 @@ const Home: FC = () => {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Hero Section avec effets visuels époustouflants */}
-      <section className="relative min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white overflow-hidden">
+      {/* Hero Section avec design professionnel et clair */}
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-gray-900 overflow-hidden">
         {/* Effets de fond animés */}
         <div className="absolute inset-0 overflow-hidden">
-          {/* Particules flottantes colorées */}
-          <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-80"></div>
-          <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-cyan-400 rounded-full animate-bounce opacity-60"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-4 h-4 bg-pink-400 rounded-full animate-pulse opacity-70"></div>
-          <div className="absolute top-1/2 right-1/4 w-2.5 h-2.5 bg-green-400 rounded-full animate-bounce opacity-80"></div>
-          <div className="absolute top-3/4 left-1/2 w-3.5 h-3.5 bg-orange-400 rounded-full animate-pulse opacity-60"></div>
+          {/* Particules flottantes subtiles */}
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-300 rounded-full animate-pulse opacity-40"></div>
+          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-indigo-300 rounded-full animate-bounce opacity-30"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-purple-300 rounded-full animate-pulse opacity-35"></div>
+          <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-blue-400 rounded-full animate-bounce opacity-40"></div>
+          <div className="absolute top-3/4 left-1/2 w-2.5 h-2.5 bg-indigo-400 rounded-full animate-pulse opacity-30"></div>
           
           {/* Grille de fond animée */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px] animate-pulse"></div>
           
-          {/* Effets de lumière colorés */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          {/* Effets de lumière subtils */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 min-h-screen flex items-center">
@@ -53,29 +53,29 @@ const Home: FC = () => {
             {/* Logo avec effet sparkles */}
             <div className="relative mb-8">
               <div className="inline-block relative">
-                <h1 className="text-6xl md:text-8xl font-display mb-6 animate-fade-in bg-gradient-to-r from-white via-yellow-200 to-pink-200 bg-clip-text text-transparent">
-                  Master<span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">Com</span>
+                <h1 className="text-6xl md:text-8xl font-display mb-6 animate-fade-in bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Master<span className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">Com</span>
                 </h1>
-                <Sparkles className="absolute -top-2 -right-2 h-8 w-8 text-yellow-400 animate-pulse" />
-                <Star className="absolute -bottom-1 -left-1 h-6 w-6 text-pink-400 animate-bounce" />
-                <Heart className="absolute top-1/2 -right-8 h-5 w-5 text-red-400 animate-pulse" />
+                <Sparkles className="absolute -top-2 -right-2 h-8 w-8 text-blue-500 animate-pulse" />
+                <Star className="absolute -bottom-1 -left-1 h-6 w-6 text-indigo-500 animate-bounce" />
+                <Heart className="absolute top-1/2 -right-8 h-5 w-5 text-purple-500 animate-pulse" />
               </div>
             </div>
             
-            <p className="text-2xl md:text-3xl mb-8 text-gray-200 max-w-4xl mx-auto font-body leading-relaxed">
-              ✨ <span className="text-yellow-300 font-heading">Votre partenaire créatif</span> pour une communication 
-              <span className="text-pink-300 font-heading"> d'exception</span> ✨<br/>
-              Nous transformons vos <span className="text-cyan-300 font-heading">idées</span> en 
-              <span className="text-green-300 font-heading"> succès mesurables</span>
+            <p className="text-2xl md:text-3xl mb-8 text-gray-700 max-w-4xl mx-auto font-body leading-relaxed">
+              <span className="text-blue-600 font-heading">Votre partenaire créatif</span> pour une communication 
+              <span className="text-indigo-600 font-heading"> d'exception</span><br/>
+              Nous transformons vos <span className="text-purple-600 font-heading">idées</span> en 
+              <span className="text-blue-700 font-heading"> succès mesurables</span>
             </p>
             
             {/* Boutons avec effets visuels */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link
                 to="/contact"
-                className="group relative inline-flex items-center px-10 py-5 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white font-bold text-lg rounded-2xl hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-yellow-500/25"
+                className="group relative inline-flex items-center px-10 py-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-blue-500/25"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
                 <Zap className="mr-3 h-6 w-6" />
                 <span className="relative">Nous contacter</span>
                 <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
@@ -83,7 +83,7 @@ const Home: FC = () => {
               
               <Link
                 to="/about"
-                className="group inline-flex items-center px-10 py-5 bg-transparent border-3 border-white text-white font-bold text-lg rounded-2xl hover:bg-white hover:text-purple-900 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+                className="group inline-flex items-center px-10 py-5 bg-transparent border-3 border-blue-600 text-blue-600 font-bold text-lg rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
               >
                 <Users className="mr-3 h-6 w-6" />
                 Découvrir l'équipe
@@ -94,20 +94,20 @@ const Home: FC = () => {
             {/* Indicateurs de performance */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-1">150+</div>
-                <div className="text-sm text-gray-300">Clients satisfaits</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">150+</div>
+                <div className="text-sm text-gray-600">Clients satisfaits</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-pink-400 mb-1">300+</div>
-                <div className="text-sm text-gray-300">Projets réalisés</div>
+                <div className="text-3xl font-bold text-indigo-600 mb-1">300+</div>
+                <div className="text-sm text-gray-600">Projets réalisés</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-cyan-400 mb-1">15</div>
-                <div className="text-sm text-gray-300">Experts créatifs</div>
+                <div className="text-3xl font-bold text-purple-600 mb-1">15</div>
+                <div className="text-sm text-gray-600">Experts créatifs</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-400 mb-1">98%</div>
-                <div className="text-sm text-gray-300">Taux de satisfaction</div>
+                <div className="text-3xl font-bold text-blue-700 mb-1">98%</div>
+                <div className="text-sm text-gray-600">Taux de satisfaction</div>
               </div>
             </div>
           </div>
@@ -128,38 +128,38 @@ const Home: FC = () => {
         </div>
       </section>
 
-      {/* Services Preview avec design époustouflant */}
-      <section className="py-24 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 relative overflow-hidden">
-        {/* Effets de fond */}
+      {/* Services Preview avec design professionnel */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 relative overflow-hidden">
+        {/* Effets de fond subtils */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-yellow-300 rounded-full opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-pink-300 rounded-full opacity-20 animate-bounce"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-orange-300 rounded-full opacity-15 animate-pulse"></div>
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-200 rounded-full opacity-15 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-indigo-200 rounded-full opacity-15 animate-bounce"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-200 rounded-full opacity-10 animate-pulse"></div>
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Nos Expertises
             </h2>
             <p className="text-2xl text-gray-700 max-w-3xl mx-auto font-light">
-              🚀 Une approche <span className="text-purple-600 font-bold">360°</span> pour répondre à tous vos besoins en communication 🚀
+              Une approche <span className="text-blue-600 font-bold">360°</span> pour répondre à tous vos besoins en communication
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => {
               const colors = [
-                'from-blue-500 to-cyan-500',
-                'from-purple-500 to-pink-500', 
-                'from-green-500 to-emerald-500',
-                'from-orange-500 to-red-500'
+                'from-blue-500 to-blue-600',
+                'from-indigo-500 to-indigo-600', 
+                'from-purple-500 to-purple-600',
+                'from-blue-600 to-indigo-600'
               ];
               const bgColors = [
-                'bg-gradient-to-br from-blue-50 to-cyan-50',
-                'bg-gradient-to-br from-purple-50 to-pink-50',
-                'bg-gradient-to-br from-green-50 to-emerald-50', 
-                'bg-gradient-to-br from-orange-50 to-red-50'
+                'bg-gradient-to-br from-blue-50 to-blue-100',
+                'bg-gradient-to-br from-indigo-50 to-indigo-100',
+                'bg-gradient-to-br from-purple-50 to-purple-100', 
+                'bg-gradient-to-br from-blue-50 to-indigo-100'
               ];
               
               return (

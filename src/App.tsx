@@ -19,8 +19,8 @@ import NotificationSystem from './components/NotificationSystem';
 import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
-// Import statique de Supabase
-import { supabase } from './services/supabase';
+// Import des services Supabase
+import { authService } from './services/supabase';
 
 // Hooks avancés - version production simplifiée
 const useAnalytics = () => ({
