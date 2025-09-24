@@ -20,7 +20,7 @@ import GlobalSearch from './components/GlobalSearch';
 import ThemeSelector from './components/ThemeSelector';
 
 // Import des services Supabase
-import { authService } from './services/supabase';
+import { authService, supabase } from './services/supabase';
 
 // Hooks avancés - version production simplifiée
 const useAnalytics = () => ({
@@ -119,56 +119,40 @@ function App() {
 
     const initializeAuth = async () => {
       try {
+        // Vérifier la session actuelle
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        // Import dynamique de Supabase avec gestion d'erreur robuste
-        let supabase: any = null;
-        try {
-          const supabaseModule = await import('./services/supabase');
-          supabase = supabaseModule.supabase;
-        } catch (error) {
-          setSupabaseError('Supabase non configuré - Mode dégradé');
-          supabase = null;
-        }
-        
-        if (supabase) {
-          // Vérifier la session actuelle avec gestion d'erreur
-          try {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (!error && session?.user) {
-              if (mounted) {
-                setUser(session.user);
-                await loadUserProfile(session.user.id);
-              }
-            }
-
-            // Écouter les changements d'authentification
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(
-              async (event: any, session: any) => {
-                if (mounted) {
-                  if (session?.user) {
-                    setUser(session.user);
-                    await loadUserProfile(session.user.id);
-                  } else {
-                    setUser(null);
-                    setUserProfile(null);
-                  }
-                }
-              }
-            );
-
-            // Nettoyer la subscription au démontage
-            return () => {
-              if (subscription?.unsubscribe) {
-                subscription.unsubscribe();
-              }
-            };
-          } catch (authError) {
-            setSupabaseError('Erreur d\'authentification Supabase');
+        if (!error && session?.user) {
+          if (mounted) {
+            setUser(session.user);
+            await loadUserProfile(session.user.id);
           }
         }
+
+        // Écouter les changements d'authentification
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event: any, session: any) => {
+            if (mounted) {
+              if (session?.user) {
+                setUser(session.user);
+                await loadUserProfile(session.user.id);
+              } else {
+                setUser(null);
+                setUserProfile(null);
+              }
+            }
+          }
+        );
+
+        // Nettoyer la subscription au démontage
+        return () => {
+          if (subscription?.unsubscribe) {
+            subscription.unsubscribe();
+          }
+        };
       } catch (error) {
-        setSupabaseError('Erreur d\'initialisation');
+        console.error('Erreur d\'authentification:', error);
+        setSupabaseError('Erreur d\'authentification');
       } finally {
         if (mounted) {
           setIsLoading(false);

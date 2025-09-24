@@ -113,15 +113,15 @@ const Home: FC = () => {
           </div>
         </div>
         
-        {/* Vague décorative avec gradient */}
+        {/* Vague décorative avec gradient bleu */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-20">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="url(#gradient)"></path>
             <defs>
               <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#fbbf24" />
-                <stop offset="50%" stopColor="#f97316" />
-                <stop offset="100%" stopColor="#ef4444" />
+                <stop offset="0%" stopColor="#2563eb" />
+                <stop offset="50%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#1d4ed8" />
               </linearGradient>
             </defs>
           </svg>
@@ -191,9 +191,9 @@ const Home: FC = () => {
           <div className="text-center mt-16">
             <Link
               to="/services"
-              className="group relative inline-flex items-center px-12 py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white font-bold text-xl rounded-2xl hover:from-purple-700 hover:via-pink-700 hover:to-red-700 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-purple-500/25"
+              className="group relative inline-flex items-center px-12 py-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-xl rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-blue-500/25"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <Sparkles className="mr-3 h-6 w-6" />
               <span className="relative">Voir tous nos services</span>
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
@@ -202,68 +202,68 @@ const Home: FC = () => {
         </div>
       </section>
 
-      {/* Stats Section avec design vibrant */}
-      <section className="py-24 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+      {/* Stats Section avec design professionnel */}
+      <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
         {/* Effets de fond */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-400 rounded-full opacity-10 animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-cyan-400 rounded-full opacity-10 animate-bounce"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-400 rounded-full opacity-5 animate-pulse"></div>
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-400 rounded-full opacity-10 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-300 rounded-full opacity-10 animate-bounce"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full opacity-5 animate-pulse"></div>
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-yellow-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-blue-200 via-blue-100 to-white bg-clip-text text-transparent">
               Nos Performances
             </h2>
-            <p className="text-xl text-gray-300">
-              Des chiffres qui parlent d'eux-mêmes ✨
+            <p className="text-xl text-blue-100">
+              Des chiffres qui parlent d'eux-mêmes
             </p>
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center group">
               <div className="relative">
-                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-200 to-blue-300 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                   150+
                 </div>
-                <div className="text-gray-300 font-medium">Clients satisfaits</div>
-                <Star className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-pulse" />
+                <div className="text-blue-100 font-medium">Clients satisfaits</div>
+                <Star className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
-                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-300 to-blue-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                   300+
                 </div>
-                <div className="text-gray-300 font-medium">Projets réalisés</div>
-                <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-pink-400 animate-pulse" />
+                <div className="text-blue-100 font-medium">Projets réalisés</div>
+                <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
-                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                   15
                 </div>
-                <div className="text-gray-300 font-medium">Experts créatifs</div>
-                <Zap className="absolute -top-2 -right-2 h-6 w-6 text-cyan-400 animate-pulse" />
+                <div className="text-blue-100 font-medium">Experts créatifs</div>
+                <Zap className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
-                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                   98%
                 </div>
-                <div className="text-gray-300 font-medium">Taux de satisfaction</div>
-                <Heart className="absolute -top-2 -right-2 h-6 w-6 text-green-400 animate-pulse" />
+                <div className="text-blue-100 font-medium">Taux de satisfaction</div>
+                <Heart className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section finale époustouflante */}
-      <section className="py-24 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 text-white relative overflow-hidden">
+      {/* CTA Section finale professionnelle */}
+      <section className="py-24 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white relative overflow-hidden">
         {/* Effets de fond */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse"></div>
@@ -272,17 +272,17 @@ const Home: FC = () => {
         </div>
         
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-5xl md:text-6xl font-black mb-8 bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent">
+          <h2 className="text-5xl md:text-6xl font-black mb-8 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
             Prêt à donner une nouvelle dimension à votre communication ?
           </h2>
-          <p className="text-2xl mb-12 text-yellow-100 font-light leading-relaxed">
-            🚀 Discutons de votre projet et découvrons ensemble comment nous pouvons vous aider à briller ! ✨
+          <p className="text-2xl mb-12 text-blue-100 font-light leading-relaxed">
+            Discutons de votre projet et découvrons ensemble comment nous pouvons vous aider à briller !
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link
               to="/contact"
-              className="group relative inline-flex items-center px-12 py-6 bg-white text-orange-600 font-black text-xl rounded-2xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-white/25"
+              className="group relative inline-flex items-center px-12 py-6 bg-white text-blue-700 font-black text-xl rounded-2xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-white/25"
             >
               <div className="absolute inset-0 bg-white rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <Zap className="mr-3 h-7 w-7" />
@@ -292,7 +292,7 @@ const Home: FC = () => {
             
             <Link
               to="/portfolio"
-              className="group inline-flex items-center px-12 py-6 bg-transparent border-3 border-white text-white font-black text-xl rounded-2xl hover:bg-white hover:text-orange-600 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+              className="group inline-flex items-center px-12 py-6 bg-transparent border-3 border-white text-white font-black text-xl rounded-2xl hover:bg-white hover:text-blue-700 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
             >
               <Sparkles className="mr-3 h-7 w-7" />
               Voir nos réalisations

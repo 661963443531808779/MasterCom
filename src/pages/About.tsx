@@ -49,7 +49,7 @@ const About: FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">À propos de MasterCom</h1>
@@ -154,7 +154,7 @@ const About: FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-blue-600">
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Prêt à donner une nouvelle dimension à votre communication ?

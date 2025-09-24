@@ -58,21 +58,21 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Effets de fond animés */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Particules flottantes */}
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400 rounded-full animate-pulse opacity-60"></div>
-        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-blue-400 rounded-full animate-bounce opacity-40"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-pink-400 rounded-full animate-pulse opacity-50"></div>
-        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce opacity-60"></div>
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400 rounded-full animate-pulse opacity-60"></div>
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-blue-300 rounded-full animate-bounce opacity-40"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-blue-500 rounded-full animate-pulse opacity-50"></div>
+        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-blue-200 rounded-full animate-bounce opacity-60"></div>
         
         {/* Grille de fond */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
         
         {/* Effets de lumière */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
       </div>
 
       <div className="relative z-10 max-w-md w-full space-y-8">
@@ -80,16 +80,16 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
         <div className="text-center">
           <div className="relative mx-auto h-16 w-16 mb-6">
             {/* Cercle principal avec gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 rounded-full animate-spin-slow"></div>
-            <div className="absolute inset-1 bg-slate-900 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-full animate-spin-slow"></div>
+            <div className="absolute inset-1 bg-blue-900 rounded-full flex items-center justify-center">
               <div className="relative">
                 <Camera className="h-8 w-8 text-white" />
-                <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-yellow-400 animate-pulse" />
+                <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-blue-300 animate-pulse" />
               </div>
             </div>
           </div>
           
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-200 to-blue-100 bg-clip-text text-transparent">
             MasterCom
           </h2>
           <p className="mt-2 text-sm text-gray-300">
