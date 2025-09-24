@@ -87,13 +87,17 @@ const SimpleLogin: FC<SimpleLoginProps> = ({ onLogin }) => {
       
       if (result.success) {
         setError('');
-        alert('✅ Test de connexion réussi!\nVérifiez la console pour plus de détails.');
+        const details = result.details ? `\nDétails: ${JSON.stringify(result.details, null, 2)}` : '';
+        alert(`✅ Test de connexion réussi!\n${result.message}${details}\n\nVérifiez la console pour plus de détails.`);
       } else {
         setError(`❌ Test échoué: ${result.message}`);
+        const details = result.details ? `\nDétails: ${JSON.stringify(result.details, null, 2)}` : '';
+        alert(`❌ Test échoué\n${result.message}${details}\n\nVérifiez la console pour plus de détails.`);
       }
     } catch (error: any) {
       console.error('❌ SimpleLogin - Erreur test:', error.message);
       setError('Erreur lors du test de connexion');
+      alert(`❌ Erreur lors du test de connexion\n${error.message}\n\nVérifiez la console pour plus de détails.`);
     } finally {
       setIsLoading(false);
     }
