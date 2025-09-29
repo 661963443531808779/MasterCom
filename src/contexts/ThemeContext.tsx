@@ -8,6 +8,7 @@ interface ThemeContextType {
   setTheme: (theme: SeasonalTheme) => void;
   isThemeActive: (theme: SeasonalTheme) => boolean;
   getThemeStyles: () => ThemeStyles;
+  disableSeasonalThemes: () => void;
 }
 
 interface ThemeStyles {
@@ -40,7 +41,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Charger le thème global depuis la base de données
   useEffect(() => {
-    loadGlobalTheme();
+    // Ne charger que si explicitement activé
+    const shouldLoadSeasonalTheme = localStorage.getItem('enable-seasonal-themes') === 'true';
+    if (shouldLoadSeasonalTheme) {
+      loadGlobalTheme();
+    }
   }, []);
 
   const loadGlobalTheme = async () => {
@@ -96,6 +101,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const isThemeActive = (theme: SeasonalTheme) => {
     return currentTheme === theme;
+  };
+
+  // Fonction pour désactiver complètement les thèmes saisonniers
+  const disableSeasonalThemes = () => {
+    setCurrentTheme('none');
+    localStorage.setItem('enable-seasonal-themes', 'false');
+    // Supprimer toutes les classes de thème du body
+    document.body.classList.remove('theme-christmas', 'theme-easter', 'theme-halloween', 'theme-summer');
   };
 
   const getThemeStyles = (): ThemeStyles => {
@@ -166,7 +179,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     currentTheme,
     setTheme,
     isThemeActive,
-    getThemeStyles
+    getThemeStyles,
+    disableSeasonalThemes
   };
 
   return (

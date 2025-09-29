@@ -1,5 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { Sparkles, Palette, Save, RefreshCw, Sun, Moon, Snowflake, Heart } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Theme {
   id: string;

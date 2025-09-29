@@ -13,6 +13,9 @@ interface DeletionRequest {
   created_at: string;
   reviewed_by?: string;
   reviewed_at?: string;
+  // Ajout des informations utilisateur
+  requester_name?: string;
+  reviewer_name?: string;
 }
 
 interface DeletionValidationProps {
@@ -40,11 +43,75 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRequests(data || []);
+      
+      // Enrichir les données avec les noms des utilisateurs
+      const enrichedRequests = await Promise.all(
+        (data || []).map(async (request) => {
+          const enrichedRequest = { ...request };
+          
+          // Récupérer le nom de l'utilisateur qui a fait la demande
+          if (request.requested_by) {
+            const requesterName = await getUserDisplayName(request.requested_by);
+            enrichedRequest.requester_name = requesterName;
+          }
+          
+          // Récupérer le nom de l'utilisateur qui a révisé
+          if (request.reviewed_by) {
+            const reviewerName = await getUserDisplayName(request.reviewed_by);
+            enrichedRequest.reviewer_name = reviewerName;
+          }
+          
+          return enrichedRequest;
+        })
+      );
+      
+      setRequests(enrichedRequests);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fonction pour récupérer le nom d'affichage d'un utilisateur
+  const getUserDisplayName = async (userId: string): Promise<string> => {
+    try {
+      // D'abord vérifier si c'est un utilisateur master
+      if (userId === 'master' || userId === 'MASTER') {
+        return 'Master';
+      }
+
+      // Chercher dans user_profiles
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name, role_id')
+        .eq('id', userId)
+        .single();
+
+      if (!profileError && profile) {
+        // Si c'est un master, afficher "Master"
+        if (profile.role_id === 'master') {
+          return 'Master';
+        }
+        // Sinon afficher le nom complet
+        return `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Utilisateur';
+      }
+
+      // Fallback : chercher dans auth.users
+      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+      
+      if (!authError && authUser?.user) {
+        const metadata = authUser.user.user_metadata;
+        if (metadata?.first_name || metadata?.last_name) {
+          return `${metadata.first_name || ''} ${metadata.last_name || ''}`.trim() || 'Utilisateur';
+        }
+        return authUser.user.email || 'Utilisateur';
+      }
+
+      return 'Utilisateur inconnu';
+    } catch (error) {
+      console.error('Erreur lors de la récupération du nom utilisateur:', error);
+      return 'Utilisateur';
     }
   };
 
@@ -256,7 +323,7 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
                       {request.reason}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {request.requested_by}
+                      {request.requester_name || request.requested_by}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(request.status)}
@@ -336,7 +403,7 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Demandé par</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.requested_by}</p>
+                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.requester_name || selectedRequest.requested_by}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Date de demande</label>
@@ -350,7 +417,7 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Traité par</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedRequest.reviewed_by}</p>
+                    <p className="mt-1 text-sm text-gray-900">{selectedRequest.reviewer_name || selectedRequest.reviewed_by}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Date de traitement</label>
