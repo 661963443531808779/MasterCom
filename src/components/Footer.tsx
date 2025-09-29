@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Facebook, Twitter , Linkedin, Instagram, MapPin , Phone , Mail, } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Instagram, MapPin, Phone, Mail } from 'lucide-react';
 const Footer: FC = () => {
   return (
     <footer className="bg-gray-900 text-white">

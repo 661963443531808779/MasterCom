@@ -1,6 +1,6 @@
-import { useState, FC } from 'react';
-import { X, UserPlus, Mail, User, Shield, AlertCircle } from 'lucide-react';
-import { dataService } from '../services/auth';
+import { FC, useState } from 'react';
+import { X, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -8,223 +8,211 @@ interface CreateUserModalProps {
   onUserCreated: () => void;
 }
 
-interface UserFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'master' | 'commercial';
-}
-
 const CreateUserModal: FC<CreateUserModalProps> = ({ isOpen, onClose, onUserCreated }) => {
-  const [formData, setFormData] = useState<UserFormData>({
+  const [formData, setFormData] = useState({
     email: '',
+    password: '',
     firstName: '',
     lastName: '',
-    role: 'commercial'
+    phone: '',
+    role: 'commercial' as 'master' | 'commercial' | 'client'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.email || !formData.firstName || !formData.lastName) {
-      setError('Tous les champs sont obligatoires');
-      return;
-    }
-
-    // Validation email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Adresse email invalide');
-      return;
-    }
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      setError(null);
+      // Créer l'utilisateur dans Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: formData.email,
+        password: formData.password,
+        email_confirm: true,
+        user_metadata: {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone
+        }
+      });
 
-      // Créer l'utilisateur dans la base de données
-      const newUser = {
-        email: formData.email.toLowerCase().trim(),
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        role: formData.role,
-        status: 'active',
-        created_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c' // UUID du master
-      };
+      if (authError) throw authError;
 
-      await dataService.insertData('users', newUser);
+      // Créer le profil utilisateur dans notre table
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: authData.user.id,
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone,
+          role_id: formData.role,
+          is_active: true,
+          created_at: new Date().toISOString()
+        });
+
+      if (profileError) throw profileError;
 
       // Réinitialiser le formulaire
       setFormData({
         email: '',
+        password: '',
         firstName: '',
         lastName: '',
+        phone: '',
         role: 'commercial'
       });
 
-      // Notifier le parent et fermer le modal
       onUserCreated();
       onClose();
-      
-      alert('✅ Utilisateur créé avec succès !');
     } catch (err: any) {
-      if (err.message.includes('duplicate key')) {
-        setError('Cette adresse email est déjà utilisée');
-      } else {
-        setError(err.message || 'Erreur lors de la création de l\'utilisateur');
-      }
+      setError(err.message || 'Erreur lors de la création de l\'utilisateur');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleClose = () => {
-    setFormData({
-      email: '',
-      firstName: '',
-      lastName: '',
-      role: 'commercial'
-    });
-    setError(null);
-    onClose();
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <UserPlus className="h-6 w-6 text-blue-600" />
-              <h3 className="text-lg font-medium text-gray-900">
-                Créer un Utilisateur
-              </h3>
-            </div>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-6 w-6" />
-            </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gray-900">Créer un Utilisateur</h3>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="h-5 w-5 text-gray-500" />
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Mail className="h-4 w-4 inline mr-2" />
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="input-field"
+              placeholder="utilisateur@mastercom.fr"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center space-x-2">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Lock className="h-4 w-4 inline mr-2" />
+              Mot de passe temporaire
+            </label>
+            <input
+              type="password"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="input-field"
+              placeholder="Mot de passe sécurisé"
+            />
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Adresse Email *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <User className="h-4 w-4 inline mr-2" />
+                Prénom
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="utilisateur@exemple.com"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                required
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="input-field"
+                placeholder="Prénom"
+              />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Prénom *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <User className="h-4 w-4 inline mr-2" />
+                Nom
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Jean"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                required
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="input-field"
+                placeholder="Nom"
+              />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom *
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Dupont"
-                  required
-                />
-              </div>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Phone className="h-4 w-4 inline mr-2" />
+              Téléphone (optionnel)
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="input-field"
+              placeholder="+33 1 23 45 67 89"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rôle
-              </label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="commercial">Commercial</option>
-                  <option value="master">Master</option>
-                </select>
-              </div>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rôle
+            </label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+              className="input-field"
+            >
+              <option value="commercial">Commercial</option>
+              <option value="client">Client</option>
+            </select>
+          </div>
 
-            <div className="flex space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-              >
-                {loading ? (
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-secondary"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary flex items-center space-x-2"
+            >
+              {loading ? (
+                <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Créer
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+                  <span>Création...</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  <span>Créer</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

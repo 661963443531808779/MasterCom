@@ -1,9 +1,6 @@
-import { useState, useEffect, FC } from 'react';
-import { 
-  Trash2, CheckCircle, XCircle, Clock, AlertTriangle,
-  User, FileText, Folder, DollarSign, Eye, MessageSquare
-} from 'lucide-react';
-import { dataService } from '../services/auth';
+import { FC, useState, useEffect } from 'react';
+import { AlertTriangle, CheckCircle, XCircle, Trash2, RefreshCw, Eye } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface DeletionRequest {
   id: string;
@@ -12,11 +9,10 @@ interface DeletionRequest {
   record_data: any;
   reason: string;
   requested_by: string;
-  requested_at: string;
   status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
   reviewed_by?: string;
   reviewed_at?: string;
-  review_notes?: string;
 }
 
 interface DeletionValidationProps {
@@ -25,13 +21,10 @@ interface DeletionValidationProps {
 
 const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
   const [requests, setRequests] = useState<DeletionRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<DeletionRequest | null>(null);
-  const [reviewNotes, setReviewNotes] = useState('');
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Charger les demandes de suppression
   useEffect(() => {
     loadDeletionRequests();
   }, []);
@@ -39,8 +32,15 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
   const loadDeletionRequests = async () => {
     try {
       setLoading(true);
-      const data = await dataService.getTableData('deletion_requests');
-      setRequests(data as DeletionRequest[]);
+      setError(null);
+
+      const { data, error } = await supabase
+        .from('deletion_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setRequests(data || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -48,162 +48,149 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
     }
   };
 
-  // Approuver une suppression
-  const approveDeletion = async (requestId: string) => {
+  const handleApprove = async (request: DeletionRequest) => {
+    if (!confirm(`Êtes-vous sûr de vouloir approuver la suppression de cet enregistrement ?`)) {
+      return;
+    }
+
     try {
-      setActionLoading(requestId);
-      
-      // Mettre à jour le statut de la demande
-      await dataService.updateData('deletion_requests', requestId, {
-        status: 'approved',
-        reviewed_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c', // UUID du compte master
-        reviewed_at: new Date().toISOString(),
-        review_notes: reviewNotes
-      });
+      setLoading(true);
 
       // Supprimer l'enregistrement de la table concernée
-      const request = requests.find(r => r.id === requestId);
-      if (request) {
-        await dataService.deleteData(request.table_name, request.record_id);
-      }
+      const { error: deleteError } = await supabase
+        .from(request.table_name)
+        .delete()
+        .eq('id', request.record_id);
 
-      // Recharger les demandes
+      if (deleteError) throw deleteError;
+
+      // Mettre à jour le statut de la demande
+      const { error: updateError } = await supabase
+        .from('deletion_requests')
+        .update({
+          status: 'approved',
+          reviewed_by: 'master', // À remplacer par l'ID de l'utilisateur connecté
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', request.id);
+
+      if (updateError) throw updateError;
+
       await loadDeletionRequests();
       setSelectedRequest(null);
-      setReviewNotes('');
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setActionLoading(null);
+      setLoading(false);
     }
   };
 
-  // Rejeter une suppression
-  const rejectDeletion = async (requestId: string) => {
+  const handleReject = async (request: DeletionRequest) => {
+    if (!confirm(`Êtes-vous sûr de vouloir rejeter cette demande de suppression ?`)) {
+      return;
+    }
+
     try {
-      setActionLoading(requestId);
-      
-      await dataService.updateData('deletion_requests', requestId, {
-        status: 'rejected',
-        reviewed_by: 'aa72e089-7ae9-4fe6-bae1-04cce09df80c', // UUID du compte master
-        reviewed_at: new Date().toISOString(),
-        review_notes: reviewNotes
-      });
+      setLoading(true);
+
+      const { error } = await supabase
+        .from('deletion_requests')
+        .update({
+          status: 'rejected',
+          reviewed_by: 'master', // À remplacer par l'ID de l'utilisateur connecté
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', request.id);
+
+      if (error) throw error;
 
       await loadDeletionRequests();
       setSelectedRequest(null);
-      setReviewNotes('');
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setActionLoading(null);
+      setLoading(false);
     }
   };
 
-  // Obtenir l'icône selon le type de table
-  const getTableIcon = (tableName: string) => {
-    switch (tableName) {
-      case 'clients': return <User className="h-5 w-5" />;
-      case 'projects': return <Folder className="h-5 w-5" />;
-      case 'invoices': return <FileText className="h-5 w-5" />;
-      case 'quotes': return <DollarSign className="h-5 w-5" />;
-      default: return <Trash2 className="h-5 w-5" />;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <span className="badge badge-warning">En attente</span>;
+      case 'approved':
+        return <span className="badge badge-success">Approuvé</span>;
+      case 'rejected':
+        return <span className="badge badge-error">Rejeté</span>;
+      default:
+        return <span className="badge">{status}</span>;
     }
   };
 
-  // Obtenir le nom affiché selon le type de table
   const getTableDisplayName = (tableName: string) => {
-    switch (tableName) {
-      case 'clients': return 'Client';
-      case 'projects': return 'Projet';
-      case 'invoices': return 'Facture';
-      case 'quotes': return 'Devis';
-      default: return tableName;
-    }
+    const tableNames: Record<string, string> = {
+      'clients': 'Clients',
+      'invoices': 'Factures',
+      'quotes': 'Devis',
+      'support_tickets': 'Tickets Support',
+      'projects': 'Projets',
+      'user_profiles': 'Profils Utilisateurs'
+    };
+    return tableNames[tableName] || tableName;
   };
-
-  // Obtenir la couleur du statut
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'approved': return 'text-green-600 bg-green-100';
-      case 'rejected': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  // Obtenir l'icône du statut
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'approved': return <CheckCircle className="h-4 w-4" />;
-      case 'rejected': return <XCircle className="h-4 w-4" />;
-      default: return <AlertTriangle className="h-4 w-4" />;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Chargement des demandes...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <strong>Erreur:</strong> {error}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex items-center space-x-3">
-          <AlertTriangle className="h-8 w-8 text-orange-600" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Vérification de Suppression</h2>
-            <p className="text-gray-600">Validez ou refusez les demandes de suppression</p>
+      {/* Header */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="h-6 w-6 text-orange-600" />
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Vérification de Suppression</h2>
+              <p className="text-gray-600">Validez ou rejetez les demandes de suppression d'enregistrements</p>
+            </div>
           </div>
+          <button
+            onClick={loadDeletionRequests}
+            disabled={loading}
+            className="btn-secondary flex items-center space-x-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>Actualiser</span>
+          </button>
         </div>
       </div>
 
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="stat-card">
           <div className="flex items-center">
-            <Clock className="h-8 w-8 text-yellow-600" />
+            <AlertTriangle className="h-8 w-8 text-orange-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">En Attente</p>
-              <p className="text-2xl font-bold text-yellow-600">
+              <p className="text-sm font-medium text-gray-500">En attente</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {requests.filter(r => r.status === 'pending').length}
               </p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="stat-card">
           <div className="flex items-center">
             <CheckCircle className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Approuvées</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-sm font-medium text-gray-500">Approuvées</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {requests.filter(r => r.status === 'approved').length}
               </p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="stat-card">
           <div className="flex items-center">
             <XCircle className="h-8 w-8 text-red-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Rejetées</p>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-sm font-medium text-gray-500">Rejetées</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {requests.filter(r => r.status === 'rejected').length}
               </p>
             </div>
@@ -212,147 +199,192 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
       </div>
 
       {/* Liste des demandes */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Demandes de Suppression</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Demandes de Suppression</h3>
         </div>
 
-        <div className="divide-y divide-gray-200">
-          {requests.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              <Trash2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>Aucune demande de suppression en cours</p>
-            </div>
-          ) : (
-            requests.map((request) => (
-              <div key={request.id} className="p-6 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    {getTableIcon(request.table_name)}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">
-                        {getTableDisplayName(request.table_name)}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {request.record_data?.name || request.record_data?.email || 'Enregistrement'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Demandé le {new Date(request.requested_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
-                  <div className="flex items-center space-x-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                      {getStatusIcon(request.status)}
-                      <span className="ml-1 capitalize">{request.status}</span>
-                    </span>
-
-                    {request.status === 'pending' && (
+        {loading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2">Chargement...</span>
+          </div>
+        ) : requests.length === 0 ? (
+          <div className="text-center py-12">
+            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune demande en attente</h3>
+            <p className="text-gray-600">Toutes les demandes de suppression ont été traitées.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Table
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Raison
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Demandé par
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Statut
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {requests.map((request) => (
+                  <tr key={request.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {getTableDisplayName(request.table_name)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                      {request.reason}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {request.requested_by}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(request.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(request.created_at).toLocaleDateString('fr-FR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
                         onClick={() => setSelectedRequest(request)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50"
+                        className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Examiner
+                        <Eye className="h-4 w-4" />
+                        <span>Voir</span>
                       </button>
-                    )}
-                  </div>
-                </div>
-
-                {request.reason && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded">
-                    <p className="text-sm text-gray-700">
-                      <strong>Raison:</strong> {request.reason}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+                      {request.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleApprove(request)}
+                            disabled={loading}
+                            className="text-green-600 hover:text-green-900 flex items-center space-x-1"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Approuver</span>
+                          </button>
+                          <button
+                            onClick={() => handleReject(request)}
+                            disabled={loading}
+                            className="text-red-600 hover:text-red-900 flex items-center space-x-1"
+                          >
+                            <XCircle className="h-4 w-4" />
+                            <span>Rejeter</span>
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Modal de validation */}
+      {/* Modal de détail */}
       {selectedRequest && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Valider la Suppression
-                </h3>
-                <button
-                  onClick={() => setSelectedRequest(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircle className="h-6 w-6" />
-                </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">Détails de la Demande</h3>
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <XCircle className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Table concernée</label>
+                <p className="mt-1 text-sm text-gray-900">{getTableDisplayName(selectedRequest.table_name)}</p>
               </div>
 
-              <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Raison de la suppression</label>
+                <p className="mt-1 text-sm text-gray-900">{selectedRequest.reason}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Données de l'enregistrement</label>
+                <pre className="mt-1 text-xs bg-gray-100 p-3 rounded-lg overflow-x-auto">
+                  {JSON.stringify(selectedRequest.record_data, null, 2)}
+                </pre>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Type:</p>
-                  <p className="text-sm text-gray-900">{getTableDisplayName(selectedRequest.table_name)}</p>
+                  <label className="block text-sm font-medium text-gray-700">Demandé par</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.requested_by}</p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Données:</p>
-                  <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-32">
-                    {JSON.stringify(selectedRequest.record_data, null, 2)}
-                  </pre>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Raison:</p>
-                  <p className="text-sm text-gray-900">{selectedRequest.reason}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Notes de validation:
-                  </label>
-                  <textarea
-                    value={reviewNotes}
-                    onChange={(e) => setReviewNotes(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="Ajoutez vos notes de validation..."
-                  />
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    onClick={() => approveDeletion(selectedRequest.id)}
-                    disabled={actionLoading === selectedRequest.id}
-                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {actionLoading === selectedRequest.id ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Approuver
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => rejectDeletion(selectedRequest.id)}
-                    disabled={actionLoading === selectedRequest.id}
-                    className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {actionLoading === selectedRequest.id ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Rejeter
-                      </>
-                    )}
-                  </button>
+                  <label className="block text-sm font-medium text-gray-700">Date de demande</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {new Date(selectedRequest.created_at).toLocaleString('fr-FR')}
+                  </p>
                 </div>
               </div>
+
+              {selectedRequest.status !== 'pending' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Traité par</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedRequest.reviewed_by}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Date de traitement</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedRequest.reviewed_at ? new Date(selectedRequest.reviewed_at).toLocaleString('fr-FR') : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="btn-secondary"
+              >
+                Fermer
+              </button>
+              {selectedRequest.status === 'pending' && (
+                <>
+                  <button
+                    onClick={() => handleReject(selectedRequest)}
+                    className="btn-secondary bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Rejeter
+                  </button>
+                  <button
+                    onClick={() => handleApprove(selectedRequest)}
+                    className="btn-primary bg-green-600 hover:bg-green-700"
+                  >
+                    Approuver
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
