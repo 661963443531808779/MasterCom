@@ -76,15 +76,16 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
   // Fonction pour récupérer le nom d'affichage d'un utilisateur
   const getUserDisplayName = async (userId: string): Promise<string> => {
     try {
-      // D'abord vérifier si c'est un utilisateur master
-      if (userId === 'master' || userId === 'MASTER') {
+      // D'abord vérifier si c'est un utilisateur master (différentes variantes possibles)
+      const masterVariants = ['master', 'MASTER', 'Master', 'admin', 'ADMIN', 'Admin'];
+      if (masterVariants.includes(userId)) {
         return 'Master';
       }
 
       // Chercher dans user_profiles
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select('first_name, last_name, role_id')
+        .select('first_name, last_name, role_id, email')
         .eq('id', userId)
         .single();
 
@@ -94,23 +95,47 @@ const DeletionValidation: FC<DeletionValidationProps> = ({ userRole }) => {
           return 'Master';
         }
         // Sinon afficher le nom complet
-        return `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Utilisateur';
+        const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+        return fullName || profile.email || 'Utilisateur';
       }
 
-      // Fallback : chercher dans auth.users
-      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
-      
-      if (!authError && authUser?.user) {
-        const metadata = authUser.user.user_metadata;
-        if (metadata?.first_name || metadata?.last_name) {
-          return `${metadata.first_name || ''} ${metadata.last_name || ''}`.trim() || 'Utilisateur';
+      // Si l'ID ressemble à un UUID mais qu'on n'a pas trouvé de profil,
+      // c'est probablement un compte master sans profil créé
+      if (userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        // Vérifier si c'est un compte master en cherchant dans les sessions ou autres tables
+        try {
+          const { data: authData } = await supabase.auth.getUser();
+          if (authData?.user?.id === userId) {
+            // C'est l'utilisateur actuel, vérifier son rôle
+            const { data: currentProfile } = await supabase
+              .from('user_profiles')
+              .select('role_id, first_name, last_name')
+              .eq('id', userId)
+              .single();
+            
+            if (currentProfile?.role_id === 'master') {
+              return 'Master';
+            }
+            if (currentProfile?.first_name || currentProfile?.last_name) {
+              return `${currentProfile.first_name || ''} ${currentProfile.last_name || ''}`.trim();
+            }
+          }
+        } catch (authError) {
+          console.log('Impossible de vérifier l\'utilisateur actuel:', authError);
         }
-        return authUser.user.email || 'Utilisateur';
+        
+        // Si c'est un UUID mais qu'on n'a pas trouvé d'infos, c'est probablement un master
+        return 'Master';
       }
 
-      return 'Utilisateur inconnu';
+      // Fallback final
+      return 'Utilisateur';
     } catch (error) {
       console.error('Erreur lors de la récupération du nom utilisateur:', error);
+      // Si c'est un UUID, c'est probablement un master
+      if (userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        return 'Master';
+      }
       return 'Utilisateur';
     }
   };
