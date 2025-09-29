@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { X, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../services/auth';
 
 interface CreateUserModalProps {
   isOpen: boolean;

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Linkedin, Mail, Phone, MapPin, Users, Award, Calendar } from 'lucide-react';
+import { Linkedin, Mail, Phone, Users, Award, Calendar, MapPin } from 'lucide-react';
 
 interface TeamMember {
   id: string;
@@ -16,7 +16,12 @@ interface TeamMember {
   reportsTo?: string;
 }
 
-const Team: FC = () => {
+interface TeamSectionProps {
+  showStats?: boolean;
+  showCTA?: boolean;
+}
+
+const TeamSection: FC<TeamSectionProps> = ({ showStats = true, showCTA = true }) => {
   const teamMembers: TeamMember[] = [
     {
       id: 'dorian-f',
@@ -158,150 +163,36 @@ const Team: FC = () => {
   const departmentStats = getDepartmentStats();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="heading-1 text-white mb-6">Notre Équipe</h1>
-            <p className="body-large text-blue-100 max-w-3xl mx-auto">
-              Découvrez les talents qui font de MasterCom une agence de communication exceptionnelle. 
-              Notre équipe de 9 professionnels passionnés travaille ensemble pour transformer vos idées en succès.
-            </p>
-          </div>
-        </div>
-      </section>
-
+    <div className="space-y-16">
       {/* Statistiques */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <div className="stat-card text-center">
-              <Users className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">{teamMembers.length}</h3>
-              <p className="text-gray-600">Membres de l'équipe</p>
-            </div>
-            <div className="stat-card text-center">
-              <Award className="h-8 w-8 text-green-600 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">{Object.keys(departmentStats).length}</h3>
-              <p className="text-gray-600">Départements</p>
-            </div>
-            <div className="stat-card text-center">
-              <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">5+</h3>
-              <p className="text-gray-600">Années d'expérience moyenne</p>
-            </div>
-            <div className="stat-card text-center">
-              <MapPin className="h-8 w-8 text-orange-600 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">100%</h3>
-              <p className="text-gray-600">Taux de satisfaction client</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Organigramme */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="heading-2 text-center mb-12">Organigramme</h2>
-          
-          {/* Direction */}
-          <div className="flex justify-center mb-12">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-blue-600 shadow-lg">
-                <img 
-                  src={teamMembers[0].image} 
-                  alt={teamMembers[0].name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${teamMembers[0].name}&size=128&background=0ea5e9&color=fff`;
-                  }}
-                />
+      {showStats && (
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+              <div className="stat-card text-center">
+                <Users className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+                <h3 className="text-2xl font-bold text-gray-900">{teamMembers.length}</h3>
+                <p className="text-gray-600">Membres de l'équipe</p>
               </div>
-              <h3 className="font-heading text-lg">{teamMembers[0].name}</h3>
-              <p className="text-blue-600 font-medium">{teamMembers[0].role}</p>
-            </div>
-          </div>
-
-          {/* Équipes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            {/* Technique */}
-            <div className="text-center">
-              <h3 className="font-heading text-lg mb-6 text-gray-800">Département Technique</h3>
-              <div className="space-y-4">
-                {teamMembers.filter(m => m.department === 'Technique').map((member, index) => (
-                  <div key={member.id} className="flex items-center space-x-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300">
-                      <img 
-                        src={member.image} 
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${member.name}&size=64&background=6366f1&color=fff`;
-                        }}
-                      />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium text-gray-900">{member.name}</h4>
-                      <p className="text-sm text-gray-600">{member.role}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="stat-card text-center">
+                <Award className="h-8 w-8 text-green-600 mx-auto mb-3" />
+                <h3 className="text-2xl font-bold text-gray-900">{Object.keys(departmentStats).length}</h3>
+                <p className="text-gray-600">Départements</p>
               </div>
-            </div>
-
-            {/* Commercial */}
-            <div className="text-center">
-              <h3 className="font-heading text-lg mb-6 text-gray-800">Département Commercial</h3>
-              <div className="space-y-4">
-                {teamMembers.filter(m => m.department === 'Commercial').map((member, index) => (
-                  <div key={member.id} className="flex items-center space-x-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300">
-                      <img 
-                        src={member.image} 
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${member.name}&size=64&background=10b981&color=fff`;
-                        }}
-                      />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium text-gray-900">{member.name}</h4>
-                      <p className="text-sm text-gray-600">{member.role}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="stat-card text-center">
+                <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-3" />
+                <h3 className="text-2xl font-bold text-gray-900">5+</h3>
+                <p className="text-gray-600">Années d'expérience moyenne</p>
               </div>
-            </div>
-
-            {/* Créatif */}
-            <div className="text-center">
-              <h3 className="font-heading text-lg mb-6 text-gray-800">Département Créatif</h3>
-              <div className="space-y-4">
-                {teamMembers.filter(m => m.department === 'Créatif').map((member, index) => (
-                  <div key={member.id} className="flex items-center space-x-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300">
-                      <img 
-                        src={member.image} 
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${member.name}&size=64&background=f59e0b&color=fff`;
-                        }}
-                      />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-medium text-gray-900">{member.name}</h4>
-                      <p className="text-sm text-gray-600">{member.role}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="stat-card text-center">
+                <MapPin className="h-8 w-8 text-orange-600 mx-auto mb-3" />
+                <h3 className="text-2xl font-bold text-gray-900">100%</h3>
+                <p className="text-gray-600">Taux de satisfaction client</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Grille des membres */}
       <section className="py-16">
@@ -381,31 +272,33 @@ const Team: FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="heading-2 text-white mb-6">Prêt à Travailler Avec Nous ?</h2>
-          <p className="body-large text-blue-100 mb-8">
-            Notre équipe passionnée est prête à transformer vos idées en réalité. 
-            Contactez-nous pour discuter de votre projet.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="/contact" 
-              className="btn-primary bg-white text-blue-600 hover:bg-gray-100"
-            >
-              Nous Contacter
-            </a>
-            <a 
-              href="/portfolio" 
-              className="btn-secondary bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600"
-            >
-              Voir Nos Réalisations
-            </a>
+      {showCTA && (
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="heading-2 text-white mb-6">Prêt à Travailler Avec Nous ?</h2>
+            <p className="body-large text-blue-100 mb-8">
+              Notre équipe passionnée est prête à transformer vos idées en réalité. 
+              Contactez-nous pour discuter de votre projet.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/contact" 
+                className="btn-primary bg-white text-blue-600 hover:bg-gray-100"
+              >
+                Nous Contacter
+              </a>
+              <a 
+                href="/portfolio" 
+                className="btn-secondary bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600"
+              >
+                Voir Nos Réalisations
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };
 
-export default Team;
+export default TeamSection;

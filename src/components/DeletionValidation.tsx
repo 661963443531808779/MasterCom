@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, Trash2, RefreshCw, Eye } from 'lucide-react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../services/auth';
 
 interface DeletionRequest {
   id: string;

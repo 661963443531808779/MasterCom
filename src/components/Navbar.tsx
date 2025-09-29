@@ -18,7 +18,6 @@ const Navbar: FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
     { path: '/services', label: 'Nos services' },
     { path: '/portfolio', label: 'Réalisations' },
     { path: '/blog', label: 'Blog' },
-    { path: '/team', label: 'Notre équipe' },
     { path: '/contact', label: 'Contact' },
   ];
 

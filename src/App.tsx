@@ -13,7 +13,6 @@ import Contact from './pages/Contact';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import BlogArticle from './pages/BlogArticle';
-import Team from './pages/Team';
 import LoginPage from './pages/LoginPage';
 import CRM from './pages/CRM';
 import MasterPanel from './components/MasterPanel';
@@ -273,7 +272,6 @@ function App() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogArticle />} />
-            <Route path="/team" element={<Team />} />
             <Route path="/contact" element={<Contact />} />
             
             {/* Route de connexion */}
