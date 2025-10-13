@@ -162,9 +162,10 @@ export const authService = {
         const masterEmails = [
           'master@master.com',
           'master@mastercom.com',
-          'master@mastercom.fr',
-          'admin@mastercom.com',
-          'admin@mastercom.fr'
+          'master@commaster.fr',
+          'admin@commaster.com',
+          'admin@commaster.fr',
+          'contact@commaster.fr'
         ];
 
       // Vérifier par email

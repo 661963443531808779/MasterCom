@@ -83,7 +83,7 @@ const Contact: FC = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900">Adresse</h3>
                       <p className="text-gray-600">
-                        123 Rue de la Communication<br />
+                        8-10 rue de la Pie Voleuse<br />
                         75001 Paris, France
                       </p>
                     </div>
@@ -101,7 +101,7 @@ const Contact: FC = () => {
                     <Mail className="h-6 w-6 text-blue-600 mt-1" />
                     <div>
                       <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">contact@mastercom.fr</p>
+                      <p className="text-gray-600">contact@commaster.fr</p>
                     </div>
                   </div>
 
@@ -320,7 +320,7 @@ const Contact: FC = () => {
             <div className="text-center">
               <MapPin className="h-12 w-12 text-blue-600 mx-auto mb-4" />
               <p className="text-gray-600">
-                123 Rue de la Communication, 75001 Paris
+                8-10 rue de la Pie Voleuse, 75001 Paris
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 Métro : Châtelet-Les Halles (Lignes 1, 4, 7, 11, 14)

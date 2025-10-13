@@ -82,7 +82,7 @@ const Footer: FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">123 Rue de la Communication<br />75001 Paris</span>
+                <span className="text-gray-300">8-10 rue de la Pie Voleuse<br />75001 Paris</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-blue-400" />
@@ -90,7 +90,7 @@ const Footer: FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">contact@mastercom.fr</span>
+                <span className="text-gray-300">contact@commaster.fr</span>
               </div>
             </div>
           </div>

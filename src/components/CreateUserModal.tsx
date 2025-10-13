@@ -108,7 +108,7 @@ const CreateUserModal: FC<CreateUserModalProps> = ({ isOpen, onClose, onUserCrea
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="input-field"
-              placeholder="utilisateur@mastercom.fr"
+              placeholder="utilisateur@commaster.fr"
             />
           </div>
 
