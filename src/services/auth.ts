@@ -1,9 +1,26 @@
 // Service d'authentification MasterCom - Version Unifiée
 import { createClient } from '@supabase/supabase-js';
 
-// Configuration Supabase avec variables d'environnement
+// Configuration Supabase avec variables d'environnement et fallback
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://gpnjamtnogyfvykgdiwd.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbmphbXRub2d5ZnZ5a2dkaXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzY2ODMsImV4cCI6MjA3MzAxMjY4M30.UH_IgEzIOOfECQpGZhhvRGcyyxLmc19lteJoKV9kh4A';
+
+// Fonction de test de connectivité
+const testSupabaseConnection = async (url: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${url}/rest/v1/`, {
+      method: 'HEAD',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('❌ Test de connectivité Supabase échoué:', error);
+    return false;
+  }
+};
 
 // Debug pour Vercel
 if (typeof window !== 'undefined') {
@@ -22,12 +39,29 @@ if (typeof window !== 'undefined') {
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
-    autoRefreshToken: true,
+    autoRefreshToken: false, // Désactiver le refresh automatique pour éviter les erreurs
     detectSessionInUrl: false,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     storageKey: 'mastercom-auth-unique'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'mastercom-app'
+    }
   }
 });
+
+// Test de connectivité au démarrage
+if (typeof window !== 'undefined') {
+  testSupabaseConnection(SUPABASE_URL).then(isConnected => {
+    if (isConnected) {
+      console.log('✅ Supabase connecté avec succès');
+    } else {
+      console.error('❌ Impossible de se connecter à Supabase');
+      console.log('🔧 Vérifiez votre URL Supabase:', SUPABASE_URL);
+    }
+  });
+}
 
 // Interface utilisateur
 export interface User {
