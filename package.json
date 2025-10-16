@@ -1,7 +1,10 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "commaster",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "MasterCom - Agence de Communication Créative - Startup Innovante",
+  "author": "MasterCom <master@master.com>",
+  "homepage": "https://commaster.fr",
   "type": "module",
   "scripts": {
     "dev": "vite --host",

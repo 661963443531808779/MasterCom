@@ -1,44 +1,59 @@
+# MasterCom - Robots.txt Optimisé pour Startup
+# Agence de Communication Créative
+
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://mastercom.fr/sitemap.xml
+# Sitemap principal
+Sitemap: https://commaster.fr/sitemap.xml
 
-# Pages importantes
+# Pages publiques autorisées (priorité SEO)
 Allow: /about
 Allow: /services
 Allow: /portfolio
 Allow: /blog
 Allow: /contact
+Allow: /blog/*
 
-# Pages d'administration (à restreindre)
-Disallow: /dashboard
+# Pages d'administration et CRM (restreintes)
+Disallow: /master-panel
 Disallow: /crm
 Disallow: /login
 Disallow: /admin
-
-# Fichiers techniques
+Disallow: /dashboard
 Disallow: /api/
 Disallow: /_next/
 Disallow: /static/
 
-# Crawl-delay pour éviter la surcharge
+# Fichiers techniques et de développement
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /vite.config.*
+
+# Crawl-delay optimisé pour startup
 Crawl-delay: 1
 
-# Directives spécifiques pour les moteurs de recherche
+# Directives spécifiques pour les moteurs de recherche principaux
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0
+Allow: /blog/*
+Allow: /services/*
+Allow: /portfolio/*
 
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
+Allow: /blog/*
+Allow: /services/*
 
 User-agent: Slurp
 Allow: /
 Crawl-delay: 2
 
-# Blocage des bots indésirables
+# Blocage des bots de scraping et outils SEO agressifs
 User-agent: AhrefsBot
 Disallow: /
 
@@ -47,3 +62,17 @@ Disallow: /
 
 User-agent: DotBot
 Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+# Informations sur le site
+# Site: MasterCom - Agence de Communication Créative
+# Contact: contact@mastercom.fr
+# Dernière mise à jour: 2024-12-19

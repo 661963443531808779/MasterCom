@@ -1,1 +1,13 @@
+# Redirects for Commaster.fr SPA
 /*    /index.html   200
+
+# Redirects from old domain (if any)
+https://mastercom.fr/*    https://commaster.fr/:splat    301
+https://www.mastercom.fr/*    https://commaster.fr/:splat    301
+
+# Force HTTPS
+http://commaster.fr/*    https://commaster.fr/:splat    301
+http://www.commaster.fr/*    https://commaster.fr/:splat    301
+
+# Remove trailing slash
+/*/    /:splat    301

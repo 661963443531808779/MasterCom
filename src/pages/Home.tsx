@@ -66,7 +66,8 @@ const Home: FC = () => {
               <span className="text-blue-600 font-heading">Votre partenaire créatif</span> pour une communication 
               <span className="text-indigo-600 font-heading"> d'exception</span><br/>
               Nous transformons vos <span className="text-purple-600 font-heading">idées</span> en 
-              <span className="text-blue-700 font-heading"> succès mesurables</span>
+              <span className="text-blue-700 font-heading"> succès mesurables</span><br/>
+              <span className="text-lg text-gray-600 mt-4 block">🚀 Startup innovante - Prêts à révolutionner votre communication</span>
             </p>
             
             {/* Boutons avec effets visuels */}
@@ -91,23 +92,27 @@ const Home: FC = () => {
               </Link>
             </div>
 
-            {/* Indicateurs de performance */}
+            {/* Indicateurs de performance - Version Startup */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">150+</div>
+              <div className="text-center group">
+                <div className="text-3xl font-bold text-blue-600 mb-1 group-hover:scale-110 transition-transform duration-300">0</div>
                 <div className="text-sm text-gray-600">Clients satisfaits</div>
+                <div className="text-xs text-gray-500 mt-1">En cours de développement</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-1">300+</div>
+              <div className="text-center group">
+                <div className="text-3xl font-bold text-indigo-600 mb-1 group-hover:scale-110 transition-transform duration-300">0</div>
                 <div className="text-sm text-gray-600">Projets réalisés</div>
+                <div className="text-xs text-gray-500 mt-1">Premiers projets à venir</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-1">15</div>
+              <div className="text-center group">
+                <div className="text-3xl font-bold text-purple-600 mb-1 group-hover:scale-110 transition-transform duration-300">3</div>
                 <div className="text-sm text-gray-600">Experts créatifs</div>
+                <div className="text-xs text-gray-500 mt-1">Équipe en formation</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-700 mb-1">98%</div>
-                <div className="text-sm text-gray-600">Taux de satisfaction</div>
+              <div className="text-center group">
+                <div className="text-3xl font-bold text-blue-700 mb-1 group-hover:scale-110 transition-transform duration-300">100%</div>
+                <div className="text-sm text-gray-600">Engagement qualité</div>
+                <div className="text-xs text-gray-500 mt-1">Excellence garantie</div>
               </div>
             </div>
           </div>
@@ -225,36 +230,40 @@ const Home: FC = () => {
             <div className="text-center group">
               <div className="relative">
                 <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-200 to-blue-300 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                  150+
+                  0
                 </div>
                 <div className="text-blue-100 font-medium">Clients satisfaits</div>
+                <div className="text-blue-200 text-xs mt-1">En cours de développement</div>
                 <Star className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
                 <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-300 to-blue-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                  300+
+                  0
                 </div>
                 <div className="text-blue-100 font-medium">Projets réalisés</div>
+                <div className="text-blue-200 text-xs mt-1">Premiers projets à venir</div>
                 <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
                 <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                  15
+                  3
                 </div>
                 <div className="text-blue-100 font-medium">Experts créatifs</div>
+                <div className="text-blue-200 text-xs mt-1">Équipe en formation</div>
                 <Zap className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
             <div className="text-center group">
               <div className="relative">
                 <div className="text-6xl font-black mb-2 bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                  98%
+                  100%
                 </div>
-                <div className="text-blue-100 font-medium">Taux de satisfaction</div>
+                <div className="text-blue-100 font-medium">Engagement qualité</div>
+                <div className="text-blue-200 text-xs mt-1">Excellence garantie</div>
                 <Heart className="absolute -top-2 -right-2 h-6 w-6 text-blue-300 animate-pulse" />
               </div>
             </div>
